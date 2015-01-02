@@ -25,7 +25,7 @@ Define these interfaces and parse like below:
 ```java
 interface Contact {
 	String getFirstname();
-	Adress getAddress();
+	Address getAddress();
 	default String getCountry() {
 		return getAddress().getCountry();
 	}
@@ -53,8 +53,39 @@ interface Contact {
 }
 ```
 
+Twyn can fall back on jackson:s json->java mapping:
+```java
+interface Contact {
+	String getFirstname();
+	Address getAddress();
+	default String getCountry() {
+		return getAddress().getCountry();
+	}
+}
+class Address {
+	private String street;
+	private String city;
+	private String country;
+	public String getStreet() {
+		return street;
+	}
+	public String getCity() {
+		return city;
+	}
+	public String getCountry() {
+		return country;
+	}
+}
+
+// The rest same as above
+
+public void doStuff(InputStream jsonResponse) {
+	Contact contact = new Twyn().read(jsonResponse, Contact.class);
+	Address address = contact.getAdress(); // This will return an Address instance by using the jackson java object mapper
+}
+```
 
 Todo:
-* Support for Collections
+* Collections support (List, Set, Map?)
 * Value caching
 
