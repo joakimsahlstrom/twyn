@@ -1,15 +1,14 @@
 package se.jsa.twyn;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import se.jsa.twyn.Twyn.ObjectMapperFacade;
 
 public class TwynInvocationHandler implements InvocationHandler {
 
@@ -23,9 +22,13 @@ public class TwynInvocationHandler implements InvocationHandler {
 		this.twyn = Objects.requireNonNull(jsonProxy);
 	}
 	
-	public static TwynInvocationHandler create(InputStream inputStream, Twyn jsonProxy) throws JsonProcessingException, IOException {
+	interface reader {
+		JsonNode readWith(ObjectMapper mapper);
+	}
+	
+	public static TwynInvocationHandler create(ObjectMapperFacade<JsonNode> reader, Twyn jsonProxy) throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
-		return new TwynInvocationHandler(objectMapper.readTree(inputStream), objectMapper, jsonProxy);
+		return new TwynInvocationHandler(reader.apply(objectMapper), objectMapper, jsonProxy);
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
