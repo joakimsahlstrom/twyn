@@ -7,8 +7,9 @@ Define your input data with interfaces and twyn will instantiate them for you an
 
 Requires Java 8. Currently relies on Proxy.newProxyInstance(...) so not performance is rather average.
 
-## Example:
-### Given this json where only firstname and country is interesting:
+##Features:
+###Maps json w/ interfaces
+Given this json where only firstname and country is interesting:
 ```json
 {
 	"firstname" : "John",
