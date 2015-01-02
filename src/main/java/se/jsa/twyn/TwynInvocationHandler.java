@@ -15,24 +15,20 @@ import java.util.stream.StreamSupport;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import se.jsa.twyn.Twyn.JsonProducer;
 
 class TwynInvocationHandler implements InvocationHandler {
 	private final JsonNode tree;
-	private final ObjectMapper objectMapper;
 	private final Twyn twyn;
 	
-	public TwynInvocationHandler(JsonNode tree, ObjectMapper objectMapper, Twyn twyn) {
+	public TwynInvocationHandler(JsonNode tree, Twyn twyn) {
 		this.tree = tree;
-		this.objectMapper = Objects.requireNonNull(objectMapper);
 		this.twyn = Objects.requireNonNull(twyn);
 	}
 	
 	public static TwynInvocationHandler create(JsonProducer jsonProducer, Twyn twyn) throws Exception {
-		ObjectMapper objectMapper = new ObjectMapper();
-		return new TwynInvocationHandler(jsonProducer.get(objectMapper), objectMapper, twyn);
+		return new TwynInvocationHandler(jsonProducer.get(), twyn);
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -69,16 +65,16 @@ class TwynInvocationHandler implements InvocationHandler {
 	}
 
 	private Object innerProxy(Method method) {
-		return twyn.proxy(method.getReturnType(), resolveTargetNode(method), objectMapper);
+		return twyn.proxy(method.getReturnType(), resolveTargetNode(method));
 	}
 
 	private Object resolveValue(Method method) throws IOException, JsonParseException, JsonMappingException {
-		return objectMapper.readValue(resolveTargetNode(method), method.getReturnType());
+		return twyn.readValue(resolveTargetNode(method), method.getReturnType());
 	}
 	
 	private <R, T, A> R collect(Class<T> componentType, JsonNode jsonNode, Collector<T, ? super A, R> collector) {
 		return StreamSupport.stream((Spliterator<JsonNode>)jsonNode.spliterator(), false)
-			.flatMap(n -> Stream.of((T)twyn.proxy(componentType, n, objectMapper)))
+			.flatMap(n -> Stream.of((T)twyn.proxy(componentType, n)))
 			.collect(collector);
 	}
 
