@@ -2,7 +2,7 @@ twyn!
 ==============
 Take what you need!
 
-Twyn is an extension to jackson json->java mapping framework which allows for lenient data parsing with less code.
+Twyn is an extension to jackson:s json->java mapping framework. It allows for lenient data parsing with less code.
 
 Define your input data with interfaces and twyn will instantiate them for you and extract appropriate values from the underlying json data. 
 
@@ -52,3 +52,9 @@ interface Contact {
 	}
 }
 ```
+
+
+Todo:
+* Support for Collections
+* Value caching
+
