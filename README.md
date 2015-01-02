@@ -6,6 +6,8 @@ Twyn is an extension to jackson:s json->java mapping framework. It allows for le
 
 Define your input data with interfaces and twyn will instantiate them for you and extract appropriate values from the underlying json data. 
 
+Example:
+--------
 ```json
 {
 	"firstname" : "John",
