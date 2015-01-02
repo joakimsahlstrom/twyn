@@ -8,6 +8,7 @@ Define your input data with interfaces and twyn will instantiate them for you an
 
 Example:
 --------
+Given this json where only firstname and country is interesting:
 ```json
 {
 	"firstname" : "John",
@@ -20,7 +21,7 @@ Example:
 	}
 }
 ```
-
+Define these interfaces and parse like below:
 ```java
 interface Contact {
 	String getFirstname();
@@ -34,7 +35,7 @@ interface Address {
 }
 
 public void doStuff(InputStream jsonResponse) {
-	Contact contact = twyn.read(jsonResponse, Contact.class);
+	Contact contact = new Twyn().read(jsonResponse, Contact.class);
 	String firstName = contact.getFirstname();
 	String country = contact.getCountry();
 	System.out.println(firstName + " lives in " + country); // outputs "John lives in England"
@@ -48,10 +49,7 @@ interface Contact {
 	default String getFirstname() {
 		return getName_first(); 
 	}
-	Adress getAddress();
-	default String getCountry() {
-		return getAddress().getCountry();
-	}
+	// The rest same as before...
 }
 ```
 
