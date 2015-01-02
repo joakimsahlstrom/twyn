@@ -1,14 +1,10 @@
 # twyn!
-Take what you need!
-
-Twyn is an extension to jackson:s json->java mapping framework. It allows for lenient data parsing with less code.
-
-Define your input data with interfaces and twyn will instantiate them for you and extract appropriate values from the underlying json data. Supports default methods.
+Twyn maps json to java, using jackson under the hood. It allows for lenient data parsing with less code.
 
 Requires Java 8. Currently relies on Proxy.newProxyInstance(...) so not performance is rather average.
 
 ##Features:
-###Maps json w/ interfaces
+###Twyn only requires interfaces for mapping
 Given this json where only firstname and country is interesting:
 ```json
 {
@@ -40,7 +36,7 @@ public void doStuff(InputStream jsonResponse) {
 }
 ```
 
-### Twyn supports default methods!
+### Twyn supports default methods
 ```java
 interface Contact {
 	String getName();
@@ -55,7 +51,7 @@ public void doStuff() {
 }
 ```
 
-###Twyn can fall back on jackson:s json->java mapping:
+###Twyn can fall back on jackson:s json->java mapping
 ```java
 interface Contact {
 	String getFirstname();
