@@ -1,5 +1,4 @@
-twyn!
-==============
+# twyn!
 Take what you need!
 
 Twyn is an extension to jackson:s json->java mapping framework. It allows for lenient data parsing with less code.
@@ -8,9 +7,8 @@ Define your input data with interfaces and twyn will instantiate them for you an
 
 Requires Java 8. Currently relies on Proxy.newProxyInstance(...) so not performance is rather average.
 
-Example:
---------
-Given this json where only firstname and country is interesting:
+## Example:
+### Given this json where only firstname and country is interesting:
 ```json
 {
 	"firstname" : "John",
@@ -41,7 +39,7 @@ public void doStuff(InputStream jsonResponse) {
 }
 ```
 
-Twyn supports default methods!
+### Twyn supports default methods!
 ```java
 interface Contact {
 	String getName();
@@ -51,11 +49,12 @@ interface Contact {
 }
 
 public void doStuff() {
-	new Twyn().read("{ \"name\" : \"Donny\" }", Contact.class).greet(); // outputs "Hello Donny!" 
+	String json = "{ \"name\" : \"Donny\" }";
+	System.out.println(new Twyn().read(json, Contact.class).greet()); // outputs "Hello Donny!" 
 }
 ```
 
-Twyn can fall back on jackson:s json->java mapping:
+###Twyn can fall back on jackson:s json->java mapping:
 ```java
 interface Contact {
 	String getFirstname();
@@ -84,8 +83,9 @@ public void doStuff(InputStream jsonResponse) {
 }
 ```
 
-Twyn support JavaBeans style naming of properties ("XXX" -> getXXX, hasXXX (maps all types, not only booleans)) or simple direct mapping ("name" -> name()). Properties must match w/ correct case. 
+###Twyn support JavaBeans style naming of properties
+The json field "xxx" can be mapped by both getXxx, hasXxx but simple direct mapping xxx() works as well. Properties must match w/ correct case. 
 
-Todo:
+##Todo:
 * Value caching
 * Improved performance (drop java proxies, use code generation instead?)

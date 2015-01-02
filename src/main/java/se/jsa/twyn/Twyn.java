@@ -17,12 +17,11 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
 public class Twyn {
-
 	private final Constructor<MethodHandles.Lookup> methodHandleLookupConstructor;
 	
 	public Twyn() {
 		try {
-			this.methodHandleLookupConstructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+			methodHandleLookupConstructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
 			if (!methodHandleLookupConstructor.isAccessible()) {
 				methodHandleLookupConstructor.setAccessible(true);
 			}

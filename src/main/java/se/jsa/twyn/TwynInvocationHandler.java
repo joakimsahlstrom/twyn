@@ -20,7 +20,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import se.jsa.twyn.Twyn.JsonProducer;
 
 class TwynInvocationHandler implements InvocationHandler {
-
 	private final JsonNode tree;
 	private final ObjectMapper objectMapper;
 	private final Twyn twyn;
