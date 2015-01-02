@@ -28,9 +28,6 @@ Define these interfaces and parse like below:
 interface Contact {
 	String getFirstname();
 	Address getAddress();
-	default String getCountry() {
-		return getAddress().getCountry();
-	}
 }
 interface Address {
 	String getCountry();
@@ -39,19 +36,22 @@ interface Address {
 public void doStuff(InputStream jsonResponse) {
 	Contact contact = new Twyn().read(jsonResponse, Contact.class);
 	String firstName = contact.getFirstname();
-	String country = contact.getCountry(); // == contact.getAddress().getCountry();
+	String country = contact.getAddress().getCountry();
 	System.out.println(firstName + " lives in " + country); // outputs "John lives in England"
 }
 ```
 
-What if, in the case given above, the json supplier decides to change "firstname" to "name_first" and your code has loads of references to Contact.getFirstname()? Easy!
+Twyn supports default methods!
 ```java
 interface Contact {
-	String getName_first();
-	default String getFirstname() {
-		return getName_first(); 
+	String getName();
+	default String greet() {
+		return "Hello " + getName() + "!"; 
 	}
-	// The rest same as before...
+}
+
+public void doStuff() {
+	new Twyn().read("{ \"name\" : \"Donny\" }", Contact.class).greet(); // outputs "Hello Donny!" 
 }
 ```
 
