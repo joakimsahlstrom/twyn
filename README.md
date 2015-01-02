@@ -37,7 +37,7 @@ interface Address {
 public void doStuff(InputStream jsonResponse) {
 	Contact contact = new Twyn().read(jsonResponse, Contact.class);
 	String firstName = contact.getFirstname();
-	String country = contact.getCountry();
+	String country = contact.getCountry(); // == contact.getAddress().getCountry();
 	System.out.println(firstName + " lives in " + country); // outputs "John lives in England"
 }
 ```
@@ -58,9 +58,6 @@ Twyn can fall back on jackson:s json->java mapping:
 interface Contact {
 	String getFirstname();
 	Address getAddress();
-	default String getCountry() {
-		return getAddress().getCountry();
-	}
 }
 class Address {
 	private String street;
