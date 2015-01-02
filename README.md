@@ -22,9 +22,9 @@ Define these interfaces and parse like below:
 ```java
 interface Contact {
 	String getFirstname();
-	Address getAddress();
+	AddressInfo getAddress();
 }
-interface Address {
+interface AddressInfo {
 	String getCountry();
 }
 
@@ -72,9 +72,8 @@ class Address {
 	}
 }
 
-// The rest same as above
-
 public void doStuff(InputStream jsonResponse) {
+	// Same json as first example
 	Contact contact = new Twyn().read(jsonResponse, Contact.class);
 	Address address = contact.getAdress(); // This will return an Address instance by using the jackson java object mapper
 }
@@ -86,3 +85,4 @@ The json field "xxx" can be mapped by both getXxx, hasXxx but simple direct mapp
 ##Todo:
 * Value caching
 * Improved performance (drop java proxies, use code generation instead?)
+* Support for setters
