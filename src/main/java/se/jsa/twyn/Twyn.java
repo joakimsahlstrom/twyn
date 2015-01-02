@@ -64,15 +64,15 @@ public class Twyn {
 	}
 	
 	@FunctionalInterface
-	/*package*/interface ObjectMapperFacade {
-		JsonNode apply(ObjectMapper mapper) throws Exception;
+	/*package*/ interface JsonProducer {
+		JsonNode get(ObjectMapper mapper) throws Exception;
 	}
 	
-	private <T> T read(ObjectMapperFacade reader, Class<T> type) throws JsonProcessingException {
+	private <T> T read(JsonProducer jsonProducer, Class<T> type) throws JsonProcessingException {
 		try {
 			return type.cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), 
 					new Class<?>[] {type},
-					TwynInvocationHandler.create(reader, this)));
+					TwynInvocationHandler.create(jsonProducer, this)));
 		} catch (JsonProcessingException e) {
 			throw e;
 		} catch (Exception e) {

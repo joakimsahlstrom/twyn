@@ -14,23 +14,23 @@ import java.util.stream.StreamSupport;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import se.jsa.twyn.Twyn.ObjectMapperFacade;
+import se.jsa.twyn.Twyn.JsonProducer;
 
-public class TwynInvocationHandler implements InvocationHandler {
+class TwynInvocationHandler implements InvocationHandler {
 
 	private final JsonNode tree;
 	private final ObjectMapper objectMapper;
 	private final Twyn twyn;
 	
-	public TwynInvocationHandler(JsonNode tree, ObjectMapper objectMapper, Twyn jsonProxy) {
+	public TwynInvocationHandler(JsonNode tree, ObjectMapper objectMapper, Twyn twyn) {
 		this.tree = tree;
 		this.objectMapper = Objects.requireNonNull(objectMapper);
-		this.twyn = Objects.requireNonNull(jsonProxy);
+		this.twyn = Objects.requireNonNull(twyn);
 	}
 	
-	public static TwynInvocationHandler create(ObjectMapperFacade reader, Twyn jsonProxy) throws Exception {
+	public static TwynInvocationHandler create(JsonProducer jsonProducer, Twyn twyn) throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
-		return new TwynInvocationHandler(reader.apply(objectMapper), objectMapper, jsonProxy);
+		return new TwynInvocationHandler(jsonProducer.get(objectMapper), objectMapper, twyn);
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
