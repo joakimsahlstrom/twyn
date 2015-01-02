@@ -26,7 +26,7 @@ public class TwynInvocationHandler implements InvocationHandler {
 		JsonNode readWith(ObjectMapper mapper);
 	}
 	
-	public static TwynInvocationHandler create(ObjectMapperFacade<JsonNode> reader, Twyn jsonProxy) throws Exception {
+	public static TwynInvocationHandler create(ObjectMapperFacade reader, Twyn jsonProxy) throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
 		return new TwynInvocationHandler(reader.apply(objectMapper), objectMapper, jsonProxy);
 	}
