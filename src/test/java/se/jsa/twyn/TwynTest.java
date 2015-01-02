@@ -1,8 +1,6 @@
 package se.jsa.twyn;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -156,6 +154,18 @@ public class TwynTest {
 	public static interface ListIF {
 		@TwynCollection(StringIF.class)
 		List<StringIF> getStrings();
+	}
+
+	@Test
+	public void defaultMethodsCanHaveParameters() throws Exception {
+		DefaultParamMethodIF defaultMethod = twyn.read(input("{ \"name\" : \"Java8\" }"), DefaultParamMethodIF.class);
+		assertEquals("Hello Java8EXKL", defaultMethod.getDecoratedName("EXKL"));
+	}
+	public static interface DefaultParamMethodIF {
+		String getName();
+		default String getDecoratedName(String exclamation) {
+			return "Hello " + getName() + exclamation;
+		}
 	}
 	
 	private InputStream input(String string) {
