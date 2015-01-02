@@ -26,7 +26,7 @@ public class Twyn {
 		}
 	}
 	
-	public <T> T read(Class<T> type, InputStream inputStream) throws JsonProcessingException, IOException {
+	public <T> T read(InputStream inputStream, Class<T> type) throws JsonProcessingException, IOException {
 		return type.cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), 
 				new Class<?>[] {type},
 				TwynInvocationHandler.create(inputStream, this)));
