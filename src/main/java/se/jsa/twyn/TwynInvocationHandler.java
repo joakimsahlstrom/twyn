@@ -3,7 +3,13 @@ package se.jsa.twyn;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
+import java.util.Spliterator;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -13,17 +19,13 @@ import se.jsa.twyn.Twyn.ObjectMapperFacade;
 public class TwynInvocationHandler implements InvocationHandler {
 
 	private final JsonNode tree;
-	private ObjectMapper objectMapper;
-	private Twyn twyn;
+	private final ObjectMapper objectMapper;
+	private final Twyn twyn;
 	
 	public TwynInvocationHandler(JsonNode tree, ObjectMapper objectMapper, Twyn jsonProxy) {
 		this.tree = tree;
 		this.objectMapper = Objects.requireNonNull(objectMapper);
 		this.twyn = Objects.requireNonNull(jsonProxy);
-	}
-	
-	interface reader {
-		JsonNode readWith(ObjectMapper mapper);
 	}
 	
 	public static TwynInvocationHandler create(ObjectMapperFacade reader, Twyn jsonProxy) throws Exception {
@@ -34,10 +36,12 @@ public class TwynInvocationHandler implements InvocationHandler {
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 	    if (method.isDefault()) {
 	        return callDefaultMethod(proxy, method, args);
-	    } else if (method.getReturnType().isInterface()) {
-	    	return innerProxy(method.getReturnType(), tree.get(resolveJavaBeanName(method.getName())));
 	    } else if (method.getReturnType().isArray() && method.getReturnType().getComponentType().isInterface()) {
 	    	return innerArrayProxy(method.getReturnType().getComponentType(), tree.get(resolveJavaBeanName(method.getName())));
+	    } else if (method.getReturnType().equals(List.class)) {
+	    	return collect(method.getAnnotation(TwynCollection.class).value(), tree.get(resolveJavaBeanName(method.getName())), Collectors.toList());
+	    } else if (method.getReturnType().isInterface()) {
+	    	return innerProxy(method.getReturnType(), tree.get(resolveJavaBeanName(method.getName())));
 	    } else {
 	    	return objectMapper.readValue(tree.get(resolveJavaBeanName(method.getName())), method.getReturnType());
 	    }
@@ -55,13 +59,16 @@ public class TwynInvocationHandler implements InvocationHandler {
 		return twyn.proxy(type, jsonNode, objectMapper);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private <T> T[] innerArrayProxy(Class<T> componentType, JsonNode jsonNode) {
-		@SuppressWarnings("unchecked")
-		T[] result = (T[]) Array.newInstance(componentType, jsonNode.size());
-		for (int i = 0; i < jsonNode.size(); i++) {
-			result[i] = twyn.proxy(componentType, jsonNode.get(i), objectMapper);
-		}
-		return result;
+		List<T> result = collect(componentType, jsonNode, Collectors.toList());
+		return result.toArray((T[])Array.newInstance(componentType, result.size()));
+	}
+	
+	private <R, T, A> R collect(Class<T> componentType, JsonNode jsonNode, Collector<T, ? super A, R> collector) {
+		return StreamSupport.stream((Spliterator<JsonNode>)jsonNode.spliterator(), false)
+			.flatMap(n -> Stream.of((T)twyn.proxy(componentType, n, objectMapper)))
+			.collect(collector);
 	}
 
 	private static final String[] PREFIXES = new String[] { "get", "is" };
