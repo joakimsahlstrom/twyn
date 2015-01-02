@@ -1,14 +1,14 @@
 package se.jsa.twyn;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.List;
 
 import org.junit.Test;
-
-import se.jsa.twyn.Twyn;
-
 
 public class TwynTest {
 
@@ -145,6 +145,17 @@ public class TwynTest {
 	public void throwsExceptionIfValueIsMissing() throws Exception {
 		StringIF missing = twyn.read(input("{ }"), StringIF.class);
 		missing.getName();
+	}
+	
+	@Test
+	public void canReadList() throws Exception {
+		ListIF complexArray = twyn.read("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }", ListIF.class);
+		assertEquals("s2?", complexArray.getStrings().get(1).getName());
+		assertEquals("s3#", complexArray.getStrings().get(2).getName());
+	}
+	public static interface ListIF {
+		@TwynCollection(StringIF.class)
+		List<StringIF> getStrings();
 	}
 	
 	private InputStream input(String string) {
