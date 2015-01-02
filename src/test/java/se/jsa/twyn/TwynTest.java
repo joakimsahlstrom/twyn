@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -166,6 +167,61 @@ public class TwynTest {
 		default String getDecoratedName(String exclamation) {
 			return "Hello " + getName() + exclamation;
 		}
+	}
+	
+	@Test
+	public void canMapWithStringKeys() throws Exception {
+		MapIF maps = twyn.read("{ \"data\" : { \"k1\" : { \"name\" : \"s1!\" },  \"k2\" : { \"name\" : \"s2?\" }, \"k3\" : { \"name\" : \"s3#\" } } }", MapIF.class);
+		assertEquals(3, maps.data().size());
+		assertEquals("s1!", maps.data().get("k1").getName());
+	}
+	public static interface MapIF {
+		@TwynCollection(StringIF.class)
+		Map<String, StringIF> data();
+	}
+	
+	@Test
+	public void githubExample() throws Exception {
+		String json = "{\n" +
+				"	\"daughters\" : [ { \"name\" : \"Inara\" }, { \"name\" : \"Kaylee\" }, { \"name\" : \"River\" } ],\n" +
+				"	\"daughterNickNames\" : {\n" +
+				"		\"Inara\" : { \"nick\" : \"innie\" },\n" +
+				"		\"Kaylee\" : { \"nick\" : \"lee\" }\n" +
+				"	},\n" +
+				"	\"sons\" : [ \"Mal\", \"Wash\" ],\n" +
+				"	\"unknowns\" : [ { \"name\" : \"Chtulu\", \"type\" : \"squid\" }, { \"name\" : \"Donald\", \"type\" : \"duck\" } ]\n" +
+				"}";
+		Offspring offspring = twyn.read(json, Offspring.class);
+		assertEquals("River", offspring.daughters()[2].getName());
+		assertEquals("innie", offspring.daughterNickNames().get("Inara").nick());
+		assertEquals("Mal", offspring.sons()[0]);
+		assertEquals("squid", offspring.getUnknowns().get(0).type());
+	}
+	interface Offspring {
+		Daughter[] daughters();
+		
+		@TwynCollection(Nick.class)
+		Map<String, Nick> daughterNickNames();
+		
+		String[] sons();
+		
+		@TwynCollection(Entity.class)
+		List<Entity> getUnknowns();
+	}
+	interface Daughter {
+		String getName();
+	}
+	interface Nick {
+		String nick();
+	}
+	interface Entity {
+		String name();
+		String type();
+	}
+	
+	@Test
+	public void toStringWorksOnProxies() throws Exception {
+		assertEquals("TwynInvocationHandler proxy. Node={\"name\":\"Hello World!\"}", twyn.read(input("{ \"name\" : \"Hello World!\" }"), StringIF.class).toString());
 	}
 	
 	private InputStream input(String string) {

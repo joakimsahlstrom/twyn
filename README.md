@@ -82,6 +82,43 @@ public void doStuff(InputStream jsonResponse) {
 ###Twyn support JavaBeans style naming of properties
 The json field "xxx" can be mapped by both getXxx, hasXxx but simple direct mapping xxx() works as well. Properties must match w/ correct case. 
 
+###Twyn supports arrays and collections
+```json
+{
+	"daughters" : [ { "name" : "Inara" }, { "name" : "Kaylee" }, { "name" : "River" } ],
+	"daughterNickNames" : {
+		"Inara" : { "nick" : "innie" },
+		"Kaylee" : { "nick" : "lee" }
+	},
+	"sons" : [ "Mal", "Wash" ],
+	"unknowns" : [ { "name" : "Chtulu", "type" : "squid" }, { "name" : "Donald", "type" : "duck" } ]
+}
+```
+Can be mapped with:
+```java
+interface Offspring {
+	Daughter[] daughters();
+	
+	@TwynCollection(Nick.class)
+	Map<String, Nick> daughterNickNames();
+	
+	String[] sons();
+	
+	@TwynCollection(Entity.class)
+	List<Entity> getUnknowns();
+}
+interface Daughter {
+	String getName();
+}
+interface Nick {
+	String nick();
+}
+interface Entity {
+	String name();
+	String type();
+}
+```
+
 ##Todo:
 * Value caching
 * Improved performance (drop java proxies, use code generation instead?)

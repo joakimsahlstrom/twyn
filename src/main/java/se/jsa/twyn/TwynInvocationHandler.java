@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.stream.Collector;
@@ -38,8 +42,12 @@ class TwynInvocationHandler implements InvocationHandler {
 	    	return innerArrayProxy(method);
 	    } else if (method.getReturnType().equals(List.class) && method.getAnnotation(TwynCollection.class) != null) {
 	    	return innerListProxy(method);
+	    } else if (method.getReturnType().equals(Map.class) && method.getAnnotation(TwynCollection.class) != null) {
+	    	return innerMapProxy(method);
 	    } else if (method.getReturnType().isInterface()) {
 	    	return innerProxy(method);
+	    } else if (method.getName().equals("toString") && method.getParameterTypes().length == 0) {
+	    	return toString();
 	    } else {
 	    	return resolveValue(method);
 	    }
@@ -55,6 +63,18 @@ class TwynInvocationHandler implements InvocationHandler {
 	
 	private List<?> innerListProxy(Method method) {
 		return collect(method.getAnnotation(TwynCollection.class).value(), resolveTargetNode(method), Collectors.toList());
+	}
+	
+	private Map<?, ?> innerMapProxy(Method method) {
+		Class<?> componentType = method.getAnnotation(TwynCollection.class).value();
+		Iterator<Entry<String, JsonNode>> fields = resolveTargetNode(method).getFields();
+
+		Map<Object, Object> result = new HashMap<>();
+		while (fields.hasNext()) {
+			Entry<String, JsonNode> entry = fields.next();
+			result.put(entry.getKey(), twyn.proxy(componentType, entry.getValue()));
+		}
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -93,4 +113,7 @@ class TwynInvocationHandler implements InvocationHandler {
 		return name;
 	}
 	
+	public String toString() {
+		return "TwynInvocationHandler proxy. Node=" + tree;
+	}
 }
