@@ -5,15 +5,12 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Spliterator;
-import java.util.stream.Collector;
+import java.util.Spliterators;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.codehaus.jackson.JsonNode;
@@ -62,25 +59,22 @@ class TwynInvocationHandler implements InvocationHandler {
 	}
 	
 	private List<?> innerListProxy(Method method) {
-		return collect(method.getAnnotation(TwynCollection.class).value(), resolveTargetNode(method), Collectors.toList());
+		return collect(method.getAnnotation(TwynCollection.class).value(), resolveTargetNode(method));
 	}
 	
 	private Map<?, ?> innerMapProxy(Method method) {
 		Class<?> componentType = method.getAnnotation(TwynCollection.class).value();
-		Iterator<Entry<String, JsonNode>> fields = resolveTargetNode(method).getFields();
-
-		Map<Object, Object> result = new HashMap<>();
-		while (fields.hasNext()) {
-			Entry<String, JsonNode> entry = fields.next();
-			result.put(entry.getKey(), twyn.proxy(componentType, entry.getValue()));
-		}
-		return result;
+		return StreamSupport
+				.stream(Spliterators.spliteratorUnknownSize(resolveTargetNode(method).getFields(), 0), false)
+				.collect(HashMap::new,
+						(HashMap<String, Object> map, Entry<String, JsonNode> e) -> map.put(e.getKey(), twyn.proxy(componentType, e.getValue())), 
+						HashMap::putAll);
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T> Object innerArrayProxy(Method method) {
 		Class<T> componentType = (Class<T>) method.getReturnType().getComponentType();
-		List<T> result = collect(componentType, resolveTargetNode(method), Collectors.toList());
+		List<T> result = collect(componentType, resolveTargetNode(method));
 		return result.toArray((T[]) Array.newInstance(componentType, result.size()));
 	}
 
@@ -92,10 +86,10 @@ class TwynInvocationHandler implements InvocationHandler {
 		return twyn.readValue(resolveTargetNode(method), method.getReturnType());
 	}
 	
-	private <R, T, A> R collect(Class<T> componentType, JsonNode jsonNode, Collector<T, ? super A, R> collector) {
-		return StreamSupport.stream((Spliterator<JsonNode>)jsonNode.spliterator(), false)
-			.flatMap(n -> Stream.of((T)twyn.proxy(componentType, n)))
-			.collect(collector);
+	private <T, A> List<T> collect(Class<T> componentType, JsonNode jsonNode) {
+		return StreamSupport.stream(jsonNode.spliterator(), false)
+			.map(n -> twyn.proxy(componentType, n))
+			.collect(Collectors.toList());
 	}
 
 	private JsonNode resolveTargetNode(Method method) {

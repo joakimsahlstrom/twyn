@@ -5,7 +5,7 @@ Requires Java 8. Currently relies on java proxies so performance is rather avera
 
 ##Features:
 ###Twyn only requires interfaces for mapping
-Given this json where only "firstname" and "country" is interesting:
+Given this json where only "firstname" and "country" is interesting...
 ```json
 {
 	"firstname" : "John",
@@ -18,7 +18,7 @@ Given this json where only "firstname" and "country" is interesting:
 	}
 }
 ```
-Define these interfaces and parse like below:
+...define these interfaces and parse like below:
 ```java
 interface Contact {
 	String getFirstname();
