@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -66,9 +65,7 @@ class TwynInvocationHandler implements InvocationHandler {
 		Class<?> componentType = method.getAnnotation(TwynCollection.class).value();
 		return StreamSupport
 				.stream(Spliterators.spliteratorUnknownSize(resolveTargetNode(method).getFields(), 0), false)
-				.collect(HashMap::new,
-						(HashMap<String, Object> map, Entry<String, JsonNode> e) -> map.put(e.getKey(), twyn.proxy(componentType, e.getValue())), 
-						HashMap::putAll);
+				.collect(Collectors.toMap(Entry::getKey, (entry) -> twyn.proxy(componentType, entry.getValue())));
 	}
 
 	@SuppressWarnings("unchecked")
