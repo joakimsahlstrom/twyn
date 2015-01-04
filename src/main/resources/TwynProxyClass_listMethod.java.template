@@ -1,7 +1,7 @@
 	@Override
 	public List<COMPONENT_TYPE> METHOD_NAME() {
 		try {
-			return collect(COMPONENT_TYPE.class, jsonNode.get("FIELD_NAME"), PARALLEL);
+			return collect(COMPONENT_TYPE.class, jsonNode.get("FIELD_NAME"), PARALLEL, Collectors.toList());
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (Exception e) {

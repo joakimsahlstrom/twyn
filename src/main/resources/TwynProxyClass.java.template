@@ -12,10 +12,12 @@ import java.lang.SuppressWarnings;
 import java.lang.reflect.Array;
 import java.util.Objects;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import TARGET_INTERFACE_QUALIFIED;
@@ -31,10 +33,10 @@ public class CLASS_NAME implements TARGET_INTERFACE {
 	
 IMPLEMENTED_METHODS
 
-	private <T> List<T> collect(Class<T> componentType, JsonNode jsonNode, boolean parallel) {
+	private <T, A, R> R collect(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
 		return StreamSupport.stream(jsonNode.spliterator(), parallel)
 			.map(n -> twyn.proxy(n, componentType))
-			.collect(Collectors.toList());
+			.collect(collector);
 	}
 	
 	@Override

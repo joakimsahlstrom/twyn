@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -222,13 +223,15 @@ public class TwynTest {
 				"		\"Kaylee\" : { \"nick\" : \"lee\" }\n" +
 				"	},\n" +
 				"	\"sons\" : [ \"Mal\", \"Wash\" ],\n" +
-				"	\"unknowns\" : [ { \"name\" : \"Chtulu\", \"type\" : \"squid\" }, { \"name\" : \"Donald\", \"type\" : \"duck\" } ]\n" +
+				"	\"unknowns\" : [ { \"name\" : \"Chtulu\", \"type\" : \"squid\" }, { \"name\" : \"Donald\", \"type\" : \"duck\" } ],\n" +
+				"	\"songs\" : [ { \"name\" : \"Come out and play\" }, { \"name\" : \"LAPD\" } ]\n" +
 				"}";
 		Offspring offspring = twyn.read(json, Offspring.class);
 		assertEquals("River", offspring.daughters()[2].getName());
 		assertEquals("innie", offspring.daughterNickNames().get("Inara").nick());
 		assertEquals("Mal", offspring.sons()[0]);
 		assertEquals("squid", offspring.getUnknowns().get(0).type());
+		assertEquals(2, offspring.songs().size());
 	}
 	public static interface Offspring {
 		Daughter[] daughters();
@@ -240,6 +243,9 @@ public class TwynTest {
 
 		@TwynCollection(Entity.class)
 		List<Entity> getUnknowns();
+
+		@TwynCollection(StringIF.class)
+		Set<StringIF> songs();
 	}
 	public static interface Daughter {
 		String getName();
@@ -337,6 +343,16 @@ public class TwynTest {
 		assertEquals(e1.hashCode(), twyn.read("{ \"name\" : \"n1\", \"type\" : \"t1\" }", ReferenceEntity.class).hashCode());
 		assertEquals(e2.hashCode(), twyn.read("{ \"name\" : \"n2\", \"type\" : \"t1\" }", ReferenceEntity.class).hashCode());
 		assertEquals(e3.hashCode(), twyn.read("{ \"name\" : \"n1\", \"type\" : \"t2\" }", ReferenceEntity.class).hashCode());
+	}
+
+	@Test
+	public void canReadComplexSet() throws Exception {
+		SetIF complexArray = twyn.read("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s1!\" } ] }", SetIF.class);
+		assertEquals(2, complexArray.getStrings().size());
+	}
+	public static interface SetIF {
+		@TwynCollection(StringIF.class)
+		Set<StringIF> getStrings();
 	}
 
 	// Helper methods

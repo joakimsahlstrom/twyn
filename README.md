@@ -91,7 +91,8 @@ The json field "xxx" can be mapped by both getXxx, hasXxx but simple direct mapp
 		"Kaylee" : { "nick" : "lee" }
 	},
 	"sons" : [ "Mal", "Wash" ],
-	"unknowns" : [ { "name" : "Chtulu", "type" : "squid" }, { "name" : "Donald", "type" : "duck" } ]
+	"unknowns" : [ { "name" : "Chtulu", "type" : "squid" }, { "name" : "Donald", "type" : "duck" } ],
+	"songs" : [ { "name" : "Come out and play" }, { "name\" : "LAPD" } ]
 }
 ```
 Can be mapped with:
@@ -106,6 +107,9 @@ interface Offspring {
 	
 	@TwynCollection(Entity.class) // ...goes for all collection types
 	List<Entity> getUnknowns();
+	
+	@TwynCollection(Song.class)
+	Set<Song> songs();
 }
 interface Daughter {
 	String getName();
@@ -116,6 +120,9 @@ interface Nick {
 interface Entity {
 	String name();
 	String type();
+}
+interface Song {
+	String name();
 }
 ```
 
@@ -141,7 +148,7 @@ interface Offspring {
 Equals and hashCode are calculated from all mapped values, or, if any, those annotated with @TwynId.
 
 ##Todo:
-* Support Set
 * Pre-compilation of classes
 * Value caching
 * Support for setters
+* Cache IdentityMethods

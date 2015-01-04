@@ -36,6 +36,7 @@ class TwynProxyJavaFile {
 			.map(m -> { switch (MethodType.getType(m)) {
 				case ARRAY: 	return templates.templateArrayMethod(m);
 				case LIST: 		return templates.templateListMethod(m);
+				case SET:		return templates.templateSetMethod(m);
 				case MAP: 		return templates.templateMapMethod(m);
 				case INTERFACE: return templates.templateInterfaceMethod(m);
 				case VALUE:		return templates.templateValueMethod(m);
