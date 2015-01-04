@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 
 import se.jsa.twyn.TwynCollection;
 
-enum MethodType {
+enum MethodType implements Predicate<Method> {
 	DEFAULT(m -> m.isDefault()),
 	ARRAY(m -> m.getReturnType().isArray() && m.getReturnType().getComponentType().isInterface()),
 	LIST(m -> m.getReturnType().equals(List.class) && m.getAnnotation(TwynCollection.class) != null),
@@ -23,7 +23,8 @@ enum MethodType {
 		this.p = Objects.requireNonNull(p);
 	}
 	
-	private boolean test(Method m) {
+	@Override
+	public boolean test(Method m) {
 		return p.test(m);
 	}
 

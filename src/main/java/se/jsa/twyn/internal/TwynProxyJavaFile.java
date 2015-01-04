@@ -7,7 +7,7 @@ import java.util.Objects;
 
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 
-public class TwynProxyJavaFile {
+class TwynProxyJavaFile {
 	private String code;
 	private String className;
 
@@ -23,7 +23,7 @@ public class TwynProxyJavaFile {
 	
 	private static String buildMethods(Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
 		return Arrays.asList(implementedInterface.getMethods()).stream().parallel()
-			.filter(m -> !m.isDefault())
+			.filter(m -> !MethodType.DEFAULT.test(m))
 			.map(m -> { switch (MethodType.getType(m)) {
 				case ARRAY: 	return templates.templateArrayMethod(m);
 				case LIST: 		return templates.templateListMethod(m);

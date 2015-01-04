@@ -9,7 +9,7 @@ import java.util.Objects;
 
 import se.jsa.twyn.TwynCollection;
 
-public class TwynProxyClassTemplates {
+class TwynProxyClassTemplates {
 
 	private String twynProxyClassTemplate;
 	private String twynInterfaceMethodTemplate;
