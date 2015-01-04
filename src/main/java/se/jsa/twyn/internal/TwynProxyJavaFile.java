@@ -27,7 +27,8 @@ class TwynProxyJavaFile {
 						implementedInterface,
 						buildMethods(implementedInterface, templates),
 						buildEqualsComparison(implementedInterface),
-						buildHashCodeCalls(implementedInterface)));
+						buildHashCodeCalls(implementedInterface),
+						buildToString(implementedInterface)));
 	}
 
 	private static String buildMethods(Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
@@ -52,6 +53,10 @@ class TwynProxyJavaFile {
 
 	private static String buildHashCodeCalls(Class<?> implementedInterface) {
 		return joinIdentityMethods(implementedInterface, m -> { return (MethodType.ARRAY.test(m) ? "(Object)" : "") + m.getName() + "()"; }, ", ");
+	}
+
+	private static String buildToString(Class<?> implementedInterface) {
+		return joinIdentityMethods(implementedInterface, m -> { return m.getName() + "()=\" + " + m.getName() + "() + \""; }, ", ");
 	}
 
 	private static String joinIdentityMethods(Class<?> implementedInterface, Function<Method, String> fn, String separator) {

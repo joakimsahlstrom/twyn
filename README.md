@@ -1,5 +1,5 @@
 # twyn!
-Twyn maps json to java, using jackson under the hood. It allows for lenient parsing with less code.
+Twyn maps json to java, using jackson under the hood. It allows for lenient parsing with little code.
 
 Requires Java 8. RAD?
 
@@ -80,7 +80,7 @@ public void doStuff(InputStream jsonResponse) {
 ```
 
 ###Twyn support JavaBeans style naming of properties
-The json field "xxx" can be mapped by both getXxx, hasXxx but simple direct mapping xxx() works as well. Properties must match w/ correct case. 
+The json field "xxx" can be mapped by getXxx, hasXxx or xxx(). 
 
 ###Twyn supports arrays and collections
 ```json
@@ -128,14 +128,14 @@ interface Song {
 
 ###Twyn uses either java proxies or runtime-generated classes
 ```java
-Twyn.configurer().withClassGeneration().configure();
-Twyn.configurer().withJavaProxies().configure();
+Twyn.configurer().withClassGeneration().configure(); // faster over time
+Twyn.configurer().withJavaProxies().configure(); // faster startup
 // Alternate ObjectMappers can be used
 Twyn.configurer().withClassGeneration().withObjectMapper(myObjectMapper).configure();
 ```
 
 ###Twyn can process collections in parallel
-Note that this is probably only efficient for really large collections
+Likely only efficient for large collections
 ```java
 interface Offspring {
 	// ...
@@ -145,8 +145,9 @@ interface Offspring {
 }
 ```
 
-###Twyn support hashCode and equals
+###Twyn support toString, hashCode and equals
 Equals and hashCode are calculated from all mapped values, or, if any, those annotated with @TwynId.
+toString prints the values that equals and hashCode are calculated from.
 
 ##Todo:
 * Pre-compilation of classes

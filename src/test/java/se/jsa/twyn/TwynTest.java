@@ -263,7 +263,8 @@ public class TwynTest {
 
 	@Test
 	public void toStringWorksOnProxies() throws Exception {
-		assertTrue(twyn.read(input("{ \"name\" : \"Hello World!\" }"), StringIF.class).toString().contains("{\"name\":\"Hello World!\"}"));
+		String toString = twyn.read(input("{ \"name\" : \"Hello World!\" }"), StringIF.class).toString();
+		assertTrue(toString, toString.contains("getName()=Hello World!"));
 	}
 
 	@Test

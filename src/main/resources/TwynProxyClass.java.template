@@ -41,7 +41,7 @@ IMPLEMENTED_METHODS
 	
 	@Override
 	public String toString() {
-		return "TwynProxyClass [jsonNode=" + jsonNode + "]";
+		return "TwynProxyClass<TARGET_INTERFACE> [TOSTRING]";
 	}
 	
 	@Override
