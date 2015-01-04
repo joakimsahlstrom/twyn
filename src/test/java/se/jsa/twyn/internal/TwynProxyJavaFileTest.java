@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import se.jsa.twyn.TwynCollection;
@@ -12,6 +13,7 @@ import se.jsa.twyn.TwynCollection;
 public class TwynProxyJavaFileTest {
 
 	@Test
+	@Ignore("To be used for manual verification")
 	public void generatesCorrectCode() throws Exception {
 		System.out.println(TwynProxyJavaFile.create(Offspring.class, TwynProxyClassTemplates.create())
 			.getCode());

@@ -126,7 +126,7 @@ interface Song {
 }
 ```
 
-###Twyn can use either java proxies or runtime-generated code for object creation
+###Twyn uses either java proxies or runtime-generated classes
 ```java
 Twyn.configurer().withClassGeneration().configure();
 Twyn.configurer().withJavaProxies().configure();
@@ -135,6 +135,7 @@ Twyn.configurer().withClassGeneration().withObjectMapper(myObjectMapper).configu
 ```
 
 ###Twyn can process collections in parallel
+Note that this is probably only efficient for really large collections
 ```java
 interface Offspring {
 	// ...
@@ -152,3 +153,4 @@ Equals and hashCode are calculated from all mapped values, or, if any, those ann
 * Value caching
 * Support for setters
 * Cache IdentityMethods
+* Support for Stream?
