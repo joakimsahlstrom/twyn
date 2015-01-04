@@ -129,8 +129,12 @@ Twyn.configurer().withClassGeneration().withObjectMapper(myObjectMapper).configu
 
 ###Twyn can process collections in parallel
 ```java
-@TwynCollection(value = Nick.class, parallel = true)
-Map<String, Nick> daughterNickNames();
+interface Offspring {
+	// ...
+	@TwynCollection(value = Nick.class, parallel = true)
+	Map<String, Nick> daughterNickNames();
+	// ...
+}
 ```
 
 ##Todo:
