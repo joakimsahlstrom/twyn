@@ -18,50 +18,50 @@ import se.jsa.twyn.internal.TwynProxyClassBuilder;
 import se.jsa.twyn.internal.TwynProxyInvocationHandlerBuilder;
 
 public class Twyn {
-	
-	private TwynContext twynContext;
-	
+
+	private final TwynContext twynContext;
+
 	private Twyn(TwynContext twynContext) {
 		this.twynContext = Objects.requireNonNull(twynContext);
 	}
-	
+
 	public <T> T read(InputStream inputStream, Class<T> type) throws JsonProcessingException {
 		return read(() -> twynContext.getObjectMapper().readTree(inputStream), type);
 	}
-	
+
 	public <T> T read(byte[] data, Class<T> type) throws JsonProcessingException {
 		return read(() -> twynContext.getObjectMapper().readTree(data), type);
 	}
-	
+
 	public <T> T read(File file, Class<T> type) throws JsonProcessingException {
 		return read(() -> twynContext.getObjectMapper().readTree(file), type);
 	}
-	
+
 	public <T> T read(JsonParser parser, Class<T> type) throws JsonProcessingException {
 		return read(() -> twynContext.getObjectMapper().readTree(parser), type);
 	}
-	
+
 	public <T> T read(Reader reader, Class<T> type) throws JsonProcessingException {
 		return read(() -> twynContext.getObjectMapper().readTree(reader), type);
 	}
-	
+
 	public <T> T read(String string, Class<T> type) throws JsonProcessingException {
 		return read(() -> twynContext.getObjectMapper().readTree(string), type);
 	}
-	
+
 	public <T> T read(URL url, Class<T> type) throws JsonProcessingException {
 		return read(() -> twynContext.getObjectMapper().readTree(url), type);
 	}
-	
+
 	public <T> T read(JsonParser parser, DeserializationConfig deserializationConfig, Class<T> type) throws JsonProcessingException {
 		return read(() -> twynContext.getObjectMapper().readTree(parser, deserializationConfig), type);
 	}
-	
+
 	@FunctionalInterface
 	private interface JsonProducer {
 		JsonNode get() throws Exception;
 	}
-	
+
 	private <T> T read(JsonProducer jsonProducer, Class<T> type) throws JsonProcessingException {
 		try {
 			return twynContext.proxy(jsonProducer.get(), type);
@@ -71,17 +71,17 @@ public class Twyn {
 			throw new RuntimeException("Could not read input!", e);
 		}
 	}
-	
+
 	public static Twyn forTest() {
 		return configurer().withJavaProxies().configure();
 	}
-	
+
 	// Builder
-	
+
 	public static SelectMethod configurer() {
 		return new BuilderImpl();
 	}
-	
+
 	private static class BuilderImpl implements SelectMethod, Configurer {
 		private ObjectMapper objectMapper = new ObjectMapper();
 		private TwynProxyBuilder twynProxyBuilder;
@@ -103,12 +103,12 @@ public class Twyn {
 			this.twynProxyBuilder = new TwynProxyClassBuilder();
 			return this;
 		}
-		
+
 		@Override
 		public Twyn configure() {
 			return new Twyn(new TwynContext(objectMapper, twynProxyBuilder));
 		}
-		
+
 	}
 	public static interface SelectMethod {
 		/**
@@ -127,5 +127,5 @@ public class Twyn {
 		Configurer withObjectMapper(ObjectMapper objectMapper);
 		Twyn configure();
 	}
-	
+
 }

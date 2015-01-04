@@ -12,9 +12,9 @@ import se.jsa.twyn.TwynCollection;
 
 public class TwynProxyClassBuilderTest {
 
-	private TwynProxyClassBuilder builder = new TwynProxyClassBuilder();
-	private TwynContext twynContext = new TwynContext(new ObjectMapper(), builder);
-	
+	private final TwynProxyClassBuilder builder = new TwynProxyClassBuilder();
+	private final TwynContext twynContext = new TwynContext(new ObjectMapper(), builder);
+
 	@Test
 	public void canResolveValue() throws Exception {
 		JsonNode jsonNode = new ObjectMapper().readTree("{ \"name\" : \"Hello World!\" }");
@@ -22,7 +22,7 @@ public class TwynProxyClassBuilderTest {
 		assertEquals("Hello World!", string.getName());
 	}
 	public static interface StringIF { String getName(); };
-	
+
 	@Test
 	public void canResolveComplexTypes() throws Exception {
 		JsonNode jsonNode = new ObjectMapper().readTree("{ \"stringIF\" : { \"name\" : \"complex\" } }");
@@ -32,7 +32,7 @@ public class TwynProxyClassBuilderTest {
 	public static interface ComplexIF {
 		StringIF getStringIF();
 	}
-	
+
 	@Test
 	public void canReadComplexList() throws Exception {
 		JsonNode jsonNode = new ObjectMapper().readTree("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }");
@@ -44,5 +44,5 @@ public class TwynProxyClassBuilderTest {
 		@TwynCollection(StringIF.class)
 		List<StringIF> getStrings();
 	}
-	
+
 }

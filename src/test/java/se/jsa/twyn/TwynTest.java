@@ -24,7 +24,7 @@ public class TwynTest {
 	public TwynTest(Twyn twyn) {
 		this.twyn = twyn;
 	}
-	
+
 	@Parameters
 	public static Collection<Object[]> twyns() {
 		return Arrays.<Object[]>asList(
@@ -32,14 +32,14 @@ public class TwynTest {
 				new Object[] { Twyn.configurer().withClassGeneration().configure() }
 				);
 	}
-	
+
 	@Test
 	public void canReadString() throws Exception {
 		StringIF string = twyn.read(input("{ \"name\" : \"Hello World!\" }"), StringIF.class);
 		assertEquals("Hello World!", string.getName());
 	}
 	public static interface StringIF { String getName(); };
-	
+
 	@Test
 	public void canReadAllJsonTypes() throws Exception {
 		TypesIF types = twyn.read(input(
@@ -58,17 +58,17 @@ public class TwynTest {
 		assertEquals(1000000000000L, types.getL());
 		assertEquals(Long.valueOf(1000000000001L), types.getLong());
 	}
-	public static interface TypesIF { 
-		int getI(); 
-		Integer getInteger(); 
-		boolean getB(); 
-		Boolean getBoolean(); 
-		double getD(); 
+	public static interface TypesIF {
+		int getI();
+		Integer getInteger();
+		boolean getB();
+		Boolean getBoolean();
+		double getD();
 		Double getDouble();
-		long getL(); 
+		long getL();
 		Long getLong();
 	}
-	
+
 	@Test
 	public void canCallDefaultMethodOnInterface() throws Exception {
 		DefaultMethodIF defaultMethod = twyn.read(input("{ \"name\" : \"Java8\" }"), DefaultMethodIF.class);
@@ -89,7 +89,7 @@ public class TwynTest {
 	public static interface ComplexIF {
 		StringIF getStringIF();
 	}
-	
+
 	@Test
 	public void canResolveComplexObjects() throws Exception {
 		ObjectHoldingIF complexObject = twyn.read(input("{ \"id\" : { \"val\" : \"2\" } }"), ObjectHoldingIF.class);
@@ -104,7 +104,7 @@ public class TwynTest {
 	public static interface ObjectHoldingIF {
 		public MyId getId();
 	}
-	
+
 	@Test
 	public void canReadPrimitiveArrays() throws Exception {
 		PrimitiveArrayIF primitiveArray = twyn.read(input("{ \"data\" : [ \"1\", \"2\", \"97\" ] }"), PrimitiveArrayIF.class);
@@ -113,7 +113,7 @@ public class TwynTest {
 	public static interface PrimitiveArrayIF {
 		int[] getData();
 	}
-	
+
 	@Test
 	public void canReadComplexArrays() throws Exception {
 		ComplexArrayIF complexArray = twyn.read(input("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }"), ComplexArrayIF.class);
@@ -121,7 +121,7 @@ public class TwynTest {
 		assertEquals("s3#", complexArray.getStringList().get(2).getName());
 	}
 	public static class StringIFList {
-		private StringIF[] arr;
+		private final StringIF[] arr;
 		public StringIFList(StringIF[] arr) {
 			this.arr = arr;
 		}
@@ -135,7 +135,7 @@ public class TwynTest {
 			return new StringIFList(getStrings());
 		}
 	}
-	
+
 	@Test
 	public void canReadIsField() throws Exception {
 		IsIF is = twyn.read(input("{ \"ok\" : \"true\" }"), IsIF.class);
@@ -144,7 +144,7 @@ public class TwynTest {
 	public static interface IsIF {
 		boolean isOk();
 	}
-	
+
 	@Test
 	public void canReadNonJavaBeanField() throws Exception {
 		ShortNameIF shortName = twyn.read(input("{ \"ok\" : \"true\" }"), ShortNameIF.class);
@@ -153,19 +153,19 @@ public class TwynTest {
 	public static interface ShortNameIF {
 		boolean ok();
 	}
-	
+
 	@Test
 	public void returnsNullForNullValue() throws Exception {
 		StringIF nulled = twyn.read(input("{ \"name\" : null }"), StringIF.class);
 		assertNull(nulled.getName());
 	}
-	
+
 	@Test(expected = NullPointerException.class)
 	public void throwsExceptionIfValueIsMissing() throws Exception {
 		StringIF missing = twyn.read(input("{ }"), StringIF.class);
 		missing.getName();
 	}
-	
+
 	@Test
 	public void canReadComplexList() throws Exception {
 		ListIF complexArray = twyn.read("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }", ListIF.class);
@@ -176,7 +176,7 @@ public class TwynTest {
 		@TwynCollection(StringIF.class)
 		List<StringIF> getStrings();
 	}
-	
+
 	@Test
 	public void canReadComplexListParallel() throws Exception {
 		ParallelListIF complexArray = twyn.read("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }", ParallelListIF.class);
@@ -199,7 +199,7 @@ public class TwynTest {
 			return "Hello " + getName() + exclamation;
 		}
 	}
-	
+
 	@Test
 	public void canMapWithStringKeys() throws Exception {
 		MapIF maps = twyn.read("{ \"data\" : { \"k1\" : { \"name\" : \"s1!\" },  \"k2\" : { \"name\" : \"s2?\" }, \"k3\" : { \"name\" : \"s3#\" } } }", MapIF.class);
@@ -210,7 +210,7 @@ public class TwynTest {
 		@TwynCollection(StringIF.class)
 		Map<String, StringIF> data();
 	}
-	
+
 	@Test
 	public void githubExample() throws Exception {
 		String json = "{\n" +
@@ -230,12 +230,12 @@ public class TwynTest {
 	}
 	public static interface Offspring {
 		Daughter[] daughters();
-		
+
 		@TwynCollection(Nick.class)
 		Map<String, Nick> daughterNickNames();
-		
+
 		String[] sons();
-		
+
 		@TwynCollection(Entity.class)
 		List<Entity> getUnknowns();
 	}
@@ -249,26 +249,26 @@ public class TwynTest {
 		String name();
 		String type();
 	}
-	
+
 	@Test
 	public void toStringWorksOnProxies() throws Exception {
 		assertTrue(twyn.read(input("{ \"name\" : \"Hello World!\" }"), StringIF.class).toString().contains("{\"name\":\"Hello World!\"}"));
 	}
-	
+
 	@Test
 	public void readSameDataManyTimesPerformanceTest() throws Exception {
 		for (int i = 0; i < 1_000; i++) {
 			githubExample();
 		}
 	}
-	
+
 	@Test
 	public void readSameDataManyTimesPerformanceTest2() throws Exception {
 		readSameDataManyTimesPerformanceTest();
 	}
-	
+
 	private InputStream input(String string) {
 		return new ByteArrayInputStream(string.getBytes());
 	}
-	
+
 }

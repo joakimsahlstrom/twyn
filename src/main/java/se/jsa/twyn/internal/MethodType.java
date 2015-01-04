@@ -16,13 +16,13 @@ enum MethodType implements Predicate<Method> {
 	MAP(m -> m.getReturnType().equals(Map.class) && m.getAnnotation(TwynCollection.class) != null),
 	INTERFACE(m -> m.getReturnType().isInterface()),
 	VALUE(m -> true);
-	
+
 	private Predicate<Method> p;
-	
+
 	private MethodType(Predicate<Method> p) {
 		this.p = Objects.requireNonNull(p);
 	}
-	
+
 	@Override
 	public boolean test(Method m) {
 		return p.test(m);

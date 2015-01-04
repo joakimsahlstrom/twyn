@@ -11,12 +11,12 @@ import se.jsa.twyn.TwynCollection;
 
 class TwynProxyClassTemplates {
 
-	private String twynProxyClassTemplate;
-	private String twynInterfaceMethodTemplate;
-	private String twynValueMethodTemplate;
-	private String twynArrayMethodTemplate;
-	private String twynListMethodTemplate;
-	private String twynMapMethodTemplate;
+	private final String twynProxyClassTemplate;
+	private final String twynInterfaceMethodTemplate;
+	private final String twynValueMethodTemplate;
+	private final String twynArrayMethodTemplate;
+	private final String twynListMethodTemplate;
+	private final String twynMapMethodTemplate;
 
 	public TwynProxyClassTemplates(String twynProxyClassTemplate, String twynInterfaceMethodTemplate, String twynValueMethodTemplate, String twynArrayMethodTemplate, String twynListMethodTemplate, String twynMapMethodTemplate) {
 		this.twynProxyClassTemplate = Objects.requireNonNull(twynProxyClassTemplate);
@@ -63,7 +63,7 @@ class TwynProxyClassTemplates {
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
 	}
-	
+
 	public String templateArrayMethod(Method method) {
 		return twynArrayMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
@@ -91,5 +91,5 @@ class TwynProxyClassTemplates {
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
-	
+
 }

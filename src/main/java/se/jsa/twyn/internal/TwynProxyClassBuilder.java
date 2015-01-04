@@ -11,11 +11,11 @@ import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl
 import org.codehaus.jackson.JsonNode;
 
 public class TwynProxyClassBuilder implements TwynProxyBuilder {
-	
-	private JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
-	private Map<Class<?>, Class<?>> implementations = new ConcurrentHashMap<Class<?>, Class<?>>(); 
-	private TwynProxyClassTemplates templates;
-	
+
+	private final JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
+	private final Map<Class<?>, Class<?>> implementations = new ConcurrentHashMap<Class<?>, Class<?>>();
+	private final TwynProxyClassTemplates templates;
+
 	public TwynProxyClassBuilder() {
 		try {
 			templates = TwynProxyClassTemplates.create();
@@ -23,7 +23,7 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 			throw new RuntimeException("Internal error, could not read code template files.", e);
 		}
 	}
-	
+
 	@Override
 	public <T> T buildProxy(Class<T> type, TwynContext twyn, JsonNode jsonNode) {
 	    return type.cast(instantiate(getImplementingClass(type), twyn, jsonNode));
@@ -47,12 +47,7 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 	private Object instantiate(Class<?> typeImpl, TwynContext twyn, JsonNode jsonNode) {
 		try {
 			return typeImpl.getConstructor(TwynContext.class, JsonNode.class).newInstance(twyn, jsonNode);
-		} catch (InstantiationException 
-				| IllegalAccessException
-				| IllegalArgumentException 
-				| InvocationTargetException
-				| NoSuchMethodException 
-				| SecurityException e) {
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException("Could not instantiate class " + typeImpl.getSimpleName(), e);
 		}
 	}
@@ -61,5 +56,5 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 	public String toString() {
 		return "TwynProxyClassBuilder []";
 	}
-	
+
 }
