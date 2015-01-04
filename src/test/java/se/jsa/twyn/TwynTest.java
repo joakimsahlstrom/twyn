@@ -176,6 +176,17 @@ public class TwynTest {
 		@TwynCollection(StringIF.class)
 		List<StringIF> getStrings();
 	}
+	
+	@Test
+	public void canReadComplexListParallel() throws Exception {
+		ParallelListIF complexArray = twyn.read("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }", ParallelListIF.class);
+		assertEquals("s2?", complexArray.getStrings().get(1).getName());
+		assertEquals("s3#", complexArray.getStrings().get(2).getName());
+	}
+	public static interface ParallelListIF {
+		@TwynCollection(value = StringIF.class, parallel = true)
+		List<StringIF> getStrings();
+	}
 
 	@Test
 	public void defaultMethodsCanHaveParameters() throws Exception {

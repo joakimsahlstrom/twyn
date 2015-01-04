@@ -58,20 +58,23 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 	}
 	
 	private List<?> innerListProxy(Method method) {
-		return collect(method.getAnnotation(TwynCollection.class).value(), resolveTargetNode(method));
+		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
+		return collect(annotation.value(), resolveTargetNode(method), annotation.parallel());
 	}
 	
 	private Map<?, ?> innerMapProxy(Method method) {
-		Class<?> componentType = method.getAnnotation(TwynCollection.class).value();
+		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
+		Class<?> componentType = annotation.value();
 		return StreamSupport
-				.stream(Spliterators.spliteratorUnknownSize(resolveTargetNode(method).getFields(), 0), false)
+				.stream(Spliterators.spliteratorUnknownSize(resolveTargetNode(method).getFields(), 0), annotation.parallel())
 				.collect(Collectors.toMap(Entry::getKey, (entry) -> twyn.proxy(entry.getValue(), componentType)));
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T> Object innerArrayProxy(Method method) {
 		Class<T> componentType = (Class<T>) method.getReturnType().getComponentType();
-		List<T> result = collect(componentType, resolveTargetNode(method));
+		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
+		List<T> result = collect(componentType, resolveTargetNode(method), annotation != null ? annotation.parallel() : false);
 		return result.toArray((T[]) Array.newInstance(componentType, result.size()));
 	}
 	
@@ -83,8 +86,8 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 		return twyn.readValue(resolveTargetNode(method), method.getReturnType());
 	}
 	
-	private <T> List<T> collect(Class<T> componentType, JsonNode jsonNode) {
-		return StreamSupport.stream(jsonNode.spliterator(), false)
+	private <T> List<T> collect(Class<T> componentType, JsonNode jsonNode, boolean parallel) {
+		return StreamSupport.stream(jsonNode.spliterator(), parallel)
 			.map(n -> twyn.proxy(n, componentType))
 			.collect(Collectors.toList());
 	}

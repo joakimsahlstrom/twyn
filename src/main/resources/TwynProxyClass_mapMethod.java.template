@@ -2,7 +2,7 @@
 	public RETURN_TYPE<String, COMPONENT_TYPE> METHOD_NAME() {
 		try {
 			return StreamSupport
-				.stream(Spliterators.spliteratorUnknownSize(jsonNode.get("FIELD_NAME").getFields(), 0), false)
+				.stream(Spliterators.spliteratorUnknownSize(jsonNode.get("FIELD_NAME").getFields(), 0), PARALLEL)
 				.collect(Collectors.toMap(Entry::getKey, (entry) -> twyn.proxy(entry.getValue(), COMPONENT_TYPE.class)));
 		} catch (NullPointerException e) {
 			throw e;

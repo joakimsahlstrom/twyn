@@ -1,7 +1,7 @@
 	@Override
 	public RETURN_TYPE<COMPONENT_TYPE> METHOD_NAME() {
 		try {
-			return collect(COMPONENT_TYPE.class, jsonNode.get("FIELD_NAME"));
+			return collect(COMPONENT_TYPE.class, jsonNode.get("FIELD_NAME"), PARALLEL);
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (Exception e) {

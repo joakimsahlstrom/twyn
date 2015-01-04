@@ -127,6 +127,11 @@ Twyn.configurer().withJavaProxies().configure();
 Twyn.configurer().withClassGeneration().withObjectMapper(myObjectMapper).configure()
 ```
 
+###Twyn can process collections in parallel
+```java
+@TwynCollection(value = Nick.class, parallel = true)
+Map<String, Nick> daughterNickNames();
+```
 
 ##Todo:
 * .equals & .hashCode support for proxies

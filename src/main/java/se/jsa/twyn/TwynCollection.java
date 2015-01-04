@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface TwynCollection {
 	public Class<?> value();
+	public boolean parallel() default false;
 }

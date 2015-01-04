@@ -31,8 +31,8 @@ public class CLASS_NAME implements TARGET_INTERFACE {
 	
 IMPLEMENTED_METHODS
 
-	private <T> List<T> collect(Class<T> componentType, JsonNode jsonNode) {
-		return StreamSupport.stream(jsonNode.spliterator(), false)
+	private <T> List<T> collect(Class<T> componentType, JsonNode jsonNode, boolean parallel) {
+		return StreamSupport.stream(jsonNode.spliterator(), parallel)
 			.map(n -> twyn.proxy(n, componentType))
 			.collect(Collectors.toList());
 	}
