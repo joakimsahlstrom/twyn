@@ -1,7 +1,7 @@
 # twyn!
 Twyn maps json to java, using jackson under the hood. It allows for lenient parsing with less code.
 
-Requires Java 8. Currently relies on java proxies so performance is rather average.
+Requires Java 8. RAD?
 
 ##Features:
 ###Twyn only requires interfaces for mapping
