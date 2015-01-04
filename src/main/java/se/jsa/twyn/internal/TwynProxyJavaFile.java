@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import se.jsa.twyn.Twyn;
 import se.jsa.twyn.TwynCollection;
 
 public class TwynProxyJavaFile {
@@ -21,23 +20,23 @@ public class TwynProxyJavaFile {
 		this.code = Objects.requireNonNull(code);
 	}
 
-	public static TwynProxyJavaFile create(String className, Class<?> implementedInterface, Twyn twyn, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
-		return new TwynProxyJavaFile(className, templates.templateTwynProxyClass(className, implementedInterface, buildMethods(implementedInterface, twyn, templates)));
+	public static TwynProxyJavaFile create(String className, Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
+		return new TwynProxyJavaFile(className, templates.templateTwynProxyClass(className, implementedInterface, buildMethods(implementedInterface, templates)));
 	}
 	
-	private static String buildMethods(Class<?> implementedInterface, Twyn twyn, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
+	private static String buildMethods(Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
 		StringBuilder result = new StringBuilder();
 		for (Method method : Arrays.asList(implementedInterface.getMethods()).stream().filter(m -> !m.isDefault()).collect(Collectors.toList())) {
 			if (method.getReturnType().isArray() && method.getReturnType().getComponentType().isInterface()) {
-				result.append(templates.templateArrayMethod(method, twyn));
+				result.append(templates.templateArrayMethod(method));
 			} else if (method.getReturnType().equals(List.class) && method.getAnnotation(TwynCollection.class) != null) {
-				result.append(templates.templateListMethod(method, twyn));
+				result.append(templates.templateListMethod(method));
 			} else if (method.getReturnType().equals(Map.class) && method.getAnnotation(TwynCollection.class) != null) {
-				result.append(templates.templateMapMethod(method, twyn));
+				result.append(templates.templateMapMethod(method));
 			} else if (method.getReturnType().isInterface()) {
-				result.append(templates.templateInterfaceMethod(method, twyn));
+				result.append(templates.templateInterfaceMethod(method));
 			} else {
-				result.append(templates.templateValueMethod(method, twyn));
+				result.append(templates.templateValueMethod(method));
 			}
 		}
 		return result.toString();

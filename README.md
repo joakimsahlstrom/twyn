@@ -29,7 +29,7 @@ interface AddressInfo {
 }
 
 public void doStuff(InputStream jsonResponse) {
-	Contact contact = new Twyn().read(jsonResponse, Contact.class);
+	Contact contact = Twyn.forTest().read(jsonResponse, Contact.class);
 	String firstName = contact.getFirstname();
 	String country = contact.getAddress().getCountry();
 	System.out.println(firstName + " lives in " + country); // outputs "John lives in England"
@@ -74,7 +74,7 @@ class Address {
 
 public void doStuff(InputStream jsonResponse) {
 	// Same json as first example
-	Contact contact = new Twyn().read(jsonResponse, Contact.class);
+	Contact contact = Twyn.forTest().read(jsonResponse, Contact.class);
 	Address address = contact.getAdress(); // This will return an Address instance by using the jackson java object mapper
 }
 ```
@@ -119,8 +119,17 @@ interface Entity {
 }
 ```
 
+###Twyn can use either java proxies or runtime-generated code for object creation
+```java
+Twyn.configurer().withClassGeneration().configure();
+Twyn.configurer().withJavaProxies().configure();
+// Alternate ObjectMappers can be used
+Twyn.configurer().withClassGeneration().withObjectMapper(myObjectMapper).configure()
+```
+
+
 ##Todo:
 * .equals & .hashCode support for proxies
+* Pre-compilation of classes
 * Value caching
-* Improved performance (drop java proxies, use code generation instead?)
 * Support for setters

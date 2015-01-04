@@ -16,20 +16,19 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
-import se.jsa.twyn.Twyn;
 import se.jsa.twyn.TwynCollection;
 
 class TwynProxyInvocationHandler implements InvocationHandler {
 	private final JsonNode tree;
-	private final Twyn twyn;
+	private final TwynContext twyn;
 	
-	public TwynProxyInvocationHandler(JsonNode tree, Twyn twyn) {
+	public TwynProxyInvocationHandler(JsonNode tree, TwynContext twynContext) {
 		this.tree = tree;
-		this.twyn = Objects.requireNonNull(twyn);
+		this.twyn = Objects.requireNonNull(twynContext);
 	}
 	
-	public static TwynProxyInvocationHandler create(JsonNode jsonNode, Twyn twyn) throws Exception {
-		return new TwynProxyInvocationHandler(jsonNode, twyn);
+	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext) throws Exception {
+		return new TwynProxyInvocationHandler(jsonNode, twynContext);
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -91,7 +90,7 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 	}
 
 	private JsonNode resolveTargetNode(Method method) {
-		return tree.get(twyn.decodeJavaBeanName(method.getName()));
+		return tree.get(TwynUtil.decodeJavaBeanName(method.getName()));
 	}
 		
 	public String toString() {

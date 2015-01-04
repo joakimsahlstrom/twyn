@@ -1,6 +1,6 @@
 package se.jsa.twyn;
 
-import se.jsa.twyn.Twyn;
+import se.jsa.twyn.internal.TwynContext;
 
 import org.codehaus.jackson.JsonNode;
 
@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 import TARGET_INTERFACE_QUALIFIED;
 
 public class CLASS_NAME implements TARGET_INTERFACE {
-	private Twyn twyn;
+	private TwynContext twyn;
 	private JsonNode jsonNode;
 	
-	public CLASS_NAME(Twyn twyn, JsonNode jsonNode) {
+	public CLASS_NAME(TwynContext twyn, JsonNode jsonNode) {
 		this.jsonNode = jsonNode;
 		this.twyn = Objects.requireNonNull(twyn);
 	}

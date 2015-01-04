@@ -1,6 +1,8 @@
 package se.jsa.twyn;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -9,14 +11,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-
-import se.jsa.twyn.internal.TwynProxyClassBuilder;
-import se.jsa.twyn.internal.TwynProxyInvocationHandlerBuilder;
 
 @RunWith(Parameterized.class)
 public class TwynTest {
@@ -30,8 +28,8 @@ public class TwynTest {
 	@Parameters
 	public static Collection<Object[]> twyns() {
 		return Arrays.<Object[]>asList(
-				new Object[] { new Twyn(new ObjectMapper(), new TwynProxyInvocationHandlerBuilder()) },
-				new Object[] { new Twyn(new ObjectMapper(), new TwynProxyClassBuilder()) }
+				new Object[] { Twyn.configurer().withJavaProxies().configure() },
+				new Object[] { Twyn.configurer().withClassGeneration().configure() }
 				);
 	}
 	

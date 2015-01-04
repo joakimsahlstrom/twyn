@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import se.jsa.twyn.Twyn;
 import se.jsa.twyn.TwynCollection;
 
 public class TwynProxyClassTemplates {
@@ -47,41 +46,41 @@ public class TwynProxyClassTemplates {
 				.replaceAll("IMPLEMENTED_METHODS", methodBodies);
 	}
 
-	public String templateInterfaceMethod(Method method, Twyn twyn) {
+	public String templateInterfaceMethod(Method method) {
 		return twynInterfaceMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", twyn.decodeJavaBeanName(method.getName()));
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
 	}
 
-	public String templateValueMethod(Method method, Twyn twyn) {
+	public String templateValueMethod(Method method) {
 		return twynValueMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", twyn.decodeJavaBeanName(method.getName()));
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
 	}
 	
-	public String templateArrayMethod(Method method, Twyn twyn) {
+	public String templateArrayMethod(Method method) {
 		return twynArrayMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("COMPONENT_TYPE", method.getReturnType().getComponentType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", twyn.decodeJavaBeanName(method.getName()));
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
 	}
 
-	public String templateListMethod(Method method, Twyn twyn) {
+	public String templateListMethod(Method method) {
 		return twynListMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("COMPONENT_TYPE", method.getAnnotation(TwynCollection.class).value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", twyn.decodeJavaBeanName(method.getName()));
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
 	}
 
-	public String templateMapMethod(Method method, Twyn twyn) {
+	public String templateMapMethod(Method method) {
 		return twynMapMethodTemplate.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("COMPONENT_TYPE", method.getAnnotation(TwynCollection.class).value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", twyn.decodeJavaBeanName(method.getName()));
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
 	}
 	
 }

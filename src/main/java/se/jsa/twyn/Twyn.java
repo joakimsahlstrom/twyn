@@ -1,83 +1,60 @@
 package se.jsa.twyn;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Objects;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import se.jsa.twyn.internal.TwynContext;
+import se.jsa.twyn.internal.TwynProxyBuilder;
+import se.jsa.twyn.internal.TwynProxyClassBuilder;
 import se.jsa.twyn.internal.TwynProxyInvocationHandlerBuilder;
 
 public class Twyn {
-	private final Constructor<MethodHandles.Lookup> methodHandleLookupConstructor;
-	private final ObjectMapper objectMapper;
-	private final TwynProxyBuilder proxyBuilder;
 	
-	public Twyn() {
-		this(new ObjectMapper());
-	}
+	private TwynContext twynContext;
 	
-	public Twyn(ObjectMapper objectMapper) {
-		this(objectMapper, new TwynProxyInvocationHandlerBuilder());
-	}
-	
-	public Twyn(ObjectMapper objectMapper, TwynProxyBuilder twynProxyBuilder) {
-		this.objectMapper = Objects.requireNonNull(objectMapper);
-		this.proxyBuilder = Objects.requireNonNull(twynProxyBuilder);
-		
-		try {
-			methodHandleLookupConstructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
-			if (!methodHandleLookupConstructor.isAccessible()) {
-				methodHandleLookupConstructor.setAccessible(true);
-			}
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException("Unexpected internal error!");
-		}
+	private Twyn(TwynContext twynContext) {
+		this.twynContext = Objects.requireNonNull(twynContext);
 	}
 	
 	public <T> T read(InputStream inputStream, Class<T> type) throws JsonProcessingException {
-		return read(() -> objectMapper.readTree(inputStream), type);
+		return read(() -> twynContext.getObjectMapper().readTree(inputStream), type);
 	}
 	
 	public <T> T read(byte[] data, Class<T> type) throws JsonProcessingException {
-		return read(() -> objectMapper.readTree(data), type);
+		return read(() -> twynContext.getObjectMapper().readTree(data), type);
 	}
 	
 	public <T> T read(File file, Class<T> type) throws JsonProcessingException {
-		return read(() -> objectMapper.readTree(file), type);
+		return read(() -> twynContext.getObjectMapper().readTree(file), type);
 	}
 	
 	public <T> T read(JsonParser parser, Class<T> type) throws JsonProcessingException {
-		return read(() -> objectMapper.readTree(parser), type);
+		return read(() -> twynContext.getObjectMapper().readTree(parser), type);
 	}
 	
 	public <T> T read(Reader reader, Class<T> type) throws JsonProcessingException {
-		return read(() -> objectMapper.readTree(reader), type);
+		return read(() -> twynContext.getObjectMapper().readTree(reader), type);
 	}
 	
 	public <T> T read(String string, Class<T> type) throws JsonProcessingException {
-		return read(() -> objectMapper.readTree(string), type);
+		return read(() -> twynContext.getObjectMapper().readTree(string), type);
 	}
 	
 	public <T> T read(URL url, Class<T> type) throws JsonProcessingException {
-		return read(() -> objectMapper.readTree(url), type);
+		return read(() -> twynContext.getObjectMapper().readTree(url), type);
 	}
 	
 	public <T> T read(JsonParser parser, DeserializationConfig deserializationConfig, Class<T> type) throws JsonProcessingException {
-		return read(() -> objectMapper.readTree(parser, deserializationConfig), type);
+		return read(() -> twynContext.getObjectMapper().readTree(parser, deserializationConfig), type);
 	}
 	
 	@FunctionalInterface
@@ -87,7 +64,7 @@ public class Twyn {
 	
 	private <T> T read(JsonProducer jsonProducer, Class<T> type) throws JsonProcessingException {
 		try {
-			return proxy(jsonProducer.get(), type);
+			return twynContext.proxy(jsonProducer.get(), type);
 		} catch (JsonProcessingException e) {
 			throw e;
 		} catch (Exception e) {
@@ -95,34 +72,60 @@ public class Twyn {
 		}
 	}
 	
-	// Move below to own class?
-	
-	public Lookup lookup(Object declaringClass) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		return methodHandleLookupConstructor.newInstance(declaringClass, MethodHandles.Lookup.PRIVATE);
+	public static Twyn forTest() {
+		return configurer().withJavaProxies().configure();
 	}
 	
-	public <T> T proxy(JsonNode jsonNode, Class<T> type) {
-		try {
-			return proxyBuilder.buildProxy(type, this, jsonNode);
-		} catch (Exception e) {
-			throw new RuntimeException("Could not create Twyn proxy", e);
-		}
+	// Builder
+	
+	public static SelectMethod configurer() {
+		return new BuilderImpl();
 	}
 	
-	public <T> T readValue(JsonNode resolveTargetNode, Class<T> valueType) throws JsonParseException, JsonMappingException, IOException {
-		return objectMapper.readValue(resolveTargetNode, valueType);
-	}
-	
-	private static final String[] PREFIXES = new String[] { "get", "is" };
-	public String decodeJavaBeanName(String name) {
-		for (String prefix : PREFIXES) {
-			int prefixLength = prefix.length();
-			if (name.startsWith(prefix) && name.length() > prefixLength && Character.isUpperCase(name.charAt(prefixLength))) {
-				return name.substring(prefixLength, prefixLength + 1).toLowerCase() + name.substring(prefixLength + 1);
-			}
-		}
-		return name;
-	}
+	private static class BuilderImpl implements SelectMethod, Configurer {
+		private ObjectMapper objectMapper = new ObjectMapper();
+		private TwynProxyBuilder twynProxyBuilder;
 
+		@Override
+		public Configurer withObjectMapper(ObjectMapper objectMapper) {
+			this.objectMapper = Objects.requireNonNull(objectMapper);
+			return this;
+		}
+
+		@Override
+		public Configurer withJavaProxies() {
+			this.twynProxyBuilder = new TwynProxyInvocationHandlerBuilder();
+			return this;
+		}
+
+		@Override
+		public Configurer withClassGeneration() {
+			this.twynProxyBuilder = new TwynProxyClassBuilder();
+			return this;
+		}
+		
+		@Override
+		public Twyn configure() {
+			return new Twyn(new TwynContext(objectMapper, twynProxyBuilder));
+		}
+		
+	}
+	public static interface SelectMethod {
+		/**
+		 * Faster first time parsing. Slower afterwards. Suitable for test and in some cases production.
+		 * @return
+		 */
+		Configurer withJavaProxies();
+
+		/**
+		 * Slower first time parsing. More performant afterwards. Mostly suitable for production code.
+		 * Creates classes.
+		 */
+		Configurer withClassGeneration();
+	}
+	public static interface Configurer {
+		Configurer withObjectMapper(ObjectMapper objectMapper);
+		Twyn configure();
+	}
 	
 }
