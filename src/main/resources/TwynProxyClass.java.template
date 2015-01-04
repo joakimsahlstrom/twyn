@@ -49,7 +49,7 @@ IMPLEMENTED_METHODS
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof CLASS_NAME)) {
+		if (!(obj instanceof TARGET_INTERFACE)) {
 			return false;
 		}
 		CLASS_NAME other = (CLASS_NAME) obj;

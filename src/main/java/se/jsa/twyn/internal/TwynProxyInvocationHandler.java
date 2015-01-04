@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
 import java.util.Spliterators;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -39,24 +39,28 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		if (method.getName().equals("toString") && method.getParameterTypes().length == 0) {
+		if (hasSignature(method, "toString")) {
 	    	return toString();
-	    } else if (method.getName().equals("equals") && method.getParameterTypes().length == 1 && method.getParameterTypes()[0] == Object.class) {
+	    } else if (hasSignature(method, "equals", Object.class)) {
 	    	return equals(args[0]);
-	    } else if (method.getName().equals("hashCode") && method.getParameterTypes().length == 0) {
+	    } else if (hasSignature(method, "hashCode")) {
 	    	return hashCode();
 	    }
 
 		switch (MethodType.getType(method)) {
 		case DEFAULT:	return callDefaultMethod(proxy, method, args);
 		case ARRAY:		return innerArrayProxy(method);
-		case LIST:		return innerListProxy(method);
-		case SET:		return innerSetProxy(method);
+		case LIST:		return innerCollectionProxy(method, Collectors.toList());
+		case SET:		return innerCollectionProxy(method, Collectors.toSet());
 		case MAP:		return innerMapProxy(method);
 		case INTERFACE:	return innerProxy(method);
 		case VALUE:		return resolveValue(method);
 		default:		throw new RuntimeException("Could not handle methodType=" + MethodType.getType(method));
 		}
+	}
+
+	private boolean hasSignature(Method method, String name, Class<?>... params) {
+		return method.getName().equals(name) && Arrays.deepEquals(method.getParameterTypes(), params);
 	}
 
 	private Object callDefaultMethod(Object proxy, Method method, Object[] args) throws InstantiationException, IllegalArgumentException, Throwable {
@@ -67,14 +71,10 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 		        .invokeWithArguments(args);
 	}
 
-	private List<?> innerListProxy(Method method) {
+	@SuppressWarnings("unchecked")
+	private <T, A, R> R innerCollectionProxy(Method method, Collector<T, A, R> collector) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		return collect(annotation.value(), resolveTargetNode(method), annotation.parallel(), Collectors.toList());
-	}
-
-	private Set<?> innerSetProxy(Method method) {
-		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		return collect(annotation.value(), resolveTargetNode(method), annotation.parallel(), Collectors.toSet());
+		return collect((Class<T>)annotation.value(), resolveTargetNode(method), annotation.parallel(), collector);
 	}
 
 	private Map<?, ?> innerMapProxy(Method method) {
