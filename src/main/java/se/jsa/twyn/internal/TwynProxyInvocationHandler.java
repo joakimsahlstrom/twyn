@@ -19,22 +19,30 @@ import org.codehaus.jackson.map.JsonMappingException;
 import se.jsa.twyn.TwynCollection;
 
 class TwynProxyInvocationHandler implements InvocationHandler {
+	private static final Object[] NO_ARGS = new Object[] {};
+
 	private final JsonNode jsonNode;
 	private final TwynContext twyn;
+	private final Class<?> implementedType;
 
-	public TwynProxyInvocationHandler(JsonNode jsonNode, TwynContext twynContext) {
+	public TwynProxyInvocationHandler(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) {
 		this.jsonNode = jsonNode;
 		this.twyn = Objects.requireNonNull(twynContext);
+		this.implementedType = Objects.requireNonNull(implementedType);
 	}
 
-	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext) throws Exception {
-		return new TwynProxyInvocationHandler(jsonNode, twynContext);
+	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) throws Exception {
+		return new TwynProxyInvocationHandler(jsonNode, twynContext, implementedType);
 	}
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if (method.getName().equals("toString") && method.getParameterTypes().length == 0) {
 	    	return toString();
+	    } else if (method.getName().equals("equals") && method.getParameterTypes().length == 1 && method.getParameterTypes()[0] == Object.class) {
+	    	return equals(args[0]);
+	    } else if (method.getName().equals("hashCode") && method.getParameterTypes().length == 0) {
+	    	return hashCode();
 	    }
 
 		switch (MethodType.getType(method)) {
@@ -99,4 +107,36 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 	public String toString() {
 		return "TwynInvocationHandler proxy. Node=" + jsonNode;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (!implementedType.isAssignableFrom(obj.getClass())) {
+			return false;
+		}
+		return IdentityMethods.get(implementedType)
+			.allMatch((m) -> {
+				try {
+					return Objects.equals(m.invoke(obj), this.invoke(null, m, NO_ARGS));
+				} catch (Throwable e) {
+					throw new RuntimeException("Could not call method " + m + " for equals comparison..", e);
+				}
+			});
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(IdentityMethods.get(implementedType)
+				.map((m) -> {
+					try {
+						return this.invoke(null, m, NO_ARGS);
+					} catch (Throwable e) {
+						throw new RuntimeException("Could not call method " + m + " for hashCode calculation.", e);
+					}
+				})
+				.toArray());
+	}
+
 }

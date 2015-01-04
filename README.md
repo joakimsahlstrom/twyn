@@ -137,8 +137,10 @@ interface Offspring {
 }
 ```
 
+###Twyn support hashCode and equals
+Equals and hashCode are calculated from all mapped values, or, if any, those annotated with @TwynId.
+
 ##Todo:
-* .equals & .hashCode support for proxies (@Id for reference objects, no annotation for value objects)
 * Support Set
 * Pre-compilation of classes
 * Value caching

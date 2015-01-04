@@ -42,12 +42,14 @@ class TwynProxyClassTemplates {
 		return new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource(fileName).toURI())));
 	}
 
-	public String templateTwynProxyClass(String className, Class<?> implementedInterface, String methodBodies) {
+	public String templateTwynProxyClass(String className, Class<?> implementedInterface, String methodBodies, String equalsComparison, String hashCodeCalls) {
 		return twynProxyClassTemplate
 				.replaceAll("CLASS_NAME", className)
 				.replaceAll("TARGET_INTERFACE_QUALIFIED", implementedInterface.getCanonicalName())
 				.replaceAll("TARGET_INTERFACE", implementedInterface.getSimpleName())
-				.replaceAll("IMPLEMENTED_METHODS", methodBodies);
+				.replaceAll("IMPLEMENTED_METHODS", methodBodies)
+				.replaceAll("EQUALS_COMPARISON", equalsComparison)
+				.replaceAll("HASHCODE_CALLS", hashCodeCalls);
 	}
 
 	public String templateInterfaceMethod(Method method) {

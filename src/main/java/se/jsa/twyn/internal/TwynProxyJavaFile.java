@@ -1,9 +1,11 @@
 package se.jsa.twyn.internal;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Function;
 
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 
@@ -18,7 +20,14 @@ class TwynProxyJavaFile {
 
 	public static TwynProxyJavaFile create(Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
 		String className = implementedInterface.getSimpleName() + "TwynImpl";
-		return new TwynProxyJavaFile(className, templates.templateTwynProxyClass(className, implementedInterface, buildMethods(implementedInterface, templates)));
+		return new TwynProxyJavaFile(
+				className,
+				templates.templateTwynProxyClass(
+						className,
+						implementedInterface,
+						buildMethods(implementedInterface, templates),
+						buildEqualsComparison(implementedInterface),
+						buildHashCodeCalls(implementedInterface)));
 	}
 
 	private static String buildMethods(Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
@@ -34,6 +43,20 @@ class TwynProxyJavaFile {
 			} })
 			.collect(StringBuilder::new, (sb, s) -> sb.append(s), (sb1, sb2) -> sb1.append(sb2.toString()))
 			.toString();
+	}
+
+	private static String buildEqualsComparison(Class<?> implementedInterface) {
+		return joinIdentityMethods(implementedInterface, m -> { return "Objects.equals(this." + m.getName() + "(), other." + m.getName() + "())"; }, " && ");
+	}
+
+	private static String buildHashCodeCalls(Class<?> implementedInterface) {
+		return joinIdentityMethods(implementedInterface, m -> { return (MethodType.ARRAY.test(m) ? "(Object)" : "") + m.getName() + "()"; }, ", ");
+	}
+
+	private static String joinIdentityMethods(Class<?> implementedInterface, Function<Method, String> fn, String separator) {
+		return IdentityMethods.get(implementedInterface)
+				.map(fn)
+				.reduce(null, (s1, s2) -> { return (s1 == null ? s2 : (s2 == null ? s1 : s1 + separator + s2)); });
 	}
 
 	public JavaSourceCompiler.CompilationUnit setupCompilationUnit(JavaSourceCompiler javaSourceCompiler) {

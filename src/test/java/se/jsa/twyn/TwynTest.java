@@ -1,6 +1,8 @@
 package se.jsa.twyn;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -266,6 +268,78 @@ public class TwynTest {
 	public void readSameDataManyTimesPerformanceTest2() throws Exception {
 		readSameDataManyTimesPerformanceTest();
 	}
+
+	@Test
+	public void equalsForValueObjects() throws Exception {
+		Entity e1 = twyn.read("{ \"name\" : \"n1\", \"type\" : \"t1\" }", Entity.class);
+		Entity e2 = twyn.read("{ \"name\" : \"n2\", \"type\" : \"t1\" }", Entity.class);
+		Entity e3 = twyn.read("{ \"name\" : \"n1\", \"type\" : \"t2\" }", Entity.class);
+
+		assertFalse(e1.equals(e2));
+		assertFalse(e1.equals(e3));
+		assertFalse(e2.equals(e3));
+
+		assertEquals(e1, twyn.read("{ \"name\" : \"n1\", \"type\" : \"t1\" }", Entity.class));
+		assertEquals(e2, twyn.read("{ \"name\" : \"n2\", \"type\" : \"t1\" }", Entity.class));
+		assertEquals(e3, twyn.read("{ \"name\" : \"n1\", \"type\" : \"t2\" }", Entity.class));
+	}
+
+	@Test
+	public void hashCodeForValueObjects() throws Exception {
+		Entity e1 = twyn.read("{ \"name\" : \"n1\", \"type\" : \"t1\" }", Entity.class);
+		Entity e2 = twyn.read("{ \"name\" : \"n2\", \"type\" : \"t1\" }", Entity.class);
+		Entity e3 = twyn.read("{ \"name\" : \"n1\", \"type\" : \"t2\" }", Entity.class);
+
+		assertFalse(e1.hashCode() == e2.hashCode());
+		assertFalse(e1.hashCode() == e3.hashCode());
+		assertFalse(e2.hashCode() == e3.hashCode());
+
+		assertEquals(e1.hashCode(), twyn.read("{ \"name\" : \"n1\", \"type\" : \"t1\" }", Entity.class).hashCode());
+		assertEquals(e2.hashCode(), twyn.read("{ \"name\" : \"n2\", \"type\" : \"t1\" }", Entity.class).hashCode());
+		assertEquals(e3.hashCode(), twyn.read("{ \"name\" : \"n1\", \"type\" : \"t2\" }", Entity.class).hashCode());
+
+		// We do not support per element array equality
+		assertFalse(
+				twyn.read(input("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }"), ComplexArrayIF.class).hashCode() ==
+				twyn.read(input("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }"), ComplexArrayIF.class).hashCode());
+	}
+
+	@Test
+	public void equalsForReferenceObjects() throws Exception {
+		ReferenceEntity e1 = twyn.read("{ \"name\" : \"n1\", \"type\" : \"t1\" }", ReferenceEntity.class);
+		ReferenceEntity e2 = twyn.read("{ \"name\" : \"n2\", \"type\" : \"t1\" }", ReferenceEntity.class);
+		ReferenceEntity e3 = twyn.read("{ \"name\" : \"n1\", \"type\" : \"t2\" }", ReferenceEntity.class);
+
+		assertFalse(e1.equals(e2));
+		assertTrue(e1.equals(e3));
+		assertFalse(e2.equals(e3));
+
+		assertEquals(e1, twyn.read("{ \"name\" : \"n1\", \"type\" : \"t1\" }", ReferenceEntity.class));
+		assertEquals(e2, twyn.read("{ \"name\" : \"n2\", \"type\" : \"t1\" }", ReferenceEntity.class));
+		assertEquals(e3, twyn.read("{ \"name\" : \"n1\", \"type\" : \"t2\" }", ReferenceEntity.class));
+	}
+	public static interface ReferenceEntity {
+		@TwynId
+		String name();
+		String type();
+	}
+
+	@Test
+	public void hashCodeForReferenceObjects() throws Exception {
+		ReferenceEntity e1 = twyn.read("{ \"name\" : \"n1\", \"type\" : \"t1\" }", ReferenceEntity.class);
+		ReferenceEntity e2 = twyn.read("{ \"name\" : \"n2\", \"type\" : \"t1\" }", ReferenceEntity.class);
+		ReferenceEntity e3 = twyn.read("{ \"name\" : \"n1\", \"type\" : \"t2\" }", ReferenceEntity.class);
+
+		assertNotEquals(e1.hashCode(), e2.hashCode());
+		assertEquals(e1.hashCode(), e3.hashCode());
+		assertNotEquals(e2.hashCode(), e3.hashCode());
+
+		assertEquals(e1.hashCode(), twyn.read("{ \"name\" : \"n1\", \"type\" : \"t1\" }", ReferenceEntity.class).hashCode());
+		assertEquals(e2.hashCode(), twyn.read("{ \"name\" : \"n2\", \"type\" : \"t1\" }", ReferenceEntity.class).hashCode());
+		assertEquals(e3.hashCode(), twyn.read("{ \"name\" : \"n1\", \"type\" : \"t2\" }", ReferenceEntity.class).hashCode());
+	}
+
+	// Helper methods
 
 	private InputStream input(String string) {
 		return new ByteArrayInputStream(string.getBytes());

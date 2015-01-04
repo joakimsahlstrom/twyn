@@ -37,8 +37,26 @@ IMPLEMENTED_METHODS
 			.collect(Collectors.toList());
 	}
 	
+	@Override
 	public String toString() {
 		return "TwynProxyClass [jsonNode=" + jsonNode + "]";
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof CLASS_NAME)) {
+			return false;
+		}
+		CLASS_NAME other = (CLASS_NAME) obj;
+		return EQUALS_COMPARISON;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(HASHCODE_CALLS);
 	}
 	
 }
