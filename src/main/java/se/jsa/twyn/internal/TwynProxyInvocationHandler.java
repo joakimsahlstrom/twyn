@@ -1,4 +1,4 @@
-package se.jsa.twyn;
+package se.jsa.twyn.internal;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -16,17 +16,20 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
-class TwynInvocationHandler implements InvocationHandler {
+import se.jsa.twyn.Twyn;
+import se.jsa.twyn.TwynCollection;
+
+class TwynProxyInvocationHandler implements InvocationHandler {
 	private final JsonNode tree;
 	private final Twyn twyn;
 	
-	public TwynInvocationHandler(JsonNode tree, Twyn twyn) {
+	public TwynProxyInvocationHandler(JsonNode tree, Twyn twyn) {
 		this.tree = tree;
 		this.twyn = Objects.requireNonNull(twyn);
 	}
 	
-	public static TwynInvocationHandler create(JsonNode jsonNode, Twyn twyn) throws Exception {
-		return new TwynInvocationHandler(jsonNode, twyn);
+	public static TwynProxyInvocationHandler create(JsonNode jsonNode, Twyn twyn) throws Exception {
+		return new TwynProxyInvocationHandler(jsonNode, twyn);
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

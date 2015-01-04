@@ -1,8 +1,11 @@
-package se.jsa.twyn;
+package se.jsa.twyn.internal;
 
 import java.lang.reflect.Proxy;
 
 import org.codehaus.jackson.JsonNode;
+
+import se.jsa.twyn.Twyn;
+import se.jsa.twyn.TwynProxyBuilder;
 
 public class TwynProxyInvocationHandlerBuilder implements TwynProxyBuilder {
 
@@ -10,7 +13,7 @@ public class TwynProxyInvocationHandlerBuilder implements TwynProxyBuilder {
 	public <T> T buildProxy(Class<T> type, Twyn twyn, JsonNode jsonNode) throws Exception {
 		return type.cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), 
 				new Class<?>[] { type },
-				new TwynInvocationHandler(jsonNode, twyn)));
+				new TwynProxyInvocationHandler(jsonNode, twyn)));
 	}
 
 }

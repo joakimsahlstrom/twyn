@@ -30,12 +30,12 @@ public class TwynProxyClassTemplates {
 
 	public static TwynProxyClassTemplates create() throws IOException, URISyntaxException {
 		return new TwynProxyClassTemplates(
-				new String(Files.readAllBytes(Paths.get(TwynProxyClassFile.class.getResource("/TwynProxyClass.java.template").toURI()))),
-				new String(Files.readAllBytes(Paths.get(TwynProxyClassFile.class.getResource("/TwynProxyClass_interfaceMethod.java.template").toURI()))),
-				new String(Files.readAllBytes(Paths.get(TwynProxyClassFile.class.getResource("/TwynProxyClass_valueMethod.java.template").toURI()))),
-				new String(Files.readAllBytes(Paths.get(TwynProxyClassFile.class.getResource("/TwynProxyClass_arrayMethod.java.template").toURI()))),
-				new String(Files.readAllBytes(Paths.get(TwynProxyClassFile.class.getResource("/TwynProxyClass_listMethod.java.template").toURI()))),
-				new String(Files.readAllBytes(Paths.get(TwynProxyClassFile.class.getResource("/TwynProxyClass_mapMethod.java.template").toURI())))
+				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass.java.template").toURI()))),
+				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass_interfaceMethod.java.template").toURI()))),
+				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass_valueMethod.java.template").toURI()))),
+				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass_arrayMethod.java.template").toURI()))),
+				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass_listMethod.java.template").toURI()))),
+				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass_mapMethod.java.template").toURI())))
 				);
 	}
 

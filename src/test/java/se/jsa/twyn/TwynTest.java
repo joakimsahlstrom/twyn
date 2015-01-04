@@ -16,6 +16,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import se.jsa.twyn.internal.TwynProxyClassBuilder;
+import se.jsa.twyn.internal.TwynProxyInvocationHandlerBuilder;
 
 @RunWith(Parameterized.class)
 public class TwynTest {

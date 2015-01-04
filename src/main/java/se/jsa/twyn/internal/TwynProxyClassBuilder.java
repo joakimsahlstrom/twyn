@@ -3,6 +3,8 @@ package se.jsa.twyn.internal;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
@@ -14,6 +16,7 @@ import se.jsa.twyn.TwynProxyBuilder;
 public class TwynProxyClassBuilder implements TwynProxyBuilder {
 	
 	private JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
+	private Map<Class<?>, Class<?>> implementations = new ConcurrentHashMap<Class<?>, Class<?>>(); 
 	private TwynProxyClassTemplates templates;
 	
 	public TwynProxyClassBuilder() {
@@ -31,9 +34,16 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 	}
 
 	private Class<?> getClass(Class<?> type, Twyn twyn) throws IOException, URISyntaxException, ClassNotFoundException {
+		if (!implementations.containsKey(type)) {
+			implementations.put(type, createClass(type, twyn));
+		}
+		return implementations.get(type);
+	}
+
+	private Class<?> createClass(Class<?> type, Twyn twyn) throws IOException, URISyntaxException, ClassNotFoundException {
 		String typeImplementationName = type.getSimpleName() + "TwynImpl";
 		JavaSourceCompiler.CompilationUnit compilationUnit = javaSourceCompiler.createCompilationUnit();
-		TwynProxyClassFile twynProxyClassFile = TwynProxyClassFile.create(typeImplementationName, type, twyn, templates);
+		TwynProxyJavaFile twynProxyClassFile = TwynProxyJavaFile.create(typeImplementationName, type, twyn, templates);
 	    
 	    compilationUnit.addJavaSource(twynProxyClassFile.getClassName(), twynProxyClassFile.getCode());
 	    ClassLoader classLoader = javaSourceCompiler.compile(compilationUnit);

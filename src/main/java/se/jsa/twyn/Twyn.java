@@ -19,6 +19,8 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import se.jsa.twyn.internal.TwynProxyInvocationHandlerBuilder;
+
 public class Twyn {
 	private final Constructor<MethodHandles.Lookup> methodHandleLookupConstructor;
 	private final ObjectMapper objectMapper;
@@ -93,7 +95,9 @@ public class Twyn {
 		}
 	}
 	
-	Lookup lookup(Object declaringClass) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	// Move below to own class?
+	
+	public Lookup lookup(Object declaringClass) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return methodHandleLookupConstructor.newInstance(declaringClass, MethodHandles.Lookup.PRIVATE);
 	}
 	

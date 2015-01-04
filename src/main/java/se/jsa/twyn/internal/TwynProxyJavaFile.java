@@ -12,17 +12,17 @@ import java.util.stream.Collectors;
 import se.jsa.twyn.Twyn;
 import se.jsa.twyn.TwynCollection;
 
-public class TwynProxyClassFile {
+public class TwynProxyJavaFile {
 	private String code;
 	private String className;
 
-	public TwynProxyClassFile(String className, String code) {
+	public TwynProxyJavaFile(String className, String code) {
 		this.className = Objects.requireNonNull(className);
 		this.code = Objects.requireNonNull(code);
 	}
 
-	public static TwynProxyClassFile create(String className, Class<?> implementedInterface, Twyn twyn, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
-		return new TwynProxyClassFile(className, templates.templateTwynProxyClass(className, implementedInterface, buildMethods(implementedInterface, twyn, templates)));
+	public static TwynProxyJavaFile create(String className, Class<?> implementedInterface, Twyn twyn, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
+		return new TwynProxyJavaFile(className, templates.templateTwynProxyClass(className, implementedInterface, buildMethods(implementedInterface, twyn, templates)));
 	}
 	
 	private static String buildMethods(Class<?> implementedInterface, Twyn twyn, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
