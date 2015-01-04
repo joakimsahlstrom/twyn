@@ -1,0 +1,11 @@
+	@Override
+	public RETURN_TYPE METHOD_NAME() {
+		try {
+			List<COMPONENT_TYPE> result = collect(COMPONENT_TYPE.class, jsonNode.get("FIELD_NAME"));
+			return result.toArray((COMPONENT_TYPE[]) Array.newInstance(COMPONENT_TYPE.class, result.size()));
+		} catch (NullPointerException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}

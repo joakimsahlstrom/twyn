@@ -1,0 +1,10 @@
+	@Override
+	public RETURN_TYPE<COMPONENT_TYPE> METHOD_NAME() {
+		try {
+			return collect(COMPONENT_TYPE.class, jsonNode.get("FIELD_NAME"));
+		} catch (NullPointerException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}

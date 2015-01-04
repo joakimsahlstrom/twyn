@@ -8,7 +8,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.Objects;
 
@@ -23,13 +22,19 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class Twyn {
 	private final Constructor<MethodHandles.Lookup> methodHandleLookupConstructor;
 	private final ObjectMapper objectMapper;
+	private final TwynProxyBuilder proxyBuilder;
 	
 	public Twyn() {
 		this(new ObjectMapper());
 	}
 	
 	public Twyn(ObjectMapper objectMapper) {
+		this(objectMapper, new TwynProxyInvocationHandlerBuilder());
+	}
+	
+	public Twyn(ObjectMapper objectMapper, TwynProxyBuilder twynProxyBuilder) {
 		this.objectMapper = Objects.requireNonNull(objectMapper);
+		this.proxyBuilder = Objects.requireNonNull(twynProxyBuilder);
 		
 		try {
 			methodHandleLookupConstructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
@@ -80,9 +85,7 @@ public class Twyn {
 	
 	private <T> T read(JsonProducer jsonProducer, Class<T> type) throws JsonProcessingException {
 		try {
-			return type.cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), 
-					new Class<?>[] {type},
-					TwynInvocationHandler.create(jsonProducer, this)));
+			return proxy(jsonProducer.get(), type);
 		} catch (JsonProcessingException e) {
 			throw e;
 		} catch (Exception e) {
@@ -94,14 +97,28 @@ public class Twyn {
 		return methodHandleLookupConstructor.newInstance(declaringClass, MethodHandles.Lookup.PRIVATE);
 	}
 	
-	<T> T proxy(Class<T> type, JsonNode tree) {
-		return type.cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), 
-				new Class<?>[] {type},
-				new TwynInvocationHandler(tree, this)));
+	public <T> T proxy(JsonNode jsonNode, Class<T> type) {
+		try {
+			return proxyBuilder.buildProxy(type, this, jsonNode);
+		} catch (Exception e) {
+			throw new RuntimeException("Could not create Twyn proxy", e);
+		}
 	}
-
-	Object readValue(JsonNode resolveTargetNode, Class<?> valueType) throws JsonParseException, JsonMappingException, IOException {
+	
+	public <T> T readValue(JsonNode resolveTargetNode, Class<T> valueType) throws JsonParseException, JsonMappingException, IOException {
 		return objectMapper.readValue(resolveTargetNode, valueType);
 	}
+	
+	private static final String[] PREFIXES = new String[] { "get", "is" };
+	public String decodeJavaBeanName(String name) {
+		for (String prefix : PREFIXES) {
+			int prefixLength = prefix.length();
+			if (name.startsWith(prefix) && name.length() > prefixLength && Character.isUpperCase(name.charAt(prefixLength))) {
+				return name.substring(prefixLength, prefixLength + 1).toLowerCase() + name.substring(prefixLength + 1);
+			}
+		}
+		return name;
+	}
+
 	
 }

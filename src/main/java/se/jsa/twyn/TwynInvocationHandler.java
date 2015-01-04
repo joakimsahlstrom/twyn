@@ -16,8 +16,6 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
-import se.jsa.twyn.Twyn.JsonProducer;
-
 class TwynInvocationHandler implements InvocationHandler {
 	private final JsonNode tree;
 	private final Twyn twyn;
@@ -27,8 +25,8 @@ class TwynInvocationHandler implements InvocationHandler {
 		this.twyn = Objects.requireNonNull(twyn);
 	}
 	
-	public static TwynInvocationHandler create(JsonProducer jsonProducer, Twyn twyn) throws Exception {
-		return new TwynInvocationHandler(jsonProducer.get(), twyn);
+	public static TwynInvocationHandler create(JsonNode jsonNode, Twyn twyn) throws Exception {
+		return new TwynInvocationHandler(jsonNode, twyn);
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -65,7 +63,7 @@ class TwynInvocationHandler implements InvocationHandler {
 		Class<?> componentType = method.getAnnotation(TwynCollection.class).value();
 		return StreamSupport
 				.stream(Spliterators.spliteratorUnknownSize(resolveTargetNode(method).getFields(), 0), false)
-				.collect(Collectors.toMap(Entry::getKey, (entry) -> twyn.proxy(componentType, entry.getValue())));
+				.collect(Collectors.toMap(Entry::getKey, (entry) -> twyn.proxy(entry.getValue(), componentType)));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -74,36 +72,25 @@ class TwynInvocationHandler implements InvocationHandler {
 		List<T> result = collect(componentType, resolveTargetNode(method));
 		return result.toArray((T[]) Array.newInstance(componentType, result.size()));
 	}
-
+	
 	private Object innerProxy(Method method) {
-		return twyn.proxy(method.getReturnType(), resolveTargetNode(method));
+		return twyn.proxy(resolveTargetNode(method), method.getReturnType());
 	}
 
 	private Object resolveValue(Method method) throws IOException, JsonParseException, JsonMappingException {
 		return twyn.readValue(resolveTargetNode(method), method.getReturnType());
 	}
 	
-	private <T, A> List<T> collect(Class<T> componentType, JsonNode jsonNode) {
+	private <T> List<T> collect(Class<T> componentType, JsonNode jsonNode) {
 		return StreamSupport.stream(jsonNode.spliterator(), false)
-			.map(n -> twyn.proxy(componentType, n))
+			.map(n -> twyn.proxy(n, componentType))
 			.collect(Collectors.toList());
 	}
 
 	private JsonNode resolveTargetNode(Method method) {
-		return tree.get(decodeJavaBeanName(method.getName()));
+		return tree.get(twyn.decodeJavaBeanName(method.getName()));
 	}
-
-	private static final String[] PREFIXES = new String[] { "get", "is" };
-	private String decodeJavaBeanName(String name) {
-		for (String prefix : PREFIXES) {
-			int prefixLength = prefix.length();
-			if (name.startsWith(prefix) && name.length() > prefixLength && Character.isUpperCase(name.charAt(prefixLength))) {
-				return name.substring(prefixLength, prefixLength + 1).toLowerCase() + name.substring(prefixLength + 1);
-			}
-		}
-		return name;
-	}
-	
+		
 	public String toString() {
 		return "TwynInvocationHandler proxy. Node=" + tree;
 	}

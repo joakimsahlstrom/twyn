@@ -120,6 +120,7 @@ interface Entity {
 ```
 
 ##Todo:
+* .equals & .hashCode support for proxies
 * Value caching
 * Improved performance (drop java proxies, use code generation instead?)
 * Support for setters

@@ -4,14 +4,35 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+import se.jsa.twyn.internal.TwynProxyClassBuilder;
+
+@RunWith(Parameterized.class)
 public class TwynTest {
 
-	private Twyn twyn = new Twyn();
+	private final Twyn twyn;
+
+	public TwynTest(Twyn twyn) {
+		this.twyn = twyn;
+	}
+	
+	@Parameters
+	public static Collection<Object[]> twyns() {
+		return Arrays.<Object[]>asList(
+				new Object[] { new Twyn(new ObjectMapper(), new TwynProxyInvocationHandlerBuilder()) },
+				new Object[] { new Twyn(new ObjectMapper(), new TwynProxyClassBuilder()) }
+				);
+	}
 	
 	@Test
 	public void canReadString() throws Exception {
@@ -147,7 +168,7 @@ public class TwynTest {
 	}
 	
 	@Test
-	public void canReadList() throws Exception {
+	public void canReadComplexList() throws Exception {
 		ListIF complexArray = twyn.read("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }", ListIF.class);
 		assertEquals("s2?", complexArray.getStrings().get(1).getName());
 		assertEquals("s3#", complexArray.getStrings().get(2).getName());
@@ -197,7 +218,7 @@ public class TwynTest {
 		assertEquals("Mal", offspring.sons()[0]);
 		assertEquals("squid", offspring.getUnknowns().get(0).type());
 	}
-	interface Offspring {
+	public static interface Offspring {
 		Daughter[] daughters();
 		
 		@TwynCollection(Nick.class)
@@ -208,20 +229,20 @@ public class TwynTest {
 		@TwynCollection(Entity.class)
 		List<Entity> getUnknowns();
 	}
-	interface Daughter {
+	public static interface Daughter {
 		String getName();
 	}
-	interface Nick {
+	public static interface Nick {
 		String nick();
 	}
-	interface Entity {
+	public static interface Entity {
 		String name();
 		String type();
 	}
 	
 	@Test
 	public void toStringWorksOnProxies() throws Exception {
-		assertEquals("TwynInvocationHandler proxy. Node={\"name\":\"Hello World!\"}", twyn.read(input("{ \"name\" : \"Hello World!\" }"), StringIF.class).toString());
+		assertTrue(twyn.read(input("{ \"name\" : \"Hello World!\" }"), StringIF.class).toString().contains("{\"name\":\"Hello World!\"}"));
 	}
 	
 	private InputStream input(String string) {
