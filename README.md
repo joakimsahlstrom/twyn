@@ -99,12 +99,12 @@ Can be mapped with:
 interface Offspring {
 	Daughter[] daughters();
 	
-	@TwynCollection(Nick.class)
-	Map<String, Nick> daughterNickNames();
+	@TwynCollection(Nick.class) // Collections without this annotation are ignored
+	Map<String, Nick> daughterNickNames(); // Key is always of type String
 	
 	String[] sons();
 	
-	@TwynCollection(Entity.class)
+	@TwynCollection(Entity.class) // ...goes for all collection types
 	List<Entity> getUnknowns();
 }
 interface Daughter {

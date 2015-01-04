@@ -76,7 +76,6 @@ class TwynProxyClassTemplates {
 	public String templateListMethod(Method method) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		return twynListMethodTemplate
-				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
@@ -85,7 +84,7 @@ class TwynProxyClassTemplates {
 
 	public String templateMapMethod(Method method) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		return twynMapMethodTemplate.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
+		return twynMapMethodTemplate
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))

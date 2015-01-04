@@ -1,5 +1,5 @@
 	@Override
-	public RETURN_TYPE<String, COMPONENT_TYPE> METHOD_NAME() {
+	public Map<String, COMPONENT_TYPE> METHOD_NAME() {
 		try {
 			return StreamSupport
 				.stream(Spliterators.spliteratorUnknownSize(jsonNode.get("FIELD_NAME").getFields(), 0), PARALLEL)
