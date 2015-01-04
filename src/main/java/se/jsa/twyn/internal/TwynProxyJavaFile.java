@@ -42,12 +42,12 @@ class TwynProxyJavaFile {
 				case VALUE:		return templates.templateValueMethod(m);
 				default: 		throw new RuntimeException("Could not handle methodType=" + MethodType.getType(m));
 			} })
-			.collect(StringBuilder::new, (sb, s) -> sb.append(s), (sb1, sb2) -> sb1.append(sb2.toString()))
+			.collect(StringBuilder::new, (sb, s) -> sb.append(s).append("\n\n"), (sb1, sb2) -> sb1.append(sb2.toString()))
 			.toString();
 	}
 
 	private static String buildEqualsComparison(Class<?> implementedInterface) {
-		return joinIdentityMethods(implementedInterface, m -> { return "Objects.equals(this." + m.getName() + "(), other." + m.getName() + "())"; }, " && ");
+		return joinIdentityMethods(implementedInterface, m -> { return "Objects.equals(this." + m.getName() + "(), other." + m.getName() + "())"; }, "\n\t\t\t\t&& ");
 	}
 
 	private static String buildHashCodeCalls(Class<?> implementedInterface) {
@@ -68,6 +68,10 @@ class TwynProxyJavaFile {
 
 	public String getClassName() {
 		return "se.jsa.twyn." + className;
+	}
+
+	String getCode() {
+		return code;
 	}
 
 	@Override

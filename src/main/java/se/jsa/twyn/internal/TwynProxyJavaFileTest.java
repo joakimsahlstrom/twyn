@@ -1,0 +1,49 @@
+package se.jsa.twyn.internal;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.Test;
+
+import se.jsa.twyn.TwynCollection;
+
+
+public class TwynProxyJavaFileTest {
+
+	@Test
+	public void generatesCorrectCode() throws Exception {
+		System.out.println(TwynProxyJavaFile.create(Offspring.class, TwynProxyClassTemplates.create())
+			.getCode());
+	}
+	public static interface Offspring {
+		String myName();
+
+		Daughter[] daughters();
+
+		@TwynCollection(value = Nick.class, parallel = true)
+		Map<String, Nick> daughterNickNames();
+
+		String[] sons();
+
+		@TwynCollection(Entity.class)
+		List<Entity> getUnknowns();
+
+		@TwynCollection(Song.class)
+		Set<Song> songs();
+	}
+	public static interface Daughter {
+		String getName();
+	}
+	public static interface Nick {
+		String nick();
+	}
+	public static interface Entity {
+		String name();
+		String type();
+	}
+	public static interface Song {
+		String name();
+	}
+
+}

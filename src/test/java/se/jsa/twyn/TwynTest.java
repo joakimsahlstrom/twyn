@@ -244,8 +244,8 @@ public class TwynTest {
 		@TwynCollection(Entity.class)
 		List<Entity> getUnknowns();
 
-		@TwynCollection(StringIF.class)
-		Set<StringIF> songs();
+		@TwynCollection(Song.class)
+		Set<Song> songs();
 	}
 	public static interface Daughter {
 		String getName();
@@ -256,6 +256,9 @@ public class TwynTest {
 	public static interface Entity {
 		String name();
 		String type();
+	}
+	public static interface Song {
+		String name();
 	}
 
 	@Test
