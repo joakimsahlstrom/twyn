@@ -92,7 +92,7 @@ The json field "xxx" can be mapped by both getXxx, hasXxx but simple direct mapp
 	},
 	"sons" : [ "Mal", "Wash" ],
 	"unknowns" : [ { "name" : "Chtulu", "type" : "squid" }, { "name" : "Donald", "type" : "duck" } ],
-	"songs" : [ { "name" : "Come out and play" }, { "name\" : "LAPD" } ]
+	"songs" : [ { "name" : "Come out and play" }, { "name" : "LAPD" } ]
 }
 ```
 Can be mapped with:
@@ -109,7 +109,7 @@ interface Offspring {
 	List<Entity> getUnknowns();
 	
 	@TwynCollection(Song.class)
-	Set<Song> songs();
+	Set<Song> songs(); // Object equality is described below
 }
 interface Daughter {
 	String getName();
