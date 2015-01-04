@@ -58,7 +58,7 @@ public class Twyn {
 	}
 	
 	@FunctionalInterface
-	/*package*/ interface JsonProducer {
+	private interface JsonProducer {
 		JsonNode get() throws Exception;
 	}
 	

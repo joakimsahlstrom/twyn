@@ -29,13 +29,17 @@ public class TwynProxyClassTemplates {
 
 	public static TwynProxyClassTemplates create() throws IOException, URISyntaxException {
 		return new TwynProxyClassTemplates(
-				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass.java.template").toURI()))),
-				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass_interfaceMethod.java.template").toURI()))),
-				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass_valueMethod.java.template").toURI()))),
-				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass_arrayMethod.java.template").toURI()))),
-				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass_listMethod.java.template").toURI()))),
-				new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource("/TwynProxyClass_mapMethod.java.template").toURI())))
+				readTemplate("/TwynProxyClass.java.template"),
+				readTemplate("/TwynProxyClass_interfaceMethod.java.template"),
+				readTemplate("/TwynProxyClass_valueMethod.java.template"),
+				readTemplate("/TwynProxyClass_arrayMethod.java.template"),
+				readTemplate("/TwynProxyClass_listMethod.java.template"),
+				readTemplate("/TwynProxyClass_mapMethod.java.template")
 				);
+	}
+
+	private static String readTemplate(String fileName) throws IOException, URISyntaxException {
+		return new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource(fileName).toURI())));
 	}
 
 	public String templateTwynProxyClass(String className, Class<?> implementedInterface, String methodBodies) {

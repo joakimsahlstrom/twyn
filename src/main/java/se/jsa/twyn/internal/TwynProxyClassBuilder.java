@@ -20,35 +20,41 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 		try {
 			templates = TwynProxyClassTemplates.create();
 		} catch (IOException | URISyntaxException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Internal error, could not read code template files.", e);
 		}
 	}
 	
 	@Override
-	public <T> T buildProxy(Class<T> type, TwynContext twyn, JsonNode jsonNode) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, IOException, URISyntaxException {
-	    Class<?> typeImpl = getImplementingClass(type);
-	    return type.cast(build(typeImpl, twyn, jsonNode));
+	public <T> T buildProxy(Class<T> type, TwynContext twyn, JsonNode jsonNode) {
+	    return type.cast(instantiate(getImplementingClass(type), twyn, jsonNode));
 	}
 
-	private Class<?> getImplementingClass(Class<?> type) throws IOException, URISyntaxException, ClassNotFoundException {
-		if (!implementations.containsKey(type)) {
-			implementations.put(type, createClass(type));
+	private Class<?> getImplementingClass(Class<?> type) {
+		return implementations.computeIfAbsent(type, t -> createClass(t));
+	}
+
+	private Class<?> createClass(Class<?> type) {
+		try {
+			TwynProxyJavaFile twynProxyJavaFile = TwynProxyJavaFile.create(type, templates);
+			return javaSourceCompiler
+					.compile(twynProxyJavaFile.setupCompilationUnit(javaSourceCompiler))
+					.loadClass(twynProxyJavaFile.getClassName());
+		} catch (ClassNotFoundException | IOException | URISyntaxException e) {
+			throw new RuntimeException("Could not create class for " + type.getSimpleName(), e);
 		}
-		return implementations.get(type);
 	}
 
-	private Class<?> createClass(Class<?> type) throws IOException, URISyntaxException, ClassNotFoundException {
-		String typeImplementationName = type.getSimpleName() + "TwynImpl";
-		JavaSourceCompiler.CompilationUnit compilationUnit = javaSourceCompiler.createCompilationUnit();
-		TwynProxyJavaFile twynProxyClassFile = TwynProxyJavaFile.create(typeImplementationName, type, templates);
-	    
-	    compilationUnit.addJavaSource(twynProxyClassFile.getClassName(), twynProxyClassFile.getCode());
-	    ClassLoader classLoader = javaSourceCompiler.compile(compilationUnit);
-	    return classLoader.loadClass(twynProxyClassFile.getClassName());
-	}
-	
-	private Object build(Class<?> fooClass, TwynContext twyn, JsonNode jsonNode) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		return fooClass.getConstructor(TwynContext.class, JsonNode.class).newInstance(twyn, jsonNode);
+	private Object instantiate(Class<?> typeImpl, TwynContext twyn, JsonNode jsonNode) {
+		try {
+			return typeImpl.getConstructor(TwynContext.class, JsonNode.class).newInstance(twyn, jsonNode);
+		} catch (InstantiationException 
+				| IllegalAccessException
+				| IllegalArgumentException 
+				| InvocationTargetException
+				| NoSuchMethodException 
+				| SecurityException e) {
+			throw new RuntimeException("Could not instantiate class " + typeImpl.getSimpleName(), e);
+		}
 	}
 
 	@Override

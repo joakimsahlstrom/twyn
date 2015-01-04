@@ -1,15 +1,11 @@
 package se.jsa.twyn.internal;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-import se.jsa.twyn.TwynCollection;
+import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 
 public class TwynProxyJavaFile {
 	private String code;
@@ -20,34 +16,39 @@ public class TwynProxyJavaFile {
 		this.code = Objects.requireNonNull(code);
 	}
 
-	public static TwynProxyJavaFile create(String className, Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
+	public static TwynProxyJavaFile create(Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
+		String className = implementedInterface.getSimpleName() + "TwynImpl";
 		return new TwynProxyJavaFile(className, templates.templateTwynProxyClass(className, implementedInterface, buildMethods(implementedInterface, templates)));
 	}
 	
 	private static String buildMethods(Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
-		StringBuilder result = new StringBuilder();
-		for (Method method : Arrays.asList(implementedInterface.getMethods()).stream().filter(m -> !m.isDefault()).collect(Collectors.toList())) {
-			if (method.getReturnType().isArray() && method.getReturnType().getComponentType().isInterface()) {
-				result.append(templates.templateArrayMethod(method));
-			} else if (method.getReturnType().equals(List.class) && method.getAnnotation(TwynCollection.class) != null) {
-				result.append(templates.templateListMethod(method));
-			} else if (method.getReturnType().equals(Map.class) && method.getAnnotation(TwynCollection.class) != null) {
-				result.append(templates.templateMapMethod(method));
-			} else if (method.getReturnType().isInterface()) {
-				result.append(templates.templateInterfaceMethod(method));
-			} else {
-				result.append(templates.templateValueMethod(method));
-			}
-		}
-		return result.toString();
+		return Arrays.asList(implementedInterface.getMethods()).stream().parallel()
+			.filter(m -> !m.isDefault())
+			.map(m -> { switch (MethodType.getType(m)) {
+				case ARRAY: 	return templates.templateArrayMethod(m);
+				case LIST: 		return templates.templateListMethod(m);
+				case MAP: 		return templates.templateMapMethod(m);
+				case INTERFACE: return templates.templateInterfaceMethod(m);
+				case VALUE:		return templates.templateValueMethod(m);
+				default: 		throw new RuntimeException("Could not handle methodType=" + MethodType.getType(m));
+			} })
+			.collect(StringBuilder::new, (sb, s) -> sb.append(s), (sb1, sb2) -> sb1.append(sb2.toString()))
+			.toString();
 	}
 	
-	public String getCode() {
-		return code;
+	public JavaSourceCompiler.CompilationUnit setupCompilationUnit(JavaSourceCompiler javaSourceCompiler) {
+		JavaSourceCompiler.CompilationUnit compilationUnit = javaSourceCompiler.createCompilationUnit();
+		compilationUnit.addJavaSource(getClassName(), code);
+		return compilationUnit;
 	}
-
+	
 	public String getClassName() {
 		return "se.jsa.twyn." + className;
+	}
+
+	@Override
+	public String toString() {
+		return "TwynProxyJavaFile [code=" + code + ", className=" + className + "]";
 	}
 	
 }

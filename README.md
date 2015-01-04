@@ -124,7 +124,7 @@ interface Entity {
 Twyn.configurer().withClassGeneration().configure();
 Twyn.configurer().withJavaProxies().configure();
 // Alternate ObjectMappers can be used
-Twyn.configurer().withClassGeneration().withObjectMapper(myObjectMapper).configure()
+Twyn.configurer().withClassGeneration().withObjectMapper(myObjectMapper).configure();
 ```
 
 ###Twyn can process collections in parallel
@@ -138,7 +138,8 @@ interface Offspring {
 ```
 
 ##Todo:
-* .equals & .hashCode support for proxies
+* .equals & .hashCode support for proxies (@Id for reference objects, no annotation for value objects)
+* Support Set
 * Pre-compilation of classes
 * Value caching
 * Support for setters

@@ -19,11 +19,11 @@ import org.codehaus.jackson.map.JsonMappingException;
 import se.jsa.twyn.TwynCollection;
 
 class TwynProxyInvocationHandler implements InvocationHandler {
-	private final JsonNode tree;
+	private final JsonNode jsonNode;
 	private final TwynContext twyn;
 	
-	public TwynProxyInvocationHandler(JsonNode tree, TwynContext twynContext) {
-		this.tree = tree;
+	public TwynProxyInvocationHandler(JsonNode jsonNode, TwynContext twynContext) {
+		this.jsonNode = jsonNode;
 		this.twyn = Objects.requireNonNull(twynContext);
 	}
 	
@@ -32,21 +32,19 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-	    if (method.isDefault()) {
-	        return callDefaultMethod(proxy, method, args);
-	    } else if (method.getReturnType().isArray() && method.getReturnType().getComponentType().isInterface()) {
-	    	return innerArrayProxy(method);
-	    } else if (method.getReturnType().equals(List.class) && method.getAnnotation(TwynCollection.class) != null) {
-	    	return innerListProxy(method);
-	    } else if (method.getReturnType().equals(Map.class) && method.getAnnotation(TwynCollection.class) != null) {
-	    	return innerMapProxy(method);
-	    } else if (method.getReturnType().isInterface()) {
-	    	return innerProxy(method);
-	    } else if (method.getName().equals("toString") && method.getParameterTypes().length == 0) {
+		if (method.getName().equals("toString") && method.getParameterTypes().length == 0) {
 	    	return toString();
-	    } else {
-	    	return resolveValue(method);
-	    }
+	    } 
+		
+		switch (MethodType.getType(method)) {
+		case DEFAULT:	return callDefaultMethod(proxy, method, args);
+		case ARRAY:		return innerArrayProxy(method);
+		case LIST:		return innerListProxy(method); 
+		case MAP:		return innerMapProxy(method);
+		case INTERFACE:	return innerProxy(method);
+		case VALUE:		return resolveValue(method);
+		default:		throw new RuntimeException("Could not handle methodType=" + MethodType.getType(method));
+		}
 	}
 
 	private Object callDefaultMethod(Object proxy, Method method, Object[] args) throws InstantiationException, IllegalArgumentException, Throwable {
@@ -93,10 +91,10 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 	}
 
 	private JsonNode resolveTargetNode(Method method) {
-		return tree.get(TwynUtil.decodeJavaBeanName(method.getName()));
+		return jsonNode.get(TwynUtil.decodeJavaBeanName(method.getName()));
 	}
 		
 	public String toString() {
-		return "TwynInvocationHandler proxy. Node=" + tree;
+		return "TwynInvocationHandler proxy. Node=" + jsonNode;
 	}
 }
