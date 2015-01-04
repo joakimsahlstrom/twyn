@@ -246,6 +246,18 @@ public class TwynTest {
 		assertTrue(twyn.read(input("{ \"name\" : \"Hello World!\" }"), StringIF.class).toString().contains("{\"name\":\"Hello World!\"}"));
 	}
 	
+	@Test
+	public void readSameDataManyTimesPerformanceTest() throws Exception {
+		for (int i = 0; i < 1_000; i++) {
+			githubExample();
+		}
+	}
+	
+	@Test
+	public void readSameDataManyTimesPerformanceTest2() throws Exception {
+		readSameDataManyTimesPerformanceTest();
+	}
+	
 	private InputStream input(String string) {
 		return new ByteArrayInputStream(string.getBytes());
 	}
