@@ -153,5 +153,4 @@ toString prints the values that equals and hashCode are calculated from.
 * Pre-compilation of classes
 * Value caching
 * Support for setters
-* Cache IdentityMethods
 * Support for Stream?
