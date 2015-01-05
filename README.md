@@ -126,8 +126,9 @@ interface Song {
 }
 ```
 
-###Twyn uses either java proxies or runtime-generated classes
+###Twyn can be configured for different use cases
 ```java
+// Use either java proxies or runtime-generated classes
 Twyn.configurer().withClassGeneration().configure(); // faster over time
 Twyn.configurer().withJavaProxies().configure(); // faster startup
 // Alternate ObjectMappers can be used
