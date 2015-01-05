@@ -18,7 +18,7 @@ class TwynProxyJavaFile {
 		this.code = Objects.requireNonNull(code);
 	}
 
-	public static TwynProxyJavaFile create(Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
+	public static TwynProxyJavaFile create(Class<?> implementedInterface, TwynProxyClassTemplates templates, TwynContext twynContext) throws IOException, URISyntaxException {
 		String className = implementedInterface.getSimpleName() + "TwynImpl";
 		return new TwynProxyJavaFile(
 				className,
@@ -26,9 +26,9 @@ class TwynProxyJavaFile {
 						className,
 						implementedInterface,
 						buildMethods(implementedInterface, templates),
-						buildEqualsComparison(implementedInterface),
-						buildHashCodeCalls(implementedInterface),
-						buildToString(implementedInterface)));
+						buildEqualsComparison(implementedInterface, twynContext),
+						buildHashCodeCalls(implementedInterface, twynContext),
+						buildToString(implementedInterface, twynContext)));
 	}
 
 	private static String buildMethods(Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
@@ -47,20 +47,20 @@ class TwynProxyJavaFile {
 			.toString();
 	}
 
-	private static String buildEqualsComparison(Class<?> implementedInterface) {
-		return joinIdentityMethods(implementedInterface, m -> { return "Objects.equals(this." + m.getName() + "(), other." + m.getName() + "())"; }, "\n\t\t\t\t&& ");
+	private static String buildEqualsComparison(Class<?> implementedInterface, TwynContext twynContext) {
+		return joinIdentityMethods(implementedInterface, m -> { return "Objects.equals(this." + m.getName() + "(), other." + m.getName() + "())"; }, "\n\t\t\t\t&& ", twynContext);
 	}
 
-	private static String buildHashCodeCalls(Class<?> implementedInterface) {
-		return joinIdentityMethods(implementedInterface, m -> { return (MethodType.ARRAY.test(m) ? "(Object)" : "") + m.getName() + "()"; }, ", ");
+	private static String buildHashCodeCalls(Class<?> implementedInterface, TwynContext twynContext) {
+		return joinIdentityMethods(implementedInterface, m -> { return (MethodType.ARRAY.test(m) ? "(Object)" : "") + m.getName() + "()"; }, ", ", twynContext);
 	}
 
-	private static String buildToString(Class<?> implementedInterface) {
-		return joinIdentityMethods(implementedInterface, m -> { return m.getName() + "()=\" + " + m.getName() + "() + \""; }, ", ");
+	private static String buildToString(Class<?> implementedInterface, TwynContext twynContext) {
+		return joinIdentityMethods(implementedInterface, m -> { return m.getName() + "()=\" + " + m.getName() + "() + \""; }, ", ", twynContext);
 	}
 
-	private static String joinIdentityMethods(Class<?> implementedInterface, Function<Method, String> fn, String separator) {
-		return IdentityMethods.get(implementedInterface)
+	private static String joinIdentityMethods(Class<?> implementedInterface, Function<Method, String> fn, String separator, TwynContext twynContext) {
+		return twynContext.getIdentityMethods(implementedInterface)
 				.map(fn)
 				.reduce(null, (s1, s2) -> { return (s1 == null ? s2 : (s2 == null ? s1 : s1 + separator + s2)); });
 	}

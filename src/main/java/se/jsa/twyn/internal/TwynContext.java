@@ -5,6 +5,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.stream.Stream;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
@@ -16,6 +18,7 @@ public class TwynContext {
 	private final Constructor<MethodHandles.Lookup> methodHandleLookupConstructor;
 	private final ObjectMapper objectMapper;
 	private final TwynProxyBuilder proxyBuilder;
+	private final IdentityMethods identityMethods = new IdentityMethods();
 
 	public TwynContext(ObjectMapper objectMapper, TwynProxyBuilder proxyBuilder) {
 		this.objectMapper = objectMapper;
@@ -49,6 +52,10 @@ public class TwynContext {
 
 	public ObjectMapper getObjectMapper() {
 		return objectMapper;
+	}
+	
+	Stream<Method> getIdentityMethods(Class<?> implementedType) {
+		return identityMethods.getIdentifyMethods(implementedType);
 	}
 
 	@Override

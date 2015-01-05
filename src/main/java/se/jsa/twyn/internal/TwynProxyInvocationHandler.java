@@ -114,7 +114,7 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 	@Override
 	public String toString() {
 		return "TwynInvocationHandler<" + implementedType.getSimpleName() + "> [" +
-				IdentityMethods.get(implementedType)
+				twynContext.getIdentityMethods(implementedType)
 				.map((m) -> {
 					try {
 						return m.getName() + "()=" + this.invoke(null, m, NO_ARGS).toString();
@@ -134,7 +134,7 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 		if (!implementedType.isAssignableFrom(obj.getClass())) {
 			return false;
 		}
-		return IdentityMethods.get(implementedType)
+		return twynContext.getIdentityMethods(implementedType)
 			.allMatch((m) -> {
 				try {
 					return Objects.equals(m.invoke(obj), this.invoke(null, m, NO_ARGS));
@@ -146,7 +146,7 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(IdentityMethods.get(implementedType)
+		return Objects.hash(twynContext.getIdentityMethods(implementedType)
 				.map((m) -> {
 					try {
 						return this.invoke(null, m, NO_ARGS);

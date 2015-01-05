@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -15,7 +16,7 @@ public class TwynProxyJavaFileTest {
 	@Test
 	@Ignore("To be used for manual verification")
 	public void generatesCorrectCode() throws Exception {
-		System.out.println(TwynProxyJavaFile.create(Offspring.class, TwynProxyClassTemplates.create())
+		System.out.println(TwynProxyJavaFile.create(Offspring.class, TwynProxyClassTemplates.create(), new TwynContext(new ObjectMapper(), new TwynProxyClassBuilder()))
 			.getCode());
 	}
 	public static interface Offspring {

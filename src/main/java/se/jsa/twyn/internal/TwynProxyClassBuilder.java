@@ -26,16 +26,16 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 
 	@Override
 	public <T> T buildProxy(Class<T> type, TwynContext twyn, JsonNode jsonNode) {
-	    return type.cast(instantiate(getImplementingClass(type), twyn, jsonNode));
+	    return type.cast(instantiate(getImplementingClass(type, twyn), twyn, jsonNode));
 	}
 
-	private Class<?> getImplementingClass(Class<?> type) {
-		return implementations.computeIfAbsent(type, t -> createClass(t));
+	private Class<?> getImplementingClass(Class<?> type, TwynContext twyn) {
+		return implementations.computeIfAbsent(type, t -> createClass(t, twyn));
 	}
 
-	private Class<?> createClass(Class<?> type) {
+	private Class<?> createClass(Class<?> type, TwynContext twynContext) {
 		try {
-			TwynProxyJavaFile twynProxyJavaFile = TwynProxyJavaFile.create(type, templates);
+			TwynProxyJavaFile twynProxyJavaFile = TwynProxyJavaFile.create(type, templates, twynContext);
 			return javaSourceCompiler
 					.compile(twynProxyJavaFile.setupCompilationUnit(javaSourceCompiler))
 					.loadClass(twynProxyJavaFile.getClassName());
