@@ -24,13 +24,13 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 	private final JsonNode jsonNode;
 	private final TwynContext twynContext;
 	private final Class<?> implementedType;
-	private final CachePolicy cachePolicy;
+	private final Cache cache;
 
 	public TwynProxyInvocationHandler(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) {
 		this.jsonNode = jsonNode;
 		this.twynContext = Objects.requireNonNull(twynContext);
 		this.implementedType = Objects.requireNonNull(implementedType);
-		this.cachePolicy = twynContext.createCachePolicy();
+		this.cache = twynContext.createCache();
 	}
 
 	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) throws Exception {
@@ -49,12 +49,12 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 
 		switch (MethodType.getType(method)) {
 		case DEFAULT:	return callDefaultMethod(proxy, method, args);
-		case ARRAY:		return cachePolicy.get(method, () -> innerArrayProxy(method));
-		case LIST:		return cachePolicy.get(method, () -> innerCollectionProxy(method, Collectors.toList()));
-		case SET:		return cachePolicy.get(method, () -> innerCollectionProxy(method, Collectors.toSet()));
-		case MAP:		return cachePolicy.get(method, () -> innerMapProxy(method));
-		case INTERFACE:	return cachePolicy.get(method, () -> innerProxy(method));
-		case VALUE:		return cachePolicy.get(method, () -> resolveValue(method));
+		case ARRAY:		return cache.get(method, () -> innerArrayProxy(method));
+		case LIST:		return cache.get(method, () -> innerCollectionProxy(method, Collectors.toList()));
+		case SET:		return cache.get(method, () -> innerCollectionProxy(method, Collectors.toSet()));
+		case MAP:		return cache.get(method, () -> innerMapProxy(method));
+		case INTERFACE:	return cache.get(method, () -> innerProxy(method));
+		case VALUE:		return cache.get(method, () -> resolveValue(method));
 		default:		throw new RuntimeException("Could not handle methodType=" + MethodType.getType(method));
 		}
 	}

@@ -138,7 +138,6 @@ Twyn.configurer().withClassGeneration().withFullCaching().configure();
 ```
 
 ###Twyn can process collections in parallel
-Likely only efficient for large collections
 ```java
 interface Offspring {
 	// ...
@@ -147,6 +146,7 @@ interface Offspring {
 	// ...
 }
 ```
+Likely only efficient for large collections
 
 ###Twyn support toString, hashCode and equals
 Equals and hashCode are calculated from all mapped values, or, if any, those annotated with @TwynId.

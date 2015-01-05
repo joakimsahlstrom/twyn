@@ -13,16 +13,13 @@ import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import se.jsa.twyn.internal.CachePolicy;
-import se.jsa.twyn.internal.CachePolicyFull;
-import se.jsa.twyn.internal.CachePolicyNone;
+import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.TwynProxyBuilder;
 import se.jsa.twyn.internal.TwynProxyClassBuilder;
 import se.jsa.twyn.internal.TwynProxyInvocationHandlerBuilder;
 
 public class Twyn {
-
 	private final TwynContext twynContext;
 
 	private Twyn(TwynContext twynContext) {
@@ -88,7 +85,7 @@ public class Twyn {
 
 	private static class BuilderImpl implements SelectMethod, Configurer {
 		private ObjectMapper objectMapper = new ObjectMapper();
-		private Supplier<CachePolicy> cachePolicySupplier = () -> new CachePolicyNone();
+		private Supplier<Cache> cacheSupplier = () -> new Cache.None();
 		private TwynProxyBuilder twynProxyBuilder;
 
 		@Override
@@ -111,32 +108,30 @@ public class Twyn {
 
 		@Override
 		public Configurer withFullCaching() {
-			cachePolicySupplier = () -> new CachePolicyFull();
+			cacheSupplier = () -> new Cache.Full();
 			return this;
 		}
 
 		@Override
 		public Configurer withNoCaching() {
-			cachePolicySupplier = () -> new CachePolicyNone();
+			cacheSupplier = () -> new Cache.None();
 			return this;
 		}
 
 		@Override
 		public Twyn configure() {
-			return new Twyn(new TwynContext(objectMapper, twynProxyBuilder, cachePolicySupplier));
+			return new Twyn(new TwynContext(objectMapper, twynProxyBuilder, cacheSupplier));
 		}
 
 	}
 	public static interface SelectMethod {
 		/**
 		 * Faster first time parsing. Slower afterwards. Suitable for test and in some cases production.
-		 * @return
 		 */
 		Configurer withJavaProxies();
 
 		/**
 		 * Slower first time parsing. More performant afterwards. Mostly suitable for production code.
-		 * Creates classes.
 		 */
 		Configurer withClassGeneration();
 	}

@@ -1,6 +1,6 @@
 	@Override
 	public Map<String, COMPONENT_TYPE> METHOD_NAME() {
-		return cachePolicy.get("METHOD_NAME", () -> {
+		return cache.get("METHOD_NAME", () -> {
 			try {
 				return StreamSupport
 					.stream(Spliterators.spliteratorUnknownSize(jsonNode.get("FIELD_NAME").getFields(), 0), PARALLEL)

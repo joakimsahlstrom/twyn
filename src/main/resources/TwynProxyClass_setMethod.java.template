@@ -1,6 +1,6 @@
 	@Override
 	public Set<COMPONENT_TYPE> METHOD_NAME() {
-		return cachePolicy.get("METHOD_NAME", () -> {
+		return cache.get("METHOD_NAME", () -> {
 			try {
 				return collect(COMPONENT_TYPE.class, jsonNode.get("FIELD_NAME"), PARALLEL, Collectors.toSet());
 			} catch (NullPointerException e) {

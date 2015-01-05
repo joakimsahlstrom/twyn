@@ -1,6 +1,6 @@
 	@Override
 	public RETURN_TYPE METHOD_NAME() {
-		return cachePolicy.get("METHOD_NAME", () -> {
+		return cache.get("METHOD_NAME", () -> {
 			try {
 				return twyn.readValue(jsonNode.get("FIELD_NAME"), RETURN_TYPE.class);
 			} catch (NullPointerException e) {

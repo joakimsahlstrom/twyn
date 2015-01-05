@@ -1,7 +1,7 @@
 package se.jsa.twyn;
 
 import se.jsa.twyn.internal.TwynContext;
-import se.jsa.twyn.internal.CachePolicy;
+import se.jsa.twyn.internal.Cache;
 
 import org.codehaus.jackson.JsonNode;
 
@@ -26,12 +26,12 @@ import TARGET_INTERFACE_QUALIFIED;
 public class CLASS_NAME implements TARGET_INTERFACE {
 	private final TwynContext twyn;
 	private final JsonNode jsonNode;
-	private final CachePolicy cachePolicy;
+	private final Cache cache;
 	
 	public CLASS_NAME(TwynContext twyn, JsonNode jsonNode) {
 		this.jsonNode = jsonNode;
 		this.twyn = Objects.requireNonNull(twyn);
-		this.cachePolicy = twyn.createCachePolicy();
+		this.cache = twyn.createCache();
 	}
 	
 IMPLEMENTED_METHODS
