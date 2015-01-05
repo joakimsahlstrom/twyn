@@ -1,12 +1,14 @@
 	@Override
 	public Map<String, COMPONENT_TYPE> METHOD_NAME() {
-		try {
-			return StreamSupport
-				.stream(Spliterators.spliteratorUnknownSize(jsonNode.get("FIELD_NAME").getFields(), 0), PARALLEL)
-				.collect(Collectors.toMap(Entry::getKey, (entry) -> twyn.proxy(entry.getValue(), COMPONENT_TYPE.class)));
-		} catch (NullPointerException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		return cachePolicy.get("METHOD_NAME", () -> {
+			try {
+				return StreamSupport
+					.stream(Spliterators.spliteratorUnknownSize(jsonNode.get("FIELD_NAME").getFields(), 0), PARALLEL)
+					.collect(Collectors.toMap(Entry::getKey, (entry) -> twyn.proxy(entry.getValue(), COMPONENT_TYPE.class)));
+			} catch (NullPointerException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
 	}

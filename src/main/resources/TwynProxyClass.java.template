@@ -1,6 +1,7 @@
 package se.jsa.twyn;
 
 import se.jsa.twyn.internal.TwynContext;
+import se.jsa.twyn.internal.CachePolicy;
 
 import org.codehaus.jackson.JsonNode;
 
@@ -23,12 +24,14 @@ import java.util.stream.StreamSupport;
 import TARGET_INTERFACE_QUALIFIED;
 
 public class CLASS_NAME implements TARGET_INTERFACE {
-	private TwynContext twyn;
-	private JsonNode jsonNode;
+	private final TwynContext twyn;
+	private final JsonNode jsonNode;
+	private final CachePolicy cachePolicy;
 	
 	public CLASS_NAME(TwynContext twyn, JsonNode jsonNode) {
 		this.jsonNode = jsonNode;
 		this.twyn = Objects.requireNonNull(twyn);
+		this.cachePolicy = twyn.createCachePolicy();
 	}
 	
 IMPLEMENTED_METHODS

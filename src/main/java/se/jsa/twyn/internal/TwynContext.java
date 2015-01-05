@@ -6,6 +6,8 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.codehaus.jackson.JsonNode;
@@ -18,11 +20,13 @@ public class TwynContext {
 	private final Constructor<MethodHandles.Lookup> methodHandleLookupConstructor;
 	private final ObjectMapper objectMapper;
 	private final TwynProxyBuilder proxyBuilder;
+	private final Supplier<CachePolicy> cachePolicySupplier;
 	private final IdentityMethods identityMethods = new IdentityMethods();
 
-	public TwynContext(ObjectMapper objectMapper, TwynProxyBuilder proxyBuilder) {
-		this.objectMapper = objectMapper;
-		this.proxyBuilder = proxyBuilder;
+	public TwynContext(ObjectMapper objectMapper, TwynProxyBuilder proxyBuilder, Supplier<CachePolicy> cachePolicySupplier) {
+		this.objectMapper = Objects.requireNonNull(objectMapper);
+		this.proxyBuilder = Objects.requireNonNull(proxyBuilder);
+		this.cachePolicySupplier = Objects.requireNonNull(cachePolicySupplier);
 
 		try {
 			this.methodHandleLookupConstructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
@@ -53,7 +57,11 @@ public class TwynContext {
 	public ObjectMapper getObjectMapper() {
 		return objectMapper;
 	}
-	
+
+	public CachePolicy createCachePolicy() {
+		return cachePolicySupplier.get();
+	}
+
 	Stream<Method> getIdentityMethods(Class<?> implementedType) {
 		return identityMethods.getIdentifyMethods(implementedType);
 	}

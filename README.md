@@ -132,6 +132,8 @@ Twyn.configurer().withClassGeneration().configure(); // faster over time
 Twyn.configurer().withJavaProxies().configure(); // faster startup
 // Alternate ObjectMappers can be used
 Twyn.configurer().withClassGeneration().withObjectMapper(myObjectMapper).configure();
+// Caching can be used if values will be retrieved several times
+Twyn.configurer().withClassGeneration().withFullCaching().configure();
 ```
 
 ###Twyn can process collections in parallel
@@ -150,7 +152,7 @@ Equals and hashCode are calculated from all mapped values, or, if any, those ann
 toString prints the values that equals and hashCode are calculated from.
 
 ##Todo:
+* Better defined error handling
 * Pre-compilation of classes
-* Value caching
 * Support for setters
 * Support for Stream?

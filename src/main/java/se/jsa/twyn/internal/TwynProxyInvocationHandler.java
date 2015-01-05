@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 
 import se.jsa.twyn.TwynCollection;
 
@@ -26,11 +24,13 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 	private final JsonNode jsonNode;
 	private final TwynContext twynContext;
 	private final Class<?> implementedType;
+	private final CachePolicy cachePolicy;
 
 	public TwynProxyInvocationHandler(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) {
 		this.jsonNode = jsonNode;
 		this.twynContext = Objects.requireNonNull(twynContext);
 		this.implementedType = Objects.requireNonNull(implementedType);
+		this.cachePolicy = twynContext.createCachePolicy();
 	}
 
 	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) throws Exception {
@@ -49,12 +49,12 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 
 		switch (MethodType.getType(method)) {
 		case DEFAULT:	return callDefaultMethod(proxy, method, args);
-		case ARRAY:		return innerArrayProxy(method);
-		case LIST:		return innerCollectionProxy(method, Collectors.toList());
-		case SET:		return innerCollectionProxy(method, Collectors.toSet());
-		case MAP:		return innerMapProxy(method);
-		case INTERFACE:	return innerProxy(method);
-		case VALUE:		return resolveValue(method);
+		case ARRAY:		return cachePolicy.get(method, () -> innerArrayProxy(method));
+		case LIST:		return cachePolicy.get(method, () -> innerCollectionProxy(method, Collectors.toList()));
+		case SET:		return cachePolicy.get(method, () -> innerCollectionProxy(method, Collectors.toSet()));
+		case MAP:		return cachePolicy.get(method, () -> innerMapProxy(method));
+		case INTERFACE:	return cachePolicy.get(method, () -> innerProxy(method));
+		case VALUE:		return cachePolicy.get(method, () -> resolveValue(method));
 		default:		throw new RuntimeException("Could not handle methodType=" + MethodType.getType(method));
 		}
 	}
@@ -97,8 +97,12 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 		return twynContext.proxy(resolveTargetNode(method), method.getReturnType());
 	}
 
-	private Object resolveValue(Method method) throws IOException, JsonParseException, JsonMappingException {
-		return twynContext.readValue(resolveTargetNode(method), method.getReturnType());
+	private Object resolveValue(Method method) {
+		try {
+			return twynContext.readValue(resolveTargetNode(method), method.getReturnType());
+		} catch (IOException e) {
+			throw new RuntimeException("Could not resolve value for node " + resolveTargetNode(method) + ". Wanted type: " + method.getReturnType(), e);
+		}
 	}
 
 	private <T, A, R> R collect(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {

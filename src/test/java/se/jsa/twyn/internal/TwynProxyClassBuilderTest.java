@@ -13,7 +13,7 @@ import se.jsa.twyn.TwynCollection;
 public class TwynProxyClassBuilderTest {
 
 	private final TwynProxyClassBuilder builder = new TwynProxyClassBuilder();
-	private final TwynContext twynContext = new TwynContext(new ObjectMapper(), builder);
+	private final TwynContext twynContext = new TwynContext(new ObjectMapper(), builder, () -> new CachePolicyNone());
 
 	@Test
 	public void canResolveValue() throws Exception {

@@ -32,7 +32,9 @@ public class TwynTest {
 	public static Collection<Object[]> twyns() {
 		return Arrays.<Object[]>asList(
 				new Object[] { Twyn.configurer().withJavaProxies().configure() },
-				new Object[] { Twyn.configurer().withClassGeneration().configure() }
+				new Object[] { Twyn.configurer().withJavaProxies().withFullCaching().configure() },
+				new Object[] { Twyn.configurer().withClassGeneration().configure() },
+				new Object[] { Twyn.configurer().withClassGeneration().withFullCaching().configure() }
 				);
 	}
 

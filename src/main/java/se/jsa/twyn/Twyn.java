@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
@@ -12,6 +13,9 @@ import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import se.jsa.twyn.internal.CachePolicy;
+import se.jsa.twyn.internal.CachePolicyFull;
+import se.jsa.twyn.internal.CachePolicyNone;
 import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.TwynProxyBuilder;
 import se.jsa.twyn.internal.TwynProxyClassBuilder;
@@ -84,6 +88,7 @@ public class Twyn {
 
 	private static class BuilderImpl implements SelectMethod, Configurer {
 		private ObjectMapper objectMapper = new ObjectMapper();
+		private Supplier<CachePolicy> cachePolicySupplier = () -> new CachePolicyNone();
 		private TwynProxyBuilder twynProxyBuilder;
 
 		@Override
@@ -105,8 +110,20 @@ public class Twyn {
 		}
 
 		@Override
+		public Configurer withFullCaching() {
+			cachePolicySupplier = () -> new CachePolicyFull();
+			return this;
+		}
+
+		@Override
+		public Configurer withNoCaching() {
+			cachePolicySupplier = () -> new CachePolicyNone();
+			return this;
+		}
+
+		@Override
 		public Twyn configure() {
-			return new Twyn(new TwynContext(objectMapper, twynProxyBuilder));
+			return new Twyn(new TwynContext(objectMapper, twynProxyBuilder, cachePolicySupplier));
 		}
 
 	}
@@ -125,6 +142,14 @@ public class Twyn {
 	}
 	public static interface Configurer {
 		Configurer withObjectMapper(ObjectMapper objectMapper);
+		/**
+		 * Return values from all calls are cached
+		 */
+		Configurer withFullCaching();
+		/**
+		 * Default
+		 */
+		Configurer withNoCaching();
 		Twyn configure();
 	}
 
