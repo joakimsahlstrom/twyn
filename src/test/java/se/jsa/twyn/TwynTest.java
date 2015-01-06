@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.codehaus.jackson.JsonParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -359,6 +361,32 @@ public class TwynTest {
 	public static interface SetIF {
 		@TwynCollection(StringIF.class)
 		Set<StringIF> getStrings();
+	}
+
+	@Test(expected = JsonParseException.class)
+	public void throwsJsonParseExceptionIfUnableToParseXml() throws Exception {
+		twyn.read("{ \"name\" : \"n1\", \"type\" : ERROR }", ReferenceEntity.class);
+	}
+
+	@Test(expected = IOException.class)
+	public void throwsIOExceptionIfUnderlyingStreamThrowsException() throws Exception {
+		InputStream inputStream = new InputStream() {
+			@Override
+			public int read() throws IOException {
+				throw new IOException("Forced error");
+			}
+		};
+		twyn.read(inputStream, ReferenceEntity.class);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void throwsIllegalArgumentExceptionIfUnableToCreateProxy() throws Exception {
+		twyn.read("{ \"name\" : \"n1\", \"type\" : \"test\" }", InterfaceWithNonDefaultMethodWithParameters.class);
+	}
+	public static interface InterfaceWithNonDefaultMethodWithParameters {
+		@TwynId
+		String name();
+		String type(String param);
 	}
 
 	// Helper methods

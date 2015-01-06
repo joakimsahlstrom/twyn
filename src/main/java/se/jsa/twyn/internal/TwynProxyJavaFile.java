@@ -3,7 +3,6 @@ package se.jsa.twyn.internal;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -32,7 +31,7 @@ class TwynProxyJavaFile {
 	}
 
 	private static String buildMethods(Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
-		return Arrays.asList(implementedInterface.getMethods()).stream().parallel()
+		return Methods.stream(implementedInterface).parallel()
 			.filter(m -> !MethodType.DEFAULT.test(m))
 			.map(m -> { switch (MethodType.getType(m)) {
 				case ARRAY: 	return templates.templateArrayMethod(m);

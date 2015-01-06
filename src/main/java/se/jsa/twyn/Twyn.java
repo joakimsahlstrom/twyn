@@ -1,6 +1,7 @@
 package se.jsa.twyn;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
@@ -14,6 +15,8 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import se.jsa.twyn.internal.Cache;
+import se.jsa.twyn.internal.MethodType;
+import se.jsa.twyn.internal.Methods;
 import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.TwynProxyBuilder;
 import se.jsa.twyn.internal.TwynProxyClassBuilder;
@@ -26,35 +29,35 @@ public class Twyn {
 		this.twynContext = Objects.requireNonNull(twynContext);
 	}
 
-	public <T> T read(InputStream inputStream, Class<T> type) throws JsonProcessingException {
+	public <T> T read(InputStream inputStream, Class<T> type) throws JsonProcessingException, IOException {
 		return read(() -> twynContext.getObjectMapper().readTree(inputStream), type);
 	}
 
-	public <T> T read(byte[] data, Class<T> type) throws JsonProcessingException {
+	public <T> T read(byte[] data, Class<T> type) throws JsonProcessingException, IOException {
 		return read(() -> twynContext.getObjectMapper().readTree(data), type);
 	}
 
-	public <T> T read(File file, Class<T> type) throws JsonProcessingException {
+	public <T> T read(File file, Class<T> type) throws JsonProcessingException, IOException {
 		return read(() -> twynContext.getObjectMapper().readTree(file), type);
 	}
 
-	public <T> T read(JsonParser parser, Class<T> type) throws JsonProcessingException {
+	public <T> T read(JsonParser parser, Class<T> type) throws JsonProcessingException, IOException {
 		return read(() -> twynContext.getObjectMapper().readTree(parser), type);
 	}
 
-	public <T> T read(Reader reader, Class<T> type) throws JsonProcessingException {
+	public <T> T read(Reader reader, Class<T> type) throws JsonProcessingException, IOException {
 		return read(() -> twynContext.getObjectMapper().readTree(reader), type);
 	}
 
-	public <T> T read(String string, Class<T> type) throws JsonProcessingException {
+	public <T> T read(String string, Class<T> type) throws JsonProcessingException, IOException {
 		return read(() -> twynContext.getObjectMapper().readTree(string), type);
 	}
 
-	public <T> T read(URL url, Class<T> type) throws JsonProcessingException {
+	public <T> T read(URL url, Class<T> type) throws JsonProcessingException, IOException {
 		return read(() -> twynContext.getObjectMapper().readTree(url), type);
 	}
 
-	public <T> T read(JsonParser parser, DeserializationConfig deserializationConfig, Class<T> type) throws JsonProcessingException {
+	public <T> T read(JsonParser parser, DeserializationConfig deserializationConfig, Class<T> type) throws JsonProcessingException, IOException {
 		return read(() -> twynContext.getObjectMapper().readTree(parser, deserializationConfig), type);
 	}
 
@@ -63,14 +66,22 @@ public class Twyn {
 		JsonNode get() throws Exception;
 	}
 
-	private <T> T read(JsonProducer jsonProducer, Class<T> type) throws JsonProcessingException {
+	private <T> T read(JsonProducer jsonProducer, Class<T> type) throws JsonProcessingException, IOException {
 		try {
-			return twynContext.proxy(jsonProducer.get(), type);
-		} catch (JsonProcessingException e) {
+			return twynContext.proxy(jsonProducer.get(), validate(type));
+		} catch (IOException | IllegalArgumentException e) { // also handles JsonProcessingException
 			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException("Could not read input!", e);
 		}
+	}
+
+	private <T> Class<T> validate(Class<T> type) {
+		Methods.stream(type)
+			.filter(MethodType.ILLEGAL)
+			.findAny()
+			.ifPresent(m -> { throw new IllegalArgumentException("Type " + type + " defines method " + m + " which is nondefault and has method arguments. Proxy cannot be created."); });
+		return type;
 	}
 
 	public static Twyn forTest() {

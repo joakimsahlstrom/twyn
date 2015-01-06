@@ -10,7 +10,9 @@ import java.util.function.Predicate;
 
 import se.jsa.twyn.TwynCollection;
 
-enum MethodType implements Predicate<Method> {
+public enum MethodType implements Predicate<Method> {
+	ILLEGAL(m -> !m.isDefault() && m.getParameters().length > 0),
+
 	DEFAULT(m -> m.isDefault()),
 	ARRAY(m -> m.getReturnType().isArray() && m.getReturnType().getComponentType().isInterface()),
 	LIST(m -> m.getReturnType().equals(List.class) && m.getAnnotation(TwynCollection.class) != null),
