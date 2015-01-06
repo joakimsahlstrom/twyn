@@ -113,6 +113,12 @@ public class Twyn {
 		}
 
 		@Override
+		public Configurer withFullConcurrentCaching() {
+			cacheSupplier = () -> new Cache.FullConcurrent();
+			return this;
+		}
+
+		@Override
 		public Configurer withNoCaching() {
 			cacheSupplier = () -> new Cache.None();
 			return this;
@@ -138,9 +144,13 @@ public class Twyn {
 	public static interface Configurer {
 		Configurer withObjectMapper(ObjectMapper objectMapper);
 		/**
-		 * Return values from all calls are cached
+		 * Return values from all calls are cached. Not thread safe
 		 */
 		Configurer withFullCaching();
+		/**
+		 * Return values from all calls are cached. Thread safe
+		 */
+		Configurer withFullConcurrentCaching();
 		/**
 		 * Default
 		 */

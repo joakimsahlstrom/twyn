@@ -17,11 +17,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 public class TwynContext {
 
-	private final Constructor<MethodHandles.Lookup> methodHandleLookupConstructor;
 	private final ObjectMapper objectMapper;
 	private final TwynProxyBuilder proxyBuilder;
 	private final Supplier<Cache> cacheSupplier;
 	private final IdentityMethods identityMethods = new IdentityMethods();
+	private final Constructor<MethodHandles.Lookup> methodHandleLookupConstructor;
 
 	public TwynContext(ObjectMapper objectMapper, TwynProxyBuilder proxyBuilder, Supplier<Cache> cacheSupplier) {
 		this.objectMapper = Objects.requireNonNull(objectMapper);
