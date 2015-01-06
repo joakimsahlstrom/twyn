@@ -154,7 +154,7 @@ Likely only efficient for large collections
 Equals and hashCode are calculated from all mapped values, or, if any, those annotated with @TwynId.
 toString prints the values that equals and hashCode are calculated from.
 
-###Twyn can modify values of the underlying jackson node structure
+###Twyn can modify the underlying jackson node structure
 ```java
 interface Setter {
 	void setName(String n); // modifies the field "name"
@@ -172,9 +172,7 @@ Retrieve underlying jackson jsonNode like this:
 ```
 ##Todo:
 * Better defined error handling
-* Support for retrieving underlying jackson node structure
+* Setter should optionally be able to return reference to this
 * Support for other setters than value setters
 * Smarter cache clearing when setting values
-* Setter should optionally be able to return reference to this
-* Support for Stream?
 * Debug mode support with class generation
