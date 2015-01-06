@@ -161,8 +161,15 @@ interface Setter {
 	void visible(boolean vsbl); // modifies the field "visible"
 }
 ```
-Set currently only support simple value types
-
+Set currently only support simple value types. 
+Retrieve underlying jackson jsonNode like this:
+```java
+	Twyn twyn = Twyn.forTest();
+	Contact contact = twyn.read(jsonResponse, Contact.class);
+	// modify contact...
+	JsonNode root = twyn.getJsonNode(contact);
+	
+```
 ##Todo:
 * Better defined error handling
 * Support for retrieving underlying jackson node structure

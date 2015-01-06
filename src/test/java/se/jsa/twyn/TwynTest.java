@@ -472,6 +472,17 @@ public class TwynTest {
 		void string(String name);
 	}
 
+	@Test
+	public void canRetrieveUnderlyingJsonNode() throws Exception {
+		Simple string = twyn.read(input("{ \"name\" : \"Hello World!\" }"), Simple.class);
+		string.name("Hi there!");
+		assertEquals("{\"name\":\"Hi there!\"}", twyn.getJsonNode(string).toString());
+	}
+	public static interface Simple {
+		String name();
+		void name(String val);
+	}
+
 	// Helper methods
 
 	private InputStream input(String string) {

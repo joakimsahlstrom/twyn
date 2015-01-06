@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,6 +21,7 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import se.jsa.twyn.internal.Cache;
+import se.jsa.twyn.internal.JsonNodeHolder;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.Methods;
 import se.jsa.twyn.internal.TwynContext;
@@ -86,6 +89,19 @@ public class Twyn {
 			.findAny()
 			.ifPresent(m -> { throw new IllegalArgumentException("Type " + type + " defines method " + m + " which is nondefault and has method arguments. Proxy cannot be created."); });
 		return type;
+	}
+
+	public JsonNode getJsonNode(Object obj) {
+		if (obj instanceof JsonNodeHolder) {
+			return ((JsonNodeHolder) obj).getJsonNode();
+		}
+		try {
+			InvocationHandler invocationHandler = Proxy.getInvocationHandler(obj);
+			JsonNodeHolder twynProxyInvocationHandler = ((JsonNodeHolder)invocationHandler);
+			return twynProxyInvocationHandler.getJsonNode();
+		} catch (RuntimeException e) {
+			throw new IllegalArgumentException("Not a twyn object!", e);
+		}
 	}
 
 	public static Twyn forTest() {

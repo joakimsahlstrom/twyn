@@ -20,7 +20,7 @@ import org.codehaus.jackson.node.ObjectNode;
 
 import se.jsa.twyn.TwynCollection;
 
-class TwynProxyInvocationHandler implements InvocationHandler {
+class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
 	private static final Object[] NO_ARGS = new Object[] {};
 
 	private final JsonNode jsonNode;
@@ -136,6 +136,10 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 
 	private JsonNode resolveTargetGetNode(Method method) {
 		return jsonNode.get(TwynUtil.decodeJavaBeanGetName(method.getName()));
+	}
+
+	public JsonNode getJsonNode() {
+		return jsonNode;
 	}
 
 	@Override
