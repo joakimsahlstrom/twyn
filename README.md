@@ -137,6 +137,8 @@ Twyn.configurer().withClassGeneration().withObjectMapper(myObjectMapper).configu
 Twyn.configurer().withClassGeneration().withFullCaching().configure();
 // It is possible to precompile classes to avoid temporary runtime slowdowns
 Twyn.configurer().withClassGeneration().withPrecompiledClasses(myClasses).configure();
+// debugMode gives proxies more detailed toString output
+Twyn.configurer().withClassGeneration().withDebugMode().configure();
 ```
 
 ###Twyn can process collections in parallel
