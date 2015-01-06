@@ -150,12 +150,11 @@ interface Offspring {
 ```
 Likely only efficient for large collections
 
-###Twyn support toString, hashCode and equals
+###Twyn supports toString, hashCode and equals
 Equals and hashCode are calculated from all mapped values, or, if any, those annotated with @TwynId.
 toString prints the values that equals and hashCode are calculated from.
 
 ##Todo:
 * Better defined error handling
-* Pre-compilation of classes
 * Support for setters
 * Support for Stream?
