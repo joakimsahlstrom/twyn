@@ -66,11 +66,11 @@ class TwynProxyJavaFile {
 
 	public JavaSourceCompiler.CompilationUnit setupCompilationUnit(JavaSourceCompiler javaSourceCompiler) {
 		JavaSourceCompiler.CompilationUnit compilationUnit = javaSourceCompiler.createCompilationUnit();
-		compilationUnit.addJavaSource(getClassName(), code);
+		compilationUnit.addJavaSource(getCanonicalClassName(), code);
 		return compilationUnit;
 	}
 
-	public String getClassName() {
+	public String getCanonicalClassName() {
 		return "se.jsa.twyn." + className;
 	}
 

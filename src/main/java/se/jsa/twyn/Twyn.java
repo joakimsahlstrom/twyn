@@ -91,10 +91,10 @@ public class Twyn {
 	// Builder
 
 	public static SelectMethod configurer() {
-		return new BuilderImpl();
+		return new ConfigurerImpl();
 	}
 
-	private static class BuilderImpl implements SelectMethod, Configurer {
+	private static class ConfigurerImpl implements SelectMethod, Configurer {
 		private ObjectMapper objectMapper = new ObjectMapper();
 		private Supplier<Cache> cacheSupplier = () -> new Cache.None();
 		private TwynProxyBuilder twynProxyBuilder;
