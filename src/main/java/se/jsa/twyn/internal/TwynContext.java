@@ -7,6 +7,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -69,6 +70,13 @@ public class TwynContext {
 	@Override
 	public String toString() {
 		return "TwynContext [objectMapper=" + objectMapper + ", proxyBuilder=" + proxyBuilder + "]";
+	}
+
+	public TwynContext precompile(Set<Class<?>> precompiledTypes) {
+		if (proxyBuilder instanceof TwynProxyClassBuilder) {
+			((TwynProxyClassBuilder) proxyBuilder).precompile(precompiledTypes, this);
+		}
+		return this;
 	}
 
 }

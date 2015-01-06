@@ -135,6 +135,8 @@ Twyn.configurer().withJavaProxies().configure(); // faster startup
 Twyn.configurer().withClassGeneration().withObjectMapper(myObjectMapper).configure();
 // Caching can be used if values will be retrieved several times
 Twyn.configurer().withClassGeneration().withFullCaching().configure();
+// It is possible to precompile classes to avoid temporary runtime slowdowns
+Twyn.configurer().withClassGeneration().withPrecompiledClasses(myClasses).configure();
 ```
 
 ###Twyn can process collections in parallel

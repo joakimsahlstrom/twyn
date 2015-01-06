@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.codehaus.jackson.JsonNode;
@@ -94,10 +98,11 @@ public class Twyn {
 		return new ConfigurerImpl();
 	}
 
-	private static class ConfigurerImpl implements SelectMethod, Configurer {
+	private static class ConfigurerImpl implements SelectMethod, ClassGenerationConfigurer {
 		private ObjectMapper objectMapper = new ObjectMapper();
 		private Supplier<Cache> cacheSupplier = () -> new Cache.None();
 		private TwynProxyBuilder twynProxyBuilder;
+		private Set<Class<?>> precompiledTypes = Collections.<Class<?>>emptySet();
 
 		@Override
 		public Configurer withObjectMapper(ObjectMapper objectMapper) {
@@ -112,7 +117,7 @@ public class Twyn {
 		}
 
 		@Override
-		public Configurer withClassGeneration() {
+		public ClassGenerationConfigurer withClassGeneration() {
 			this.twynProxyBuilder = new TwynProxyClassBuilder();
 			return this;
 		}
@@ -136,21 +141,28 @@ public class Twyn {
 		}
 
 		@Override
+		public Configurer withPrecompiledClasses(Collection<Class<?>> types) {
+			this.precompiledTypes = new HashSet<Class<?>>(types);
+			return this;
+		}
+
+		@Override
 		public Twyn configure() {
-			return new Twyn(new TwynContext(objectMapper, twynProxyBuilder, cacheSupplier));
+			return new Twyn(new TwynContext(objectMapper, twynProxyBuilder, cacheSupplier)
+				.precompile(precompiledTypes));
 		}
 
 	}
 	public static interface SelectMethod {
 		/**
-		 * Faster first time parsing. Slower afterwards. Suitable for test and in some cases production.
+		 * Faster fi-rst time parsing. Slower afterwards. Suitable for test and in some cases production.
 		 */
 		Configurer withJavaProxies();
 
 		/**
 		 * Slower first time parsing. More performant afterwards. Mostly suitable for production code.
 		 */
-		Configurer withClassGeneration();
+		ClassGenerationConfigurer withClassGeneration();
 	}
 	public static interface Configurer {
 		Configurer withObjectMapper(ObjectMapper objectMapper);
@@ -167,6 +179,9 @@ public class Twyn {
 		 */
 		Configurer withNoCaching();
 		Twyn configure();
+	}
+	public static interface ClassGenerationConfigurer extends Configurer {
+		Configurer withPrecompiledClasses(Collection<Class<?>> types);
 	}
 
 }

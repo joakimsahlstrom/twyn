@@ -3,6 +3,7 @@ package se.jsa.twyn.internal;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,6 +23,10 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException("Internal error, could not read code template files.", e);
 		}
+	}
+
+	public void precompile(Collection<Class<?>> types, TwynContext twyn) {
+		types.stream().forEach(((t) -> getImplementingClass(t, twyn)));
 	}
 
 	@Override

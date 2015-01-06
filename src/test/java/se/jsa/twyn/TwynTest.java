@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.codehaus.jackson.JsonParseException;
 import org.junit.Test;
@@ -35,9 +36,15 @@ public class TwynTest {
 		return Arrays.<Object[]>asList(
 				new Object[] { Twyn.configurer().withJavaProxies().configure() },
 				new Object[] { Twyn.configurer().withJavaProxies().withFullCaching().configure() },
-				new Object[] { Twyn.configurer().withClassGeneration().configure() },
-				new Object[] { Twyn.configurer().withClassGeneration().withFullCaching().configure() }
+				new Object[] { Twyn.configurer().withClassGeneration().withPrecompiledClasses(getInterfaces()).configure() },
+				new Object[] { Twyn.configurer().withClassGeneration().withPrecompiledClasses(getInterfaces()).withFullCaching().configure() }
 				);
+	}
+
+	private static Collection<Class<?>> getInterfaces() {
+		return Arrays.asList(TwynTest.class.getDeclaredClasses()).stream()
+			.filter(c -> c.isInterface() && !c.getSimpleName().equals("InterfaceWithNonDefaultMethodWithParameters"))
+			.collect(Collectors.toList());
 	}
 
 	@Test
