@@ -57,7 +57,8 @@ class TwynProxyJavaFile {
 	}
 
 	private static String buildToString(Class<?> implementedInterface, TwynContext twynContext) {
-		return joinIdentityMethods(implementedInterface, m -> { return m.getName() + "()=\" + " + m.getName() + "() + \""; }, ", ", twynContext);
+		return joinIdentityMethods(implementedInterface, m -> { return m.getName() + "()=\" + " + m.getName() + "() + \""; }, ", ", twynContext)
+				+ (twynContext.isDebug() ? ", node=\" + jsonNode + \"" : "");
 	}
 
 	private static String joinIdentityMethods(Class<?> implementedInterface, Function<Method, String> fn, String separator, TwynContext twynContext) {

@@ -164,10 +164,10 @@ interface Setter {
 Set currently only support simple value types. 
 Retrieve underlying jackson jsonNode like this:
 ```java
-	Twyn twyn = Twyn.forTest();
-	Contact contact = twyn.read(jsonResponse, Contact.class);
-	// modify contact...
-	JsonNode root = twyn.getJsonNode(contact);
+Twyn twyn = Twyn.forTest();
+Contact contact = twyn.read(jsonResponse, Contact.class);
+// modify contact...
+JsonNode root = twyn.getJsonNode(contact);
 	
 ```
 ##Todo:
@@ -175,4 +175,3 @@ Retrieve underlying jackson jsonNode like this:
 * Setter should optionally be able to return reference to this
 * Support for other setters than value setters
 * Smarter cache clearing when setting values
-* Debug mode support with class generation
