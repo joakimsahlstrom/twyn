@@ -4,6 +4,7 @@ import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.Cache;
 
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.node.ObjectNode;
 
 import java.lang.Class;
 import java.lang.NullPointerException;

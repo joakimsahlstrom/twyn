@@ -23,11 +23,13 @@ public class TwynContext {
 	private final Supplier<Cache> cacheSupplier;
 	private final IdentityMethods identityMethods = new IdentityMethods();
 	private final Constructor<MethodHandles.Lookup> methodHandleLookupConstructor;
+	private final boolean debug;
 
-	public TwynContext(ObjectMapper objectMapper, TwynProxyBuilder proxyBuilder, Supplier<Cache> cacheSupplier) {
+	public TwynContext(ObjectMapper objectMapper, TwynProxyBuilder proxyBuilder, Supplier<Cache> cacheSupplier, boolean debug) {
 		this.objectMapper = Objects.requireNonNull(objectMapper);
 		this.proxyBuilder = Objects.requireNonNull(proxyBuilder);
 		this.cacheSupplier = Objects.requireNonNull(cacheSupplier);
+		this.debug = debug;
 
 		try {
 			this.methodHandleLookupConstructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
@@ -65,6 +67,10 @@ public class TwynContext {
 
 	Stream<Method> getIdentityMethods(Class<?> implementedType) {
 		return identityMethods.getIdentifyMethods(implementedType);
+	}
+
+	public boolean isDebug() {
+		return debug;
 	}
 
 	@Override

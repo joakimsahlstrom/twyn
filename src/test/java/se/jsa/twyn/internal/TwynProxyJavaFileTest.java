@@ -16,7 +16,7 @@ public class TwynProxyJavaFileTest {
 	@Test
 	@Ignore("To be used for manual verification")
 	public void generatesCorrectCode() throws Exception {
-		System.out.println(TwynProxyJavaFile.create(Offspring.class, TwynProxyClassTemplates.create(), new TwynContext(new ObjectMapper(), new TwynProxyClassBuilder(), () -> new Cache.None()))
+		System.out.println(TwynProxyJavaFile.create(Offspring.class, TwynProxyClassTemplates.create(), new TwynContext(new ObjectMapper(), new TwynProxyClassBuilder(), () -> new Cache.None(), true))
 			.getCode());
 	}
 	public static interface Offspring {

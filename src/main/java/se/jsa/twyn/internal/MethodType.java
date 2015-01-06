@@ -11,7 +11,7 @@ import java.util.function.Predicate;
 import se.jsa.twyn.TwynCollection;
 
 public enum MethodType implements Predicate<Method> {
-	ILLEGAL(m -> !m.isDefault() && m.getParameters().length > 0),
+	ILLEGAL(m -> !m.isDefault() && m.getParameters().length > 1),
 
 	DEFAULT(m -> m.isDefault()),
 	ARRAY(m -> m.getReturnType().isArray() && m.getReturnType().getComponentType().isInterface()),
@@ -19,6 +19,9 @@ public enum MethodType implements Predicate<Method> {
 	MAP(m -> m.getReturnType().equals(Map.class) && m.getAnnotation(TwynCollection.class) != null),
 	SET(m -> m.getReturnType().equals(Set.class) && m.getAnnotation(TwynCollection.class) != null),
 	INTERFACE(m -> m.getReturnType().isInterface()),
+
+	SET_VALUE(m -> m.getParameters().length == 1),
+
 	VALUE(m -> true);
 
 	private Predicate<Method> predicate;

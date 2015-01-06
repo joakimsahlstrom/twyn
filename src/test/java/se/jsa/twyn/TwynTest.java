@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -34,10 +35,14 @@ public class TwynTest {
 	@Parameters
 	public static Collection<Object[]> twyns() {
 		return Arrays.<Object[]>asList(
-				new Object[] { Twyn.configurer().withJavaProxies().configure() },
-				new Object[] { Twyn.configurer().withJavaProxies().withFullCaching().configure() },
-				new Object[] { Twyn.configurer().withClassGeneration().withPrecompiledClasses(getInterfaces()).configure() },
-				new Object[] { Twyn.configurer().withClassGeneration().withPrecompiledClasses(getInterfaces()).withFullCaching().configure() }
+				new Object[] { Twyn.configurer().withJavaProxies().withDebugMode().configure() },
+				new Object[] { Twyn.configurer().withJavaProxies().withFullCaching().withDebugMode().configure() },
+				new Object[] { Twyn.configurer().withClassGeneration()
+						.withPrecompiledClasses(getInterfaces())
+						.withDebugMode().configure() },
+				new Object[] { Twyn.configurer().withClassGeneration()
+						.withPrecompiledClasses(getInterfaces())
+						.withFullCaching().withDebugMode().configure() }
 				);
 	}
 
@@ -393,7 +398,78 @@ public class TwynTest {
 	public static interface InterfaceWithNonDefaultMethodWithParameters {
 		@TwynId
 		String name();
-		String type(String param);
+		String type(String param, int i);
+	}
+
+	@Test
+	public void canSetValue() throws Exception {
+		GetSet getSet = twyn.read("{ "
+				+ "\"bigDecimal\" : \"1.0\", "
+				+ "\"byteArray\" : null, "
+				+ "\"bool\" : \"false\" , "
+				+ "\"double\" : \"0.1\" , "
+				+ "\"float\" : \"0.2\" , "
+				+ "\"int\" : \"21\" , "
+				+ "\"long\" : \"22\" , "
+				+ "\"string\" : \"n1\" "
+				+ "}", GetSet.class);
+
+		assertEquals(BigDecimal.valueOf(1.0), getSet.getBigDecimal());
+		getSet.setBigDecimal(BigDecimal.valueOf(1.1));
+		assertEquals(BigDecimal.valueOf(1.1), getSet.getBigDecimal());
+
+		assertEquals(false, getSet.getBool());
+		getSet.setBool(true);
+		assertEquals(true, getSet.getBool());
+
+		assertEquals(null, getSet.getByteArray());
+		getSet.setByteArray("apa".getBytes());
+		assertTrue(Arrays.equals("apa".getBytes(), getSet.getByteArray()));
+
+		assertEquals(0.1d, getSet.getDouble(), 0.001);
+		getSet.setDouble(0.2d);
+		assertEquals(0.2d, getSet.getDouble(), 0.001);
+
+		assertEquals(0.2f, getSet.getFloat(), 0.001f);
+		getSet.setFloat(0.3f);
+		assertEquals(0.3f, getSet.getFloat(), 0.001f);
+
+		assertEquals(21, getSet.getInt());
+		getSet.setInt(46);
+		assertEquals(46, getSet.getInt());
+
+		assertEquals(22L, getSet.getLong());
+		getSet.setLong(98L);
+		assertEquals(98L, getSet.getLong());
+
+		assertEquals("n1", getSet.getString());
+		getSet.string("n2");
+		assertEquals("n2", getSet.getString());
+	}
+	public static interface GetSet {
+		BigDecimal getBigDecimal();
+		void setBigDecimal(BigDecimal value);
+
+		Boolean getBool();
+		void setBool(Boolean value);
+
+		byte[] getByteArray();
+		void setByteArray(byte[] data);
+
+		double getDouble();
+		void setDouble(double val);
+
+		float getFloat();
+		void setFloat(float val);
+
+		int getInt();
+		void setInt(int val);
+
+		long getLong();
+		void setLong(long val);
+
+		String getString();
+		void string(String name);
 	}
 
 	// Helper methods

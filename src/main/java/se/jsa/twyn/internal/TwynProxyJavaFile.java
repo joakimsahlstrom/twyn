@@ -40,7 +40,9 @@ class TwynProxyJavaFile {
 				case MAP: 		return templates.templateMapMethod(m);
 				case INTERFACE: return templates.templateInterfaceMethod(m);
 				case VALUE:		return templates.templateValueMethod(m);
-				default: 		throw new RuntimeException("Could not handle methodType=" + MethodType.getType(m) + " on interface " + implementedInterface.getCanonicalName());
+				case SET_VALUE: return templates.templateSetValueMethod(m);
+				default: 		throw new RuntimeException("Could not handle method=" + m.getName()
+						+ " with methodType=" + MethodType.getType(m) + " on interface " + implementedInterface.getCanonicalName());
 			} })
 			.collect(StringBuilder::new, (sb, s) -> sb.append(s).append("\n\n"), (sb1, sb2) -> sb1.append(sb2.toString()))
 			.toString();

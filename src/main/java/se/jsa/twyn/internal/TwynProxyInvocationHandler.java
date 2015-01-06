@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.node.ObjectNode;
 
 import se.jsa.twyn.TwynCollection;
 
@@ -54,6 +56,8 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 		case SET:		return cache.get(method, () -> innerCollectionProxy(method, Collectors.toSet()));
 		case MAP:		return cache.get(method, () -> innerMapProxy(method));
 		case INTERFACE:	return cache.get(method, () -> innerProxy(method));
+		case SET_VALUE: return setValue(method, args);
+
 		case VALUE:		return cache.get(method, () -> resolveValue(method));
 		default:		throw new RuntimeException("Could not handle methodType=" + MethodType.getType(method));
 		}
@@ -74,14 +78,14 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 	@SuppressWarnings("unchecked")
 	private <T, A, R> R innerCollectionProxy(Method method, Collector<T, A, R> collector) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		return collect((Class<T>)annotation.value(), resolveTargetNode(method), annotation.parallel(), collector);
+		return collect((Class<T>)annotation.value(), resolveTargetGetNode(method), annotation.parallel(), collector);
 	}
 
 	private Map<?, ?> innerMapProxy(Method method) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		Class<?> componentType = annotation.value();
 		return StreamSupport
-				.stream(Spliterators.spliteratorUnknownSize(resolveTargetNode(method).getFields(), 0), annotation.parallel())
+				.stream(Spliterators.spliteratorUnknownSize(resolveTargetGetNode(method).getFields(), 0), annotation.parallel())
 				.collect(Collectors.toMap(Entry::getKey, (entry) -> twynContext.proxy(entry.getValue(), componentType)));
 	}
 
@@ -89,19 +93,38 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 	private <T> Object innerArrayProxy(Method method) {
 		Class<T> componentType = (Class<T>) method.getReturnType().getComponentType();
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		List<T> result = collect(componentType, resolveTargetNode(method), annotation != null ? annotation.parallel() : false, Collectors.toList());
+		List<T> result = collect(componentType, resolveTargetGetNode(method), annotation != null ? annotation.parallel() : false, Collectors.toList());
 		return result.toArray((T[]) Array.newInstance(componentType, result.size()));
 	}
 
 	private Object innerProxy(Method method) {
-		return twynContext.proxy(resolveTargetNode(method), method.getReturnType());
+		return twynContext.proxy(resolveTargetGetNode(method), method.getReturnType());
+	}
+
+
+	private Object setValue(Method method, Object[] args) {
+		TwynUtil.decodeJavaBeanSetName(method.getName());
+		switch (args[0].getClass().getName()) {
+		case "java.math.BigDecimal" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (BigDecimal)args[0]); break;
+		case "java.lang.Boolean" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Boolean)args[0]); break;
+		case "[B" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (byte[])args[0]); break;
+		case "java.lang.Double" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Double)args[0]); break;
+		case "java.lang.Float" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Float)args[0]); break;
+		case "java.lang.Integer" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Integer)args[0]); break;
+		case "java.lang.Long" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Long)args[0]); break;
+		case "java.lang.String" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (String)args[0]); break;
+		default:
+			throw new IllegalArgumentException("Cannot map parameter type " + args[0].getClass().getName() + " to json!");
+		}
+		cache.clear();
+		return null;
 	}
 
 	private Object resolveValue(Method method) {
 		try {
-			return twynContext.readValue(resolveTargetNode(method), method.getReturnType());
+			return twynContext.readValue(resolveTargetGetNode(method), method.getReturnType());
 		} catch (IOException e) {
-			throw new RuntimeException("Could not resolve value for node " + resolveTargetNode(method) + ". Wanted type: " + method.getReturnType(), e);
+			throw new RuntimeException("Could not resolve value for node " + resolveTargetGetNode(method) + ". Wanted type: " + method.getReturnType(), e);
 		}
 	}
 
@@ -111,8 +134,8 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 			.collect(collector);
 	}
 
-	private JsonNode resolveTargetNode(Method method) {
-		return jsonNode.get(TwynUtil.decodeJavaBeanName(method.getName()));
+	private JsonNode resolveTargetGetNode(Method method) {
+		return jsonNode.get(TwynUtil.decodeJavaBeanGetName(method.getName()));
 	}
 
 	@Override
@@ -127,6 +150,7 @@ class TwynProxyInvocationHandler implements InvocationHandler {
 					}
 				})
 				.reduce(null, (s1, s2) -> { return (s1 == null ? s2 : (s2 == null ? s1 : s1 + ", " + s2)); })
+				+ (twynContext.isDebug() ? ", node=\"" + jsonNode + "\"": "")
 				+ "]";
 	}
 

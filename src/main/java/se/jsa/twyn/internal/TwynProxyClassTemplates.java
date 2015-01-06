@@ -18,8 +18,17 @@ class TwynProxyClassTemplates {
 	private final String twynListMethodTemplate;
 	private final String twynMapMethodTemplate;
 	private final String twynSetMethodTemplate;
+	private final String twynSetValueMethodTemplate;
 
-	public TwynProxyClassTemplates(String twynProxyClassTemplate, String twynInterfaceMethodTemplate, String twynValueMethodTemplate, String twynArrayMethodTemplate, String twynListMethodTemplate, String twynSetMethodTemplate, String twynMapMethodTemplate) {
+	public TwynProxyClassTemplates(
+			String twynProxyClassTemplate,
+			String twynInterfaceMethodTemplate,
+			String twynValueMethodTemplate,
+			String twynArrayMethodTemplate,
+			String twynListMethodTemplate,
+			String twynSetMethodTemplate,
+			String twynMapMethodTemplate,
+			String twynSetValueMethodTemplate) {
 		this.twynProxyClassTemplate = Objects.requireNonNull(twynProxyClassTemplate);
 		this.twynInterfaceMethodTemplate = Objects.requireNonNull(twynInterfaceMethodTemplate);
 		this.twynValueMethodTemplate = Objects.requireNonNull(twynValueMethodTemplate);
@@ -27,6 +36,7 @@ class TwynProxyClassTemplates {
 		this.twynListMethodTemplate = Objects.requireNonNull(twynListMethodTemplate);
 		this.twynSetMethodTemplate = Objects.requireNonNull(twynSetMethodTemplate);
 		this.twynMapMethodTemplate = Objects.requireNonNull(twynMapMethodTemplate);
+		this.twynSetValueMethodTemplate = Objects.requireNonNull(twynSetValueMethodTemplate);
 	}
 
 	public static TwynProxyClassTemplates create() throws IOException, URISyntaxException {
@@ -37,7 +47,8 @@ class TwynProxyClassTemplates {
 				readTemplate("/TwynProxyClass_arrayMethod.java.template"),
 				readTemplate("/TwynProxyClass_listMethod.java.template"),
 				readTemplate("/TwynProxyClass_setMethod.java.template"),
-				readTemplate("/TwynProxyClass_mapMethod.java.template")
+				readTemplate("/TwynProxyClass_mapMethod.java.template"),
+				readTemplate("/TwynProxyClass_setValueMethod.java.template")
 				);
 	}
 
@@ -60,14 +71,14 @@ class TwynProxyClassTemplates {
 		return twynInterfaceMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()));
 	}
 
 	public String templateValueMethod(Method method) {
 		return twynValueMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()));
 	}
 
 	public String templateArrayMethod(Method method) {
@@ -75,7 +86,7 @@ class TwynProxyClassTemplates {
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("COMPONENT_TYPE", method.getReturnType().getComponentType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()))
 				.replaceAll("PARALLEL", Boolean.valueOf(method.getAnnotation(TwynCollection.class) != null && method.getAnnotation(TwynCollection.class).parallel()).toString());
 	}
 
@@ -84,7 +95,7 @@ class TwynProxyClassTemplates {
 		return twynListMethodTemplate
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()))
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 
@@ -93,7 +104,7 @@ class TwynProxyClassTemplates {
 		return twynSetMethodTemplate
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()))
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 
@@ -102,8 +113,15 @@ class TwynProxyClassTemplates {
 		return twynMapMethodTemplate
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()))
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
+	}
+
+	public String templateSetValueMethod(Method method) {
+		return twynSetValueMethodTemplate
+				.replaceAll("VALUE_TYPE", method.getParameterTypes()[0].getCanonicalName())
+				.replaceAll("METHOD_NAME", method.getName())
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanSetName(method.getName()));
 	}
 
 }

@@ -73,7 +73,7 @@ public class Twyn {
 	private <T> T read(JsonProducer jsonProducer, Class<T> type) throws JsonProcessingException, IOException {
 		try {
 			return twynContext.proxy(jsonProducer.get(), validate(type));
-		} catch (IOException | IllegalArgumentException e) { // also handles JsonProcessingException
+		} catch (IOException | RuntimeException e) { // also handles JsonProcessingException
 			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException("Could not read input!", e);
@@ -103,6 +103,7 @@ public class Twyn {
 		private Supplier<Cache> cacheSupplier = () -> new Cache.None();
 		private TwynProxyBuilder twynProxyBuilder;
 		private Set<Class<?>> precompiledTypes = Collections.<Class<?>>emptySet();
+		boolean debug = false;
 
 		@Override
 		public Configurer withObjectMapper(ObjectMapper objectMapper) {
@@ -147,8 +148,14 @@ public class Twyn {
 		}
 
 		@Override
+		public Configurer withDebugMode() {
+			this.debug = true;
+			return this;
+		}
+
+		@Override
 		public Twyn configure() {
-			return new Twyn(new TwynContext(objectMapper, twynProxyBuilder, cacheSupplier)
+			return new Twyn(new TwynContext(objectMapper, twynProxyBuilder, cacheSupplier, debug)
 				.precompile(precompiledTypes));
 		}
 
@@ -178,6 +185,10 @@ public class Twyn {
 		 * Default
 		 */
 		Configurer withNoCaching();
+		/**
+		 * toString of nodes includes underlying json node, currently only supported with JavaProxies
+		 */
+		Configurer withDebugMode();
 		Twyn configure();
 	}
 	public static interface ClassGenerationConfigurer extends Configurer {
