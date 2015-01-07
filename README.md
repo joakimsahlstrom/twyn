@@ -168,8 +168,7 @@ class Id {
 	int idValue;
 }
 ```
-Set currently only support simple value types. 
-Retrieve underlying jackson jsonNode like this:
+Retrieve the underlying jackson jsonNode like this:
 ```java
 Twyn twyn = Twyn.forTest();
 Contact contact = twyn.read(jsonResponse, Contact.class);
