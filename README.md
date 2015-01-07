@@ -161,6 +161,10 @@ toString prints the values that equals and hashCode are calculated from.
 interface Setter {
 	void setName(String n); // modifies the field "name"
 	void visible(boolean vsbl); // modifies the field "visible"
+	void setId(Id id); // "Id" must be mappable by jackson
+}
+class Id {
+	int idValue;
 }
 ```
 Set currently only support simple value types. 
@@ -175,5 +179,5 @@ JsonNode root = twyn.getJsonNode(contact);
 ##Todo:
 * Better defined error handling
 * Setter should optionally be able to return reference to this
-* Support for other setters than value setters
 * Smarter cache clearing when setting values
+* Delete values/structures

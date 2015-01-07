@@ -57,6 +57,10 @@ public class TwynContext {
 		return objectMapper.readValue(resolveTargetNode, valueType);
 	}
 
+	public JsonNode writeValue(Object object) {
+		return getObjectMapper().valueToTree(object);
+	}
+
 	public ObjectMapper getObjectMapper() {
 		return objectMapper;
 	}

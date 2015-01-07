@@ -1,5 +1,5 @@
 	@Override
 	public void METHOD_NAME(VALUE_TYPE arg) {
-		((ObjectNode) jsonNode).put("FIELD_NAME", arg);
+		((ObjectNode) jsonNode).put("FIELD_NAME", ARG);
 		cache.clear();
 	}

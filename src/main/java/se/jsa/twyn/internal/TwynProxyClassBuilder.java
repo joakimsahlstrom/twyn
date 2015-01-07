@@ -39,13 +39,16 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 	}
 
 	private Class<?> createClass(Class<?> type, TwynContext twynContext) {
+		TwynProxyJavaFile twynProxyJavaFile = null;
 		try {
-			TwynProxyJavaFile twynProxyJavaFile = TwynProxyJavaFile.create(type, templates, twynContext);
+			twynProxyJavaFile = TwynProxyJavaFile.create(type, templates, twynContext);
 			return javaSourceCompiler
 					.compile(twynProxyJavaFile.setupCompilationUnit(javaSourceCompiler))
 					.loadClass(twynProxyJavaFile.getCanonicalClassName());
+		} catch (IllegalStateException e) {
+			throw new RuntimeException("Could not create class for " + type.getSimpleName() + ". Source:\n" + twynProxyJavaFile != null ? twynProxyJavaFile.getCode() : "n/a", e);
 		} catch (ClassNotFoundException | IOException | URISyntaxException e) {
-			throw new RuntimeException("Could not create class for " + type.getSimpleName(), e);
+			throw new RuntimeException("Could not create class for " + type.getSimpleName() + ".", e);
 		}
 	}
 

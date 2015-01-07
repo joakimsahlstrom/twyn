@@ -32,7 +32,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
 		this.jsonNode = jsonNode;
 		this.twynContext = Objects.requireNonNull(twynContext);
 		this.implementedType = Objects.requireNonNull(implementedType);
-		this.cache = twynContext.createCache();
+		this.cache = Objects.requireNonNull(twynContext.createCache());
 	}
 
 	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) throws Exception {
@@ -101,20 +101,20 @@ class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
 		return twynContext.proxy(resolveTargetGetNode(method), method.getReturnType());
 	}
 
-
 	private Object setValue(Method method, Object[] args) {
-		TwynUtil.decodeJavaBeanSetName(method.getName());
-		switch (args[0].getClass().getName()) {
-		case "java.math.BigDecimal" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (BigDecimal)args[0]); break;
-		case "java.lang.Boolean" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Boolean)args[0]); break;
-		case "[B" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (byte[])args[0]); break;
-		case "java.lang.Double" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Double)args[0]); break;
-		case "java.lang.Float" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Float)args[0]); break;
-		case "java.lang.Integer" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Integer)args[0]); break;
-		case "java.lang.Long" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Long)args[0]); break;
-		case "java.lang.String" : ((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (String)args[0]); break;
-		default:
-			throw new IllegalArgumentException("Cannot map parameter type " + args[0].getClass().getName() + " to json!");
+		if (!BasicJsonTypes.isBasicJsonType(args[0].getClass())) {
+			((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), twynContext.writeValue(args[0]));
+		} else {
+			switch (BasicJsonTypes.get(args[0].getClass())) {
+			case BIG_DECIMAL:	((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (BigDecimal)args[0]); break;
+			case BOOLEAN:		((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Boolean)args[0]); break;
+			case BYTE_ARRAY:	((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (byte[])args[0]); break;
+			case DOUBLE:		((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Double)args[0]); break;
+			case FLOAT:			((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Float)args[0]); break;
+			case INTEGER:		((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Integer)args[0]); break;
+			case LONG:			((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Long)args[0]); break;
+			case STRING:		((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (String)args[0]); break;
+			}
 		}
 		cache.clear();
 		return null;
@@ -138,6 +138,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
 		return jsonNode.get(TwynUtil.decodeJavaBeanGetName(method.getName()));
 	}
 
+	@Override
 	public JsonNode getJsonNode() {
 		return jsonNode;
 	}

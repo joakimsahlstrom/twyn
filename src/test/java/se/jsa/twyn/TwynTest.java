@@ -116,6 +116,10 @@ public class TwynTest {
 	}
 	public static class MyId {
 		private int val;
+		public MyId() { }
+		public MyId(int val) {
+			this.val = val;
+		}
 		public int getVal() {
 			return val;
 		}
@@ -481,6 +485,19 @@ public class TwynTest {
 	public static interface Simple {
 		String name();
 		void name(String val);
+	}
+
+	@Test
+	public void canSetComplexValue() throws Exception {
+		ObjectHoldingSetIF complexObject = twyn.read(input("{ \"id\" : { \"val\" : \"2\" } }"), ObjectHoldingSetIF.class);
+		assertEquals(2, complexObject.getId().getVal());
+		complexObject.setId(new MyId(21));
+		assertEquals(21, complexObject.getId().getVal());
+
+	}
+	public static interface ObjectHoldingSetIF {
+		public MyId getId();
+		public void setId(MyId myId);
 	}
 
 	// Helper methods
