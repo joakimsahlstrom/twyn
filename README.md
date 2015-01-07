@@ -157,7 +157,7 @@ Equals and hashCode are calculated from all mapped values, or, if any, those ann
 toString prints the values that equals and hashCode are calculated from.
 
 ###Twyn can modify the underlying jackson node structure
-Setters returns self if return type equals interface type
+Setters returns _this_ if return type equals interface type
 ```java
 interface Setter {
 	void setName(String n); // modifies the field "name"
