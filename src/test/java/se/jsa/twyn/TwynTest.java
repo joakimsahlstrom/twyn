@@ -500,6 +500,16 @@ public class TwynTest {
 		public void setId(MyId myId);
 	}
 
+	@Test
+	public void setterCanReturnInstance() throws Exception {
+		SelfSimple string = twyn.read(input("{ \"name\" : \"Hello World!\" }"), SelfSimple.class);
+		assertEquals("Hola!", string.name("Hola!").name());
+	}
+	public static interface SelfSimple {
+		String name();
+		SelfSimple name(String val);
+	}
+
 	// Helper methods
 
 	private InputStream input(String string) {

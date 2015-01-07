@@ -56,7 +56,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
 		case SET:		return cache.get(method, () -> innerCollectionProxy(method, Collectors.toSet()));
 		case MAP:		return cache.get(method, () -> innerMapProxy(method));
 		case INTERFACE:	return cache.get(method, () -> innerProxy(method));
-		case SET_VALUE: return setValue(method, args);
+		case SET_VALUE: return setValue(proxy, method, args);
 
 		case VALUE:		return cache.get(method, () -> resolveValue(method));
 		default:		throw new RuntimeException("Could not handle methodType=" + MethodType.getType(method));
@@ -101,7 +101,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
 		return twynContext.proxy(resolveTargetGetNode(method), method.getReturnType());
 	}
 
-	private Object setValue(Method method, Object[] args) {
+	private Object setValue(Object proxy, Method method, Object[] args) {
 		if (!BasicJsonTypes.isBasicJsonType(args[0].getClass())) {
 			((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), twynContext.writeValue(args[0]));
 		} else {
@@ -117,7 +117,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
 			}
 		}
 		cache.clear();
-		return null;
+		return proxy;
 	}
 
 	private Object resolveValue(Method method) {

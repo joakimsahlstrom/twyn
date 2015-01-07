@@ -157,10 +157,11 @@ Equals and hashCode are calculated from all mapped values, or, if any, those ann
 toString prints the values that equals and hashCode are calculated from.
 
 ###Twyn can modify the underlying jackson node structure
+Setters returns self if return type equals interface type
 ```java
 interface Setter {
 	void setName(String n); // modifies the field "name"
-	void visible(boolean vsbl); // modifies the field "visible"
+	Setter visible(boolean vsbl); // modifies the field "visible", returns this
 	void setId(Id id); // "Id" must be mappable by jackson
 }
 class Id {
@@ -178,6 +179,5 @@ JsonNode root = twyn.getJsonNode(contact);
 ```
 ##Todo:
 * Better defined error handling
-* Setter should optionally be able to return reference to this
 * Smarter cache clearing when setting values
 * Delete values/structures

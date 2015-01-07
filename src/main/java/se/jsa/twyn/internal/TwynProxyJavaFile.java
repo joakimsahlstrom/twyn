@@ -40,7 +40,7 @@ class TwynProxyJavaFile {
 				case MAP: 		return templates.templateMapMethod(m);
 				case INTERFACE: return templates.templateInterfaceMethod(m);
 				case VALUE:		return templates.templateValueMethod(m);
-				case SET_VALUE: return templates.templateSetValueMethod(m);
+				case SET_VALUE: return templates.templateSetValueMethod(m, implementedInterface);
 				default: 		throw new RuntimeException("Could not handle method=" + m.getName()
 						+ " with methodType=" + MethodType.getType(m) + " on interface " + implementedInterface.getCanonicalName());
 			} })

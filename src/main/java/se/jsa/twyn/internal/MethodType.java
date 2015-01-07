@@ -14,11 +14,11 @@ public enum MethodType implements Predicate<Method> {
 	ILLEGAL(m -> !m.isDefault() && m.getParameters().length > 1),
 
 	DEFAULT(m -> m.isDefault()),
-	ARRAY(m -> m.getReturnType().isArray() && m.getReturnType().getComponentType().isInterface()),
-	LIST(m -> m.getReturnType().equals(List.class) && m.getAnnotation(TwynCollection.class) != null),
-	MAP(m -> m.getReturnType().equals(Map.class) && m.getAnnotation(TwynCollection.class) != null),
-	SET(m -> m.getReturnType().equals(Set.class) && m.getAnnotation(TwynCollection.class) != null),
-	INTERFACE(m -> m.getReturnType().isInterface()),
+	ARRAY(m -> m.getReturnType().isArray() && m.getParameters().length == 0 && m.getReturnType().getComponentType().isInterface()),
+	LIST(m -> m.getReturnType().equals(List.class) && m.getParameters().length == 0 && m.getAnnotation(TwynCollection.class) != null),
+	MAP(m -> m.getReturnType().equals(Map.class) && m.getParameters().length == 0 && m.getAnnotation(TwynCollection.class) != null),
+	SET(m -> m.getReturnType().equals(Set.class) && m.getParameters().length == 0 && m.getAnnotation(TwynCollection.class) != null),
+	INTERFACE(m -> m.getReturnType().isInterface() && m.getParameters().length == 0),
 
 	SET_VALUE(m -> m.getParameters().length == 1),
 

@@ -117,12 +117,14 @@ class TwynProxyClassTemplates {
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 
-	public String templateSetValueMethod(Method method) {
+	public String templateSetValueMethod(Method method, Class<?> implementedType) {
 		Class<?> valueType = method.getParameterTypes()[0];
 		return twynSetValueMethodTemplate
 				.replaceAll("VALUE_TYPE", valueType.getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("ARG", BasicJsonTypes.isBasicJsonType(valueType) ? "arg" : "twyn.writeValue(arg)")
+				.replaceAll("RETURN_TYPE", method.getReturnType().equals(implementedType) ? implementedType.getCanonicalName() : "void")
+				.replaceAll("RETURN", method.getReturnType().equals(implementedType) ? "return this;" : "")
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanSetName(method.getName()));
 	}
 
