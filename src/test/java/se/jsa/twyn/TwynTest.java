@@ -510,6 +510,16 @@ public class TwynTest {
 		SelfSimple name(String val);
 	}
 
+	@Test
+	public void canCallToStringOnCollectionWithPrimitiveType() throws Exception {
+		StringList stringList = twyn.read("{\"get\" : [\"a\", \"b\"]}", StringList.class);
+		stringList.toString();
+	}
+	public static interface StringList {
+		@TwynCollection(String.class)
+		List<String> get();
+	}
+
 	// Helper methods
 
 	private InputStream input(String string) {

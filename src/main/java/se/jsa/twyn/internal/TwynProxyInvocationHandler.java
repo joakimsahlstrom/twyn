@@ -130,7 +130,13 @@ class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
 
 	private <T, A, R> R collect(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
 		return StreamSupport.stream(jsonNode.spliterator(), parallel)
-			.map(n -> twynContext.proxy(n, componentType))
+			.map((n) -> {
+				try {
+					return componentType.isInterface() ? twynContext.proxy(n, componentType) : twynContext.readValue(n, componentType);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			} )
 			.collect(collector);
 	}
 

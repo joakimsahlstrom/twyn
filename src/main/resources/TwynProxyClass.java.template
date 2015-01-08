@@ -40,7 +40,13 @@ IMPLEMENTED_METHODS
 
 	private <T, A, R> R collect(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
 		return StreamSupport.stream(jsonNode.spliterator(), parallel)
-			.map(n -> twyn.proxy(n, componentType))
+			.map((n) -> {
+				try {
+					return componentType.isInterface() ? twyn.proxy(n, componentType) : twyn.readValue(n, componentType);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			} )
 			.collect(collector);
 	}
 	

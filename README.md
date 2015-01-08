@@ -177,6 +177,7 @@ JsonNode root = twyn.getJsonNode(contact);
 	
 ```
 ##Todo:
+* Output error message when @TwynCollection is missing
 * Better defined error handling
 * Smarter cache clearing when setting values
 * Delete values/structures
