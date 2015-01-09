@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
@@ -23,7 +24,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.JsonNodeHolder;
 import se.jsa.twyn.internal.MethodType;
-import se.jsa.twyn.internal.Methods;
 import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.TwynProxyBuilder;
 import se.jsa.twyn.internal.TwynProxyClassBuilder;
@@ -84,7 +84,7 @@ public class Twyn {
 	}
 
 	private <T> Class<T> validate(Class<T> type) {
-		Methods.stream(type)
+		Stream.of(type.getMethods())
 			.filter(MethodType.ILLEGAL)
 			.findAny()
 			.ifPresent(m -> { throw new IllegalArgumentException("Type " + type + " defines method " + m + " which is nondefault and has method arguments. Proxy cannot be created."); });

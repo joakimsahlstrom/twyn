@@ -17,7 +17,7 @@ class IdentityMethods {
 	}
 
 	private static List<Method> get(Class<?> implementedType) {
-		List<Method> methods = Methods.stream(implementedType).parallel()
+		List<Method> methods = Stream.of(implementedType.getMethods()).parallel()
 				.filter(m -> !MethodType.DEFAULT.test(m) && m.getParameters().length == 0)
 				.collect(Collectors.toList());
 		List<Method> idAnnotatedMethods = methods.stream().filter((m) -> { return m.getAnnotation(TwynId.class) != null; }).collect(Collectors.toList());
