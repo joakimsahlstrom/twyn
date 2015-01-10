@@ -52,22 +52,22 @@ class TwynProxyClassJavaFile {
 	}
 
 	private static String buildEqualsComparison(Class<?> implementedInterface, TwynContext twynContext) {
-		return joinIdentityMethods(implementedInterface, m -> { return "Objects.equals(this." + m.getName() + "(), other." + m.getName() + "())"; }, "\n\t\t\t\t&& ", twynContext);
+		return joinIdentityMethods(implementedInterface, m -> "Objects.equals(this." + m.getName() + "(), other." + m.getName() + "())", "\n\t\t\t\t&& ", twynContext);
 	}
 
 	private static String buildHashCodeCalls(Class<?> implementedInterface, TwynContext twynContext) {
-		return joinIdentityMethods(implementedInterface, m -> { return (MethodType.ARRAY.test(m) ? "(Object)" : "") + m.getName() + "()"; }, ", ", twynContext);
+		return joinIdentityMethods(implementedInterface, m -> (MethodType.ARRAY.test(m) ? "(Object)" : "") + m.getName() + "()", ", ", twynContext);
 	}
 
 	private static String buildToString(Class<?> implementedInterface, TwynContext twynContext) {
-		return joinIdentityMethods(implementedInterface, m -> { return m.getName() + "()=\" + " + m.getName() + "() + \""; }, ", ", twynContext)
+		return joinIdentityMethods(implementedInterface, m -> m.getName() + "()=\" + " + m.getName() + "() + \"", ", ", twynContext)
 				+ (twynContext.isDebug() ? ", node=\" + jsonNode + \"" : "");
 	}
 
 	private static String joinIdentityMethods(Class<?> implementedInterface, Function<Method, String> fn, String separator, TwynContext twynContext) {
 		return twynContext.getIdentityMethods(implementedInterface)
 				.map(fn)
-				.reduce(null, (s1, s2) -> { return (s1 == null ? s2 : (s2 == null ? s1 : s1 + separator + s2)); });
+				.reduce(null, (s1, s2) -> s1 == null ? s2 : (s2 == null ? s1 : s1 + separator + s2));
 	}
 
 	public JavaSourceCompiler.CompilationUnit setupCompilationUnit(JavaSourceCompiler javaSourceCompiler) {
