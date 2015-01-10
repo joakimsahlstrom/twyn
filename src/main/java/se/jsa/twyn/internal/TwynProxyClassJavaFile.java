@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
@@ -46,7 +47,7 @@ class TwynProxyClassJavaFile {
 				default: 		throw new RuntimeException("Could not handle method=" + m.getName()
 						+ " with methodType=" + MethodType.getType(m) + " on interface " + implementedInterface.getCanonicalName());
 			} })
-			.collect(StringBuilder::new, (sb, s) -> sb.append(s).append("\n\n"), (sb1, sb2) -> sb1.append(sb2.toString()))
+			.collect(Collectors.joining("\n\n"))
 			.toString();
 	}
 
