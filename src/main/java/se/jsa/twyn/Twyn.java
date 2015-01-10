@@ -22,7 +22,7 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import se.jsa.twyn.internal.Cache;
-import se.jsa.twyn.internal.JsonNodeHolder;
+import se.jsa.twyn.internal.NodeHolder;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.TwynProxyBuilder;
@@ -92,12 +92,12 @@ public class Twyn {
 	}
 
 	public JsonNode getJsonNode(Object obj) {
-		if (obj instanceof JsonNodeHolder) {
-			return ((JsonNodeHolder) obj).getJsonNode();
+		if (obj instanceof NodeHolder) {
+			return ((NodeHolder) obj).getJsonNode();
 		}
 		try {
 			InvocationHandler invocationHandler = Proxy.getInvocationHandler(obj);
-			JsonNodeHolder twynProxyInvocationHandler = ((JsonNodeHolder)invocationHandler);
+			NodeHolder twynProxyInvocationHandler = ((NodeHolder)invocationHandler);
 			return twynProxyInvocationHandler.getJsonNode();
 		} catch (RuntimeException e) {
 			throw new IllegalArgumentException("Not a twyn object!", e);

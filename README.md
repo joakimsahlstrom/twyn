@@ -126,7 +126,7 @@ interface Song {
 }
 ```
 
-###Twyn can map classes directly against array types
+###Twyn can map interfaces directly against array structures
 Map this json:
 ```json
 { 

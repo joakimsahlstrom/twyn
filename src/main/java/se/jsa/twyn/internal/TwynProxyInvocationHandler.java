@@ -20,7 +20,7 @@ import org.codehaus.jackson.node.ObjectNode;
 
 import se.jsa.twyn.TwynCollection;
 
-class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
+class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 	private static final Object[] NO_ARGS = new Object[] {};
 
 	private final JsonNode jsonNode;

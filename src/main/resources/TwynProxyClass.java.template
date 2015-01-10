@@ -2,7 +2,7 @@ package se.jsa.twyn;
 
 import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.TwynContext;
-import se.jsa.twyn.internal.JsonNodeHolder;
+import se.jsa.twyn.internal.NodeHolder;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
@@ -25,7 +25,7 @@ import java.util.stream.StreamSupport;
 
 import TARGET_INTERFACE_QUALIFIED;
 
-public class CLASS_NAME implements TARGET_INTERFACE, JsonNodeHolder {
+public class CLASS_NAME implements TARGET_INTERFACE, NodeHolder {
 	private final TwynContext twyn;
 	private final JsonNode jsonNode;
 	private final Cache cache;

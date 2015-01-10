@@ -26,7 +26,7 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 	}
 
 	public void precompile(Collection<Class<?>> types, TwynContext twyn) {
-		types.stream().forEach(((t) -> getImplementingClass(t, twyn)));
+		types.stream().parallel().forEach(((t) -> getImplementingClass(t, twyn)));
 	}
 
 	@Override

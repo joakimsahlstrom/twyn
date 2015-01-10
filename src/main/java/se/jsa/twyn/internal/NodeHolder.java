@@ -2,6 +2,6 @@ package se.jsa.twyn.internal;
 
 import org.codehaus.jackson.JsonNode;
 
-public interface JsonNodeHolder {
+public interface NodeHolder {
 	JsonNode getJsonNode();
 }
