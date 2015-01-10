@@ -126,7 +126,7 @@ interface Song {
 }
 ```
 
-###Twyn can map interfaces directly against array structures
+###Twyn can map interfaces directly against arrays
 Map this json:
 ```json
 { 
@@ -143,7 +143,7 @@ public static interface ArrayElement {
 	@TwynIndex(3) String message();
 }
 ```
-This way, the two-dimensional json structures:
+Also, this way the two-dimensional array:
 ```json
 { 
 	"arr" : [ 
