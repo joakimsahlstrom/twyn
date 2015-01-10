@@ -53,7 +53,7 @@ class TwynProxyClassTemplates {
 	}
 
 	private static String readTemplate(String fileName) throws IOException, URISyntaxException {
-		return new String(Files.readAllBytes(Paths.get(TwynProxyJavaFile.class.getResource(fileName).toURI())));
+		return new String(Files.readAllBytes(Paths.get(TwynProxyClassJavaFile.class.getResource(fileName).toURI())));
 	}
 
 	public String templateTwynProxyClass(String className, Class<?> implementedInterface, String methodBodies, String equalsComparison, String hashCodeCalls, String toString) {

@@ -9,18 +9,18 @@ import java.util.stream.Stream;
 
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 
-class TwynProxyJavaFile {
+class TwynProxyClassJavaFile {
 	private final String code;
 	private final String className;
 
-	public TwynProxyJavaFile(String className, String code) {
+	public TwynProxyClassJavaFile(String className, String code) {
 		this.className = Objects.requireNonNull(className);
 		this.code = Objects.requireNonNull(code);
 	}
 
-	public static TwynProxyJavaFile create(Class<?> implementedInterface, TwynProxyClassTemplates templates, TwynContext twynContext) throws IOException, URISyntaxException {
+	public static TwynProxyClassJavaFile create(Class<?> implementedInterface, TwynProxyClassTemplates templates, TwynContext twynContext) throws IOException, URISyntaxException {
 		String className = implementedInterface.getSimpleName() + "TwynImpl";
-		return new TwynProxyJavaFile(
+		return new TwynProxyClassJavaFile(
 				className,
 				templates.templateTwynProxyClass(
 						className,

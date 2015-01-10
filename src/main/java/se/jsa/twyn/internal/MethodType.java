@@ -2,6 +2,7 @@ package se.jsa.twyn.internal;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,4 +42,8 @@ public enum MethodType implements Predicate<Method> {
 				.findFirst()
 				.orElseThrow(() -> new RuntimeException("Could not determine MethodType for " + m));
 	}
+
+
+	public static Collection<Predicate<Method>> GETTER_TYPES = Arrays.asList(ARRAY, LIST, MAP, SET, INTERFACE, VALUE);
+	public static Predicate<Method> GETTER_TYPES_FILTER = MethodType.GETTER_TYPES.stream().reduce(Predicate::or).orElse(x -> false);
 }

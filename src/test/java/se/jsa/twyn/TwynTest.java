@@ -520,6 +520,20 @@ public class TwynTest {
 		List<String> get();
 	}
 
+	@Test
+	public void canMapArraysToObjects() throws Exception {
+		ArrayObject arrayObject = twyn.read("{ \"arr\" : [ 1, \"JS\", 33, \"iCode\" ] }", ArrayObject.class);
+		assertEquals(1, arrayObject.arr().index());
+		assertEquals("iCode", arrayObject.arr().message());
+	}
+	public static interface ArrayObject {
+		ArrayElement arr();
+	}
+	public static interface ArrayElement {
+		@TwynIndex(0) int index();
+		@TwynIndex(3) String message();
+	}
+
 	// Helper methods
 
 	private InputStream input(String string) {

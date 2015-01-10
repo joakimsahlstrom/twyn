@@ -39,9 +39,9 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 	}
 
 	private Class<?> createClass(Class<?> type, TwynContext twynContext) {
-		TwynProxyJavaFile twynProxyJavaFile = null;
+		TwynProxyClassJavaFile twynProxyJavaFile = null;
 		try {
-			twynProxyJavaFile = TwynProxyJavaFile.create(type, templates, twynContext);
+			twynProxyJavaFile = TwynProxyClassJavaFile.create(type, templates, twynContext);
 			return javaSourceCompiler
 					.compile(twynProxyJavaFile.setupCompilationUnit(javaSourceCompiler))
 					.loadClass(twynProxyJavaFile.getCanonicalClassName());
