@@ -159,6 +159,18 @@ public static interface ArrayObject {
 	ArrayElement[] arr();
 }
 ```
+If a json structure starts with an array:
+```json
+[ 
+	[ 1, "JS", 33, "iCode" ],
+	[ 2, "LS", 30, "iChem" ]
+] 
+```
+it can be parsed like this:
+```java
+ArrayElement[] elements = twyn.read(jsonResponse, ArrayElement[].class);
+```
+
 
 ###Twyn can be configured for different use cases
 ```java
@@ -212,7 +224,11 @@ JsonNode root = twyn.getJsonNode(contact);
 
 ##Todo:
 * Output error message when @TwynCollection is missing
-* Ability to parse json that starts with an array
+* Ability to parse json that starts with a Map (eg. { \"a\" : { 1 }, \"b\" : { 2 } } w/ 
+	interface MyMap { @TwynCollection(MyNode.class) @TwynRoot Map<String, MyNode> nodes(); }
+	twyn.read(jsonResponse, MyMap.class)
+	or
+	twyn.readMap(jsonResponse, MyNode.class);
 * Ability to chose custom names for fields by using annotation (e.g. @TwynName)
 * Better defined error handling
 * Delete values/structures

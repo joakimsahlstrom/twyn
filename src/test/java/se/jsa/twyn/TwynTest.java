@@ -544,6 +544,13 @@ public class TwynTest {
 		ArrayElement[] arr();
 	}
 
+	@Test
+	public void canParseJsonStartingWithArray() throws Exception {
+		ArrayElement[] elements = twyn.read("[[ 1, \"JS\", 33, \"iCode\" ], [ 2, \"LS\", 30, \"iChem\" ]]", ArrayElement[].class);
+		assertEquals(1, elements[0].index());
+		assertEquals(2, elements[1].index());
+	}
+
 	// Helper methods
 
 	private InputStream input(String string) {

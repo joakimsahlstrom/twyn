@@ -3,13 +3,18 @@ package se.jsa.twyn.internal;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
@@ -51,6 +56,24 @@ public class TwynContext {
 		} catch (Exception e) {
 			throw new RuntimeException("Could not create Twyn proxy", e);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> Object proxyArray(JsonNode node, Class<T> componentType, boolean parallel) {
+		List<T> result = proxyCollection(componentType, node, parallel, Collectors.toList());
+		return result.toArray((T[]) Array.newInstance(componentType, result.size()));
+	}
+
+	public <T, A, R> R proxyCollection(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
+		return StreamSupport.stream(jsonNode.spliterator(), parallel)
+				.map((n) -> {
+					try {
+						return componentType.isInterface() ? proxy(n, componentType) : readValue(n, componentType);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				} )
+				.collect(collector);
 	}
 
 	public <T> T readValue(JsonNode resolveTargetNode, Class<T> valueType) throws JsonParseException, JsonMappingException, IOException {

@@ -1,12 +1,10 @@
 package se.jsa.twyn.internal;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -80,7 +78,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 	@SuppressWarnings("unchecked")
 	private <T, A, R> R innerCollectionProxy(Method method, Collector<T, A, R> collector) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		return collect((Class<T>)annotation.value(), resolveTargetGetNode(method), annotation.parallel(), collector);
+		return twynContext.proxyCollection((Class<T>)annotation.value(), resolveTargetGetNode(method), annotation.parallel(), collector);
 	}
 
 	private Map<?, ?> innerMapProxy(Method method) {
@@ -91,12 +89,11 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 				.collect(Collectors.toMap(Entry::getKey, (entry) -> twynContext.proxy(entry.getValue(), componentType)));
 	}
 
-	@SuppressWarnings("unchecked")
 	private <T> Object innerArrayProxy(Method method) {
+		@SuppressWarnings("unchecked")
 		Class<T> componentType = (Class<T>) method.getReturnType().getComponentType();
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		List<T> result = collect(componentType, resolveTargetGetNode(method), annotation != null ? annotation.parallel() : false, Collectors.toList());
-		return result.toArray((T[]) Array.newInstance(componentType, result.size()));
+		return twynContext.proxyArray(resolveTargetGetNode(method), componentType, annotation != null ? annotation.parallel() : false);
 	}
 
 	private Object innerProxy(Method method) {
@@ -128,18 +125,6 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 		} catch (IOException e) {
 			throw new RuntimeException("Could not resolve value for node " + resolveTargetGetNode(method) + ". Wanted type: " + method.getReturnType(), e);
 		}
-	}
-
-	private <T, A, R> R collect(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
-		return StreamSupport.stream(jsonNode.spliterator(), parallel)
-			.map((n) -> {
-				try {
-					return componentType.isInterface() ? twynContext.proxy(n, componentType) : twynContext.readValue(n, componentType);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			} )
-			.collect(collector);
 	}
 
 	private JsonNode resolveTargetGetNode(Method method) {

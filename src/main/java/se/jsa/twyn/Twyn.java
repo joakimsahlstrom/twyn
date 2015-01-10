@@ -22,8 +22,8 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import se.jsa.twyn.internal.Cache;
-import se.jsa.twyn.internal.NodeHolder;
 import se.jsa.twyn.internal.MethodType;
+import se.jsa.twyn.internal.NodeHolder;
 import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.TwynProxyBuilder;
 import se.jsa.twyn.internal.TwynProxyClassBuilder;
@@ -75,7 +75,10 @@ public class Twyn {
 
 	private <T> T read(JsonProducer jsonProducer, Class<T> type) throws JsonProcessingException, IOException {
 		try {
-			return twynContext.proxy(jsonProducer.get(), validate(type));
+			JsonNode node = jsonProducer.get();
+			return type.isArray()
+					? type.cast(twynContext.proxyArray(node, validate(type.getComponentType()), false))
+					: twynContext.proxy(node, validate(type));
 		} catch (IOException | RuntimeException e) { // also handles JsonProcessingException
 			throw e;
 		} catch (Exception e) {
