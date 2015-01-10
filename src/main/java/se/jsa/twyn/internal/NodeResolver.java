@@ -13,7 +13,6 @@ import org.codehaus.jackson.JsonNode;
 
 import se.jsa.twyn.TwynIndex;
 
-
 interface NodeResolver  {
 
 	JsonNode resolveNode(Method method, JsonNode root);
@@ -26,6 +25,7 @@ interface NodeResolver  {
 			return new MethodNameInvocationHandlerMethodResolver();
 		}
 	}
+
 	static boolean isArrayType(Class<?> implementedType) {
 		List<Method> getMethods = Stream.of(implementedType.getMethods())
 			.filter(MethodType.GETTER_TYPES_FILTER)
@@ -35,7 +35,8 @@ interface NodeResolver  {
 		} else if (getMethods.stream().noneMatch(WITH_TWYNINDEX)) {
 			return false;
 		} else {
-			throw new IllegalArgumentException("Type " + implementedType.getCanonicalName() + " has some, but not all getter method annotated with @" + TwynIndex.class.getSimpleName() + ". "
+			throw new IllegalArgumentException("Type " + implementedType.getCanonicalName()
+					+ " has some, but not all getter method annotated with @" + TwynIndex.class.getSimpleName() + ". "
 					+ "Either all or none getter methods must be annotated with this annotation.");
 		}
 	}
@@ -55,16 +56,17 @@ interface NodeResolver  {
 
 	static class ArrayInvocationHandlerMethodResolver implements NodeResolver {
 		private final Map<String, Integer> fieldOrder = new HashMap<>();
+
 		public ArrayInvocationHandlerMethodResolver(Class<?> implementedType) {
 			Stream.of(implementedType.getMethods())
 				.filter(MethodType.GETTER_TYPES_FILTER)
 				.forEachOrdered(m -> fieldOrder.put(
-						TwynUtil.decodeJavaBeanGetName(m.getName()),
-						Optional.ofNullable(m.getAnnotation(TwynIndex.class))
-							.orElseThrow(() -> new IllegalArgumentException(
-									"Attempts to map method '" + m.getName() + "' of type '" + implementedType + "'"
-									+ " to an array without providing a @" + TwynIndex.class.getSimpleName() + " annotation."))
-							.value()));
+					TwynUtil.decodeJavaBeanGetName(m.getName()),
+					Optional.ofNullable(m.getAnnotation(TwynIndex.class))
+						.orElseThrow(() -> new IllegalArgumentException(
+								"Attempts to map method '" + m.getName() + "' of type '" + implementedType + "'"
+								+ " to an array without providing a @" + TwynIndex.class.getSimpleName() + " annotation."))
+						.value()));
 		}
 
 		@Override
@@ -76,6 +78,5 @@ interface NodeResolver  {
 			return fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())).toString();
 		}
 	}
-
 
 }
