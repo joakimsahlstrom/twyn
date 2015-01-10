@@ -223,7 +223,6 @@ JsonNode root = twyn.getJsonNode(contact);
 ```
 
 ##Todo:
-* Output error message when @TwynCollection is missing
 * Ability to parse json that starts with a Map (eg. { \"a\" : { 1 }, \"b\" : { 2 } } w/ 
 	interface MyMap { @TwynCollection(MyNode.class) @TwynRoot Map<String, MyNode> nodes(); }
 	twyn.read(jsonResponse, MyMap.class)

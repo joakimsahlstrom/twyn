@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class ClassTypes {
+class ClassType {
 	static Collection<Class<?>> COLLECTIONS = new HashSet<Class<?>>(Arrays.asList(List.class, Map.class, Set.class));
 
 	public static boolean isCollection(Class<?> type) {
