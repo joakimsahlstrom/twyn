@@ -215,5 +215,5 @@ JsonNode root = twyn.getJsonNode(contact);
 * Ability to parse json that starts with an array
 * Ability to chose custom names for fields by using annotation (e.g. @TwynName)
 * Better defined error handling
-* Smarter cache clearing when setting values
 * Delete values/structures
+* Collection modifications

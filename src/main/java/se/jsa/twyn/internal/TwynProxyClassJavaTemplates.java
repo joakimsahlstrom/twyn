@@ -71,14 +71,16 @@ class TwynProxyClassJavaTemplates {
 		return twynInterfaceMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method));
+				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
 	}
 
 	public String templateValueMethod(Method method, NodeResolver nodeResolver) {
 		return twynValueMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method));
+				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
 	}
 
 	public String templateArrayMethod(Method method, NodeResolver nodeResolver) {
@@ -87,6 +89,7 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("COMPONENT_TYPE", method.getReturnType().getComponentType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replaceAll("PARALLEL", Boolean.valueOf(method.getAnnotation(TwynCollection.class) != null && method.getAnnotation(TwynCollection.class).parallel()).toString());
 	}
 
@@ -96,6 +99,7 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 
@@ -105,6 +109,7 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 
@@ -114,6 +119,7 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 

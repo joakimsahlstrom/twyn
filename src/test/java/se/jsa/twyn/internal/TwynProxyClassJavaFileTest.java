@@ -12,12 +12,13 @@ import org.junit.Test;
 
 import se.jsa.twyn.TwynCollection;
 import se.jsa.twyn.TwynIndex;
+import se.jsa.twyn.TwynTest;
 import se.jsa.twyn.TwynTest.StringIF;
 
-
-@Ignore("To be used for manual verification")
+// For development debugging
 public class TwynProxyClassJavaFileTest {
 
+	@Ignore
 	@Test
 	public void generatesCorrectCode() throws Exception {
 		System.out.println(getCode(Offspring.class).getCode());
@@ -53,8 +54,10 @@ public class TwynProxyClassJavaFileTest {
 	}
 
 	@Test
+	@Ignore
 	public void canReadComplexSet() throws Exception {
 		System.out.println(getCode(SetIF.class).getCode());
+		System.out.println(getCode(TwynTest.ObjectHoldingSetIF.class).getCode());
 		System.out.println(getCode(ArrayElement.class).getCode());
 	}
 	public static interface SetIF {

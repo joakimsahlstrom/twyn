@@ -1,6 +1,6 @@
 	@Override
 	public List<COMPONENT_TYPE> METHOD_NAME() {
-		return cache.get("METHOD_NAME", () -> {
+		return cache.get("FIELD_NAME", () -> {
 			try {
 				return collect(COMPONENT_TYPE.class, jsonNode.get(FIELD_ID), PARALLEL, Collectors.toList());
 			} catch (NullPointerException e) {

@@ -1,6 +1,6 @@
 	@Override
 	public RETURN_TYPE METHOD_NAME() {
-		return cache.get("METHOD_NAME", () -> {
+		return cache.get("FIELD_NAME", () -> {
 			try {
 				List<COMPONENT_TYPE> result = collect(COMPONENT_TYPE.class, jsonNode.get(FIELD_ID), PARALLEL, Collectors.toList());
 				return result.toArray((COMPONENT_TYPE[]) Array.newInstance(COMPONENT_TYPE.class, result.size()));

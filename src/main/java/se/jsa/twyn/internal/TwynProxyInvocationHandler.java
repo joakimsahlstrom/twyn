@@ -53,14 +53,14 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 
 		switch (MethodType.getType(method)) {
 		case DEFAULT:	return callDefaultMethod(proxy, method, args);
-		case ARRAY:		return cache.get(method, () -> innerArrayProxy(method));
-		case LIST:		return cache.get(method, () -> innerCollectionProxy(method, Collectors.toList()));
-		case SET:		return cache.get(method, () -> innerCollectionProxy(method, Collectors.toSet()));
-		case MAP:		return cache.get(method, () -> innerMapProxy(method));
-		case INTERFACE:	return cache.get(method, () -> innerProxy(method));
+		case ARRAY:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerArrayProxy(method));
+		case LIST:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerCollectionProxy(method, Collectors.toList()));
+		case SET:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerCollectionProxy(method, Collectors.toSet()));
+		case MAP:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerMapProxy(method));
+		case INTERFACE:	return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerProxy(method));
 		case SET_VALUE: return setValue(proxy, method, args);
 
-		case VALUE:		return cache.get(method, () -> resolveValue(method));
+		case VALUE:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> resolveValue(method));
 		default:		throw new RuntimeException("Could not handle methodType=" + MethodType.getType(method));
 		}
 	}
@@ -118,7 +118,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 			case STRING:		((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (String)args[0]); break;
 			}
 		}
-		cache.clear();
+		cache.clear(TwynUtil.decodeJavaBeanName(method.getName()));
 		return proxy;
 	}
 
