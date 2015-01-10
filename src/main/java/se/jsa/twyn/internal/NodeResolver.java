@@ -11,11 +11,11 @@ import org.codehaus.jackson.JsonNode;
 import se.jsa.twyn.TwynIndex;
 
 
-interface InvocationHandlerNodeResolver  {
+interface NodeResolver  {
 
-	JsonNode resolveNode(Class<?> implementedClass, Method method, JsonNode root);
+	JsonNode resolveNode(Method method, JsonNode root);
 
-	static InvocationHandlerNodeResolver getResolver(Class<?> implementedType, JsonNode jsonNode) {
+	static NodeResolver getResolver(Class<?> implementedType, JsonNode jsonNode) {
 		if (jsonNode.isArray()) {
 			return new ArrayInvocationHandlerMethodResolver(implementedType);
 		} else {
@@ -23,14 +23,14 @@ interface InvocationHandlerNodeResolver  {
 		}
 	}
 
-	static class MethodNameInvocationHandlerMethodResolver implements InvocationHandlerNodeResolver {
+	static class MethodNameInvocationHandlerMethodResolver implements NodeResolver {
 		@Override
-		public JsonNode resolveNode(Class<?> implementedClass, Method method, JsonNode root) {
+		public JsonNode resolveNode(Method method, JsonNode root) {
 			return root.get(TwynUtil.decodeJavaBeanGetName(method.getName()));
 		}
 	}
 
-	static class ArrayInvocationHandlerMethodResolver implements InvocationHandlerNodeResolver {
+	static class ArrayInvocationHandlerMethodResolver implements NodeResolver {
 		private final Map<String, Integer> fieldOrder = new HashMap<>();
 		public ArrayInvocationHandlerMethodResolver(Class<?> implementedType) {
 			Stream.of(implementedType.getMethods())
@@ -45,7 +45,7 @@ interface InvocationHandlerNodeResolver  {
 		}
 
 		@Override
-		public JsonNode resolveNode(Class<?> implementedClass, Method method, JsonNode root) {
+		public JsonNode resolveNode(Method method, JsonNode root) {
 			return root.get(fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())));
 		}
 	}

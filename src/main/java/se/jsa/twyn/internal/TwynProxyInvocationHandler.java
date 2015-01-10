@@ -27,14 +27,14 @@ class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
 	private final TwynContext twynContext;
 	private final Class<?> implementedType;
 	private final Cache cache;
-	private final InvocationHandlerNodeResolver invocationHandlerNodeResolver;
+	private final NodeResolver invocationHandlerNodeResolver;
 
 	public TwynProxyInvocationHandler(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) {
 		this.jsonNode = jsonNode;
 		this.twynContext = Objects.requireNonNull(twynContext);
 		this.implementedType = Objects.requireNonNull(implementedType);
 		this.cache = Objects.requireNonNull(twynContext.createCache());
-		this.invocationHandlerNodeResolver = InvocationHandlerNodeResolver.getResolver(implementedType, jsonNode);
+		this.invocationHandlerNodeResolver = NodeResolver.getResolver(implementedType, jsonNode);
 	}
 
 	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) throws Exception {
@@ -143,7 +143,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
 	}
 
 	private JsonNode resolveTargetGetNode(Method method) {
-		return invocationHandlerNodeResolver.resolveNode(implementedType, method, jsonNode);
+		return invocationHandlerNodeResolver.resolveNode(method, jsonNode);
 	}
 
 	@Override
