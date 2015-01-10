@@ -231,5 +231,6 @@ JsonNode root = twyn.getJsonNode(contact);
 	twyn.readMap(jsonResponse, MyNode.class);
 * Ability to chose custom names for fields by using annotation (e.g. @TwynName)
 * Better defined error handling
+* has-methods that can test if an underlying node is present?
 * Delete values/structures
 * Collection modifications
