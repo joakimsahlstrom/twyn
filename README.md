@@ -143,7 +143,7 @@ public static interface ArrayElement {
 	@TwynIndex(3) String message();
 }
 ```
-Also, this way the two-dimensional array:
+__Also, this way the two-dimensional array:__
 ```json
 { 
 	"arr" : [ 
@@ -159,7 +159,7 @@ public static interface ArrayObject {
 	ArrayElement[] arr();
 }
 ```
-If a json structure starts with an array:
+__If a json structure starts with an array:__
 ```json
 [ 
 	[ 1, "JS", 33, "iCode" ],
