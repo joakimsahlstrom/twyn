@@ -17,7 +17,7 @@ import se.jsa.twyn.TwynIndex;
 interface NodeResolver  {
 
 	JsonNode resolveNode(Method method, JsonNode root);
-	static Predicate<Method> TWYNINDEX_ANNOTATED = m -> m.getAnnotation(TwynIndex.class) != null;
+	static Predicate<Method> WITH_TWYNINDEX = m -> m.getAnnotation(TwynIndex.class) != null;
 
 	static NodeResolver getResolver(Class<?> implementedType) {
 		if (isArrayType(implementedType)) {
@@ -30,9 +30,9 @@ interface NodeResolver  {
 		List<Method> getMethods = Stream.of(implementedType.getMethods())
 			.filter(MethodType.GETTER_TYPES_FILTER)
 			.collect(Collectors.toList());
-		if (getMethods.stream().allMatch(TWYNINDEX_ANNOTATED)) {
+		if (getMethods.stream().allMatch(WITH_TWYNINDEX)) {
 			return true;
-		} else if (getMethods.stream().noneMatch(TWYNINDEX_ANNOTATED)) {
+		} else if (getMethods.stream().noneMatch(WITH_TWYNINDEX)) {
 			return false;
 		} else {
 			throw new IllegalArgumentException("Type " + implementedType.getCanonicalName() + " has some, but not all getter method annotated with @" + TwynIndex.class.getSimpleName() + ". "

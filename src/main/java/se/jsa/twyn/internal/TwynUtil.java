@@ -3,6 +3,7 @@ package se.jsa.twyn.internal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class TwynUtil {
 
@@ -22,7 +23,7 @@ class TwynUtil {
 
 	// Other
 
-	private static final Collection<String> ALL_PREFIXES = Arrays.asList(GET_PREFIXES, SET_PREFIXES).stream().flatMap(Collection::stream).collect(Collectors.toList());
+	private static final Collection<String> ALL_PREFIXES = Stream.of(GET_PREFIXES, SET_PREFIXES).flatMap(Collection::stream).collect(Collectors.toList());
 	public static String decodeJavaBeanName(String name) {
 		return resolve(name, ALL_PREFIXES);
 	}
