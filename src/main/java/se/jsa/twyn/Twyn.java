@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.Collection;
@@ -12,6 +13,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -88,10 +90,21 @@ public class Twyn {
 
 	private <T> Class<T> validate(Class<T> type) {
 		Stream.of(type.getMethods())
-			.filter(MethodType.ILLEGAL)
+			.filter(MethodType.ILLEGAL_TYPES_FILTER)
 			.findAny()
-			.ifPresent(m -> { throw new IllegalArgumentException("Type " + type + " defines method " + m + " which is nondefault and has method arguments. Proxy cannot be created."); });
+			.ifPresent(m -> { throw new IllegalArgumentException(getErrorMessage(type, m)); });
 		return type;
+	}
+
+	private String getErrorMessage(Class<?> type, Method m) {
+		switch (MethodType.getType(m)) {
+		case ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT:
+			return "Type " + type + " defines method " + m.getName() + " which is nondefault and has method arguments. Proxy cannot be created.";
+		case ILLEGAL_COLLECTION_NO_ANNOTATION:
+			return "Collection method " + m.getName() + " on type " + type.getName() + " is missing annotation " + TwynCollection.class.getSimpleName();
+		default:
+			throw new RuntimeException("Error message not supported for " + MethodType.class.getSimpleName() + " " + MethodType.getType(m));
+		}
 	}
 
 	public JsonNode getJsonNode(Object obj) {
@@ -126,50 +139,42 @@ public class Twyn {
 
 		@Override
 		public Configurer withObjectMapper(ObjectMapper objectMapper) {
-			this.objectMapper = Objects.requireNonNull(objectMapper);
-			return this;
+			return setAndReturn(c -> c.objectMapper = Objects.requireNonNull(objectMapper));
 		}
 
 		@Override
 		public Configurer withJavaProxies() {
-			this.twynProxyBuilder = new TwynProxyInvocationHandlerBuilder();
-			return this;
+			return setAndReturn(c -> c.twynProxyBuilder = new TwynProxyInvocationHandlerBuilder());
 		}
 
 		@Override
 		public ClassGenerationConfigurer withClassGeneration() {
-			this.twynProxyBuilder = new TwynProxyClassBuilder();
-			return this;
+			return setAndReturn(c -> c.twynProxyBuilder = new TwynProxyClassBuilder());
 		}
 
 		@Override
 		public Configurer withFullCaching() {
-			cacheSupplier = () -> new Cache.Full();
-			return this;
+			return setAndReturn(c -> c.cacheSupplier = () -> new Cache.Full());
 		}
 
 		@Override
 		public Configurer withFullConcurrentCaching() {
-			cacheSupplier = () -> new Cache.FullConcurrent();
-			return this;
+			return setAndReturn(c -> c.cacheSupplier = () -> new Cache.FullConcurrent());
 		}
 
 		@Override
 		public Configurer withNoCaching() {
-			cacheSupplier = () -> new Cache.None();
-			return this;
+			return setAndReturn(c -> c.cacheSupplier = () -> new Cache.None());
 		}
 
 		@Override
 		public Configurer withPrecompiledClasses(Collection<Class<?>> types) {
-			this.precompiledTypes = new HashSet<Class<?>>(types);
-			return this;
+			return setAndReturn(c -> c.precompiledTypes = new HashSet<Class<?>>(types));
 		}
 
 		@Override
 		public Configurer withDebugMode() {
-			this.debug = true;
-			return this;
+			return setAndReturn(c -> c.debug = true);
 		}
 
 		@Override
@@ -178,7 +183,12 @@ public class Twyn {
 				.precompile(precompiledTypes));
 		}
 
+		private ConfigurerImpl setAndReturn(Consumer<ConfigurerImpl> c) {
+			c.accept(this);
+			return this;
+		}
 	}
+
 	public static interface SelectMethod {
 		/**
 		 * Faster fi-rst time parsing. Slower afterwards. Suitable for test and in some cases production.
@@ -190,6 +200,7 @@ public class Twyn {
 		 */
 		ClassGenerationConfigurer withClassGeneration();
 	}
+
 	public static interface Configurer {
 		Configurer withObjectMapper(ObjectMapper objectMapper);
 		/**
@@ -210,6 +221,7 @@ public class Twyn {
 		Configurer withDebugMode();
 		Twyn configure();
 	}
+
 	public static interface ClassGenerationConfigurer extends Configurer {
 		Configurer withPrecompiledClasses(Collection<Class<?>> types);
 	}

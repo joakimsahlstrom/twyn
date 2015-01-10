@@ -46,9 +46,12 @@ public class TwynTest {
 				);
 	}
 
+	private static final Collection<Class<?>> INTENTIONALLY_BROKEN_INTERFACES = Arrays.asList(
+			InterfaceWithNonDefaultMethodWithParameters.class,
+			NoAnnotCollectionIF.class);
 	private static Collection<Class<?>> getInterfaces() {
 		return Arrays.asList(TwynTest.class.getDeclaredClasses()).stream()
-			.filter(c -> c.isInterface() && !c.getSimpleName().equals("InterfaceWithNonDefaultMethodWithParameters"))
+			.filter(c -> c.isInterface() && !INTENTIONALLY_BROKEN_INTERFACES.contains(c))
 			.collect(Collectors.toList());
 	}
 
@@ -549,6 +552,14 @@ public class TwynTest {
 		ArrayElement[] elements = twyn.read("[[ 1, \"JS\", 33, \"iCode\" ], [ 2, \"LS\", 30, \"iChem\" ]]", ArrayElement[].class);
 		assertEquals(1, elements[0].index());
 		assertEquals(2, elements[1].index());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void nonAnnotatedCollectionMethodResultsInIllegalArgumentException() throws Exception {
+		twyn.read("{ \"col\" : [] }", NoAnnotCollectionIF.class);
+	}
+	public static interface NoAnnotCollectionIF {
+		List<ArrayElement> col();
 	}
 
 	// Helper methods
