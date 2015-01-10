@@ -534,6 +534,16 @@ public class TwynTest {
 		@TwynIndex(3) String message();
 	}
 
+	@Test
+	public void twoDimensionalArraysCanBeMapped() throws Exception {
+		Array2DObject arrayObject = twyn.read("{ \"arr\" : [[ 1, \"JS\", 33, \"iCode\" ], [ 2, \"LS\", 30, \"iChem\" ]] }", Array2DObject.class);
+		assertEquals(1, arrayObject.arr()[0].index());
+		assertEquals(2, arrayObject.arr()[1].index());
+	}
+	public static interface Array2DObject {
+		ArrayElement[] arr();
+	}
+
 	// Helper methods
 
 	private InputStream input(String string) {

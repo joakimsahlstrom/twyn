@@ -34,7 +34,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, JsonNodeHolder {
 		this.twynContext = Objects.requireNonNull(twynContext);
 		this.implementedType = Objects.requireNonNull(implementedType);
 		this.cache = Objects.requireNonNull(twynContext.createCache());
-		this.invocationHandlerNodeResolver = NodeResolver.getResolver(implementedType, jsonNode);
+		this.invocationHandlerNodeResolver = NodeResolver.getResolver(implementedType);
 	}
 
 	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) throws Exception {

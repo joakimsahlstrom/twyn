@@ -15,11 +15,11 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 
 	private final JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
 	private final Map<Class<?>, Class<?>> implementations = new ConcurrentHashMap<Class<?>, Class<?>>();
-	private final TwynProxyClassTemplates templates;
+	private final TwynProxyClassJavaTemplates templates;
 
 	public TwynProxyClassBuilder() {
 		try {
-			templates = TwynProxyClassTemplates.create();
+			templates = TwynProxyClassJavaTemplates.create();
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException("Internal error, could not read code template files.", e);
 		}

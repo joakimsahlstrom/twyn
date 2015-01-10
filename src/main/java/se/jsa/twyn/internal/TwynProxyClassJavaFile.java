@@ -18,29 +18,30 @@ class TwynProxyClassJavaFile {
 		this.code = Objects.requireNonNull(code);
 	}
 
-	public static TwynProxyClassJavaFile create(Class<?> implementedInterface, TwynProxyClassTemplates templates, TwynContext twynContext) throws IOException, URISyntaxException {
+	public static TwynProxyClassJavaFile create(Class<?> implementedInterface, TwynProxyClassJavaTemplates templates, TwynContext twynContext) throws IOException, URISyntaxException {
 		String className = implementedInterface.getSimpleName() + "TwynImpl";
+		NodeResolver nodeResolver = NodeResolver.getResolver(implementedInterface);
 		return new TwynProxyClassJavaFile(
 				className,
 				templates.templateTwynProxyClass(
 						className,
 						implementedInterface,
-						buildMethods(implementedInterface, templates),
+						buildMethods(implementedInterface, templates, nodeResolver),
 						buildEqualsComparison(implementedInterface, twynContext),
 						buildHashCodeCalls(implementedInterface, twynContext),
 						buildToString(implementedInterface, twynContext)));
 	}
 
-	private static String buildMethods(Class<?> implementedInterface, TwynProxyClassTemplates templates) throws IOException, URISyntaxException {
+	private static String buildMethods(Class<?> implementedInterface, TwynProxyClassJavaTemplates templates, NodeResolver nodeResolver) throws IOException, URISyntaxException {
 		return Stream.of(implementedInterface.getMethods()).parallel()
 			.filter(m -> !MethodType.DEFAULT.test(m))
 			.map(m -> { switch (MethodType.getType(m)) {
-				case ARRAY: 	return templates.templateArrayMethod(m);
-				case LIST: 		return templates.templateListMethod(m);
-				case SET:		return templates.templateSetMethod(m);
-				case MAP: 		return templates.templateMapMethod(m);
-				case INTERFACE: return templates.templateInterfaceMethod(m);
-				case VALUE:		return templates.templateValueMethod(m);
+				case ARRAY: 	return templates.templateArrayMethod(m, nodeResolver);
+				case LIST: 		return templates.templateListMethod(m, nodeResolver);
+				case SET:		return templates.templateSetMethod(m, nodeResolver);
+				case MAP: 		return templates.templateMapMethod(m, nodeResolver);
+				case INTERFACE: return templates.templateInterfaceMethod(m, nodeResolver);
+				case VALUE:		return templates.templateValueMethod(m, nodeResolver);
 				case SET_VALUE: return templates.templateSetValueMethod(m, implementedInterface);
 				default: 		throw new RuntimeException("Could not handle method=" + m.getName()
 						+ " with methodType=" + MethodType.getType(m) + " on interface " + implementedInterface.getCanonicalName());

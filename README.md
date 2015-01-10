@@ -126,6 +126,40 @@ interface Song {
 }
 ```
 
+###Twyn can map classes directly against array types
+Map this json:
+```json
+{ 
+	"arr" : [ 1, "JS", 33, "iCode" ] 
+}
+```
+with this interface:
+```java
+public static interface ArrayObject {
+	ArrayElement arr();
+}
+public static interface ArrayElement {
+	@TwynIndex(0) int index(); // @TwynIndex must exist on all getter methods
+	@TwynIndex(3) String message();
+}
+```
+This way, the two-dimensional json structures:
+```json
+{ 
+	"arr" : [ 
+		[ 1, "JS", 33, "iCode" ],
+		[ 2, "LS", 30, "iChem" ]
+	] 
+}
+
+```
+can be mapped with this interface:
+```java
+public static interface ArrayObject {
+	ArrayElement[] arr();
+}
+```
+
 ###Twyn can be configured for different use cases
 ```java
 // Use either java proxies or runtime-generated classes
@@ -174,11 +208,10 @@ Twyn twyn = Twyn.forTest();
 Contact contact = twyn.read(jsonResponse, Contact.class);
 // modify contact...
 JsonNode root = twyn.getJsonNode(contact);
-	
 ```
+
 ##Todo:
 * Output error message when @TwynCollection is missing
-* Objects that map directly to arrays
 * Ability to parse json that starts with an array
 * Better defined error handling
 * Smarter cache clearing when setting values

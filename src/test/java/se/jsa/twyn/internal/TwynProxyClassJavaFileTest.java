@@ -1,5 +1,7 @@
 package se.jsa.twyn.internal;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,15 +11,16 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import se.jsa.twyn.TwynCollection;
+import se.jsa.twyn.TwynIndex;
+import se.jsa.twyn.TwynTest.StringIF;
 
 
+@Ignore("To be used for manual verification")
 public class TwynProxyClassJavaFileTest {
 
 	@Test
-	@Ignore("To be used for manual verification")
 	public void generatesCorrectCode() throws Exception {
-		System.out.println(TwynProxyClassJavaFile.create(Offspring.class, TwynProxyClassTemplates.create(), new TwynContext(new ObjectMapper(), new TwynProxyClassBuilder(), () -> new Cache.None(), true))
-			.getCode());
+		System.out.println(getCode(Offspring.class).getCode());
 	}
 	public static interface Offspring {
 		String myName();
@@ -47,6 +50,25 @@ public class TwynProxyClassJavaFileTest {
 	}
 	public static interface Song {
 		String name();
+	}
+
+	@Test
+	public void canReadComplexSet() throws Exception {
+		System.out.println(getCode(SetIF.class).getCode());
+		System.out.println(getCode(ArrayElement.class).getCode());
+	}
+	public static interface SetIF {
+		@TwynCollection(StringIF.class)
+		Set<StringIF> getStrings();
+	}
+
+	public static interface ArrayElement {
+		@TwynIndex(0) int index();
+		@TwynIndex(3) String message();
+	}
+
+	private TwynProxyClassJavaFile getCode(Class<?> type) throws IOException, URISyntaxException {
+		return TwynProxyClassJavaFile.create(type, TwynProxyClassJavaTemplates.create(), new TwynContext(new ObjectMapper(), new TwynProxyClassBuilder(), () -> new Cache.None(), true));
 	}
 
 }

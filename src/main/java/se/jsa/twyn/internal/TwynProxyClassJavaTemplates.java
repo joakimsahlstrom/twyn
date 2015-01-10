@@ -9,7 +9,7 @@ import java.util.Objects;
 
 import se.jsa.twyn.TwynCollection;
 
-class TwynProxyClassTemplates {
+class TwynProxyClassJavaTemplates {
 
 	private final String twynProxyClassTemplate;
 	private final String twynInterfaceMethodTemplate;
@@ -20,7 +20,7 @@ class TwynProxyClassTemplates {
 	private final String twynSetMethodTemplate;
 	private final String twynSetValueMethodTemplate;
 
-	public TwynProxyClassTemplates(
+	public TwynProxyClassJavaTemplates(
 			String twynProxyClassTemplate,
 			String twynInterfaceMethodTemplate,
 			String twynValueMethodTemplate,
@@ -39,8 +39,8 @@ class TwynProxyClassTemplates {
 		this.twynSetValueMethodTemplate = Objects.requireNonNull(twynSetValueMethodTemplate);
 	}
 
-	public static TwynProxyClassTemplates create() throws IOException, URISyntaxException {
-		return new TwynProxyClassTemplates(
+	public static TwynProxyClassJavaTemplates create() throws IOException, URISyntaxException {
+		return new TwynProxyClassJavaTemplates(
 				readTemplate("/TwynProxyClass.java.template"),
 				readTemplate("/TwynProxyClass_interfaceMethod.java.template"),
 				readTemplate("/TwynProxyClass_valueMethod.java.template"),
@@ -67,53 +67,53 @@ class TwynProxyClassTemplates {
 				.replaceAll("TOSTRING", toString);
 	}
 
-	public String templateInterfaceMethod(Method method) {
+	public String templateInterfaceMethod(Method method, NodeResolver nodeResolver) {
 		return twynInterfaceMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()));
+				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method));
 	}
 
-	public String templateValueMethod(Method method) {
+	public String templateValueMethod(Method method, NodeResolver nodeResolver) {
 		return twynValueMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()));
+				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method));
 	}
 
-	public String templateArrayMethod(Method method) {
+	public String templateArrayMethod(Method method, NodeResolver nodeResolver) {
 		return twynArrayMethodTemplate
 				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
 				.replaceAll("COMPONENT_TYPE", method.getReturnType().getComponentType().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()))
+				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("PARALLEL", Boolean.valueOf(method.getAnnotation(TwynCollection.class) != null && method.getAnnotation(TwynCollection.class).parallel()).toString());
 	}
 
-	public String templateListMethod(Method method) {
+	public String templateListMethod(Method method, NodeResolver nodeResolver) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		return twynListMethodTemplate
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()))
+				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 
-	public String templateSetMethod(Method method) {
+	public String templateSetMethod(Method method, NodeResolver nodeResolver) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		return twynSetMethodTemplate
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()))
+				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 
-	public String templateMapMethod(Method method) {
+	public String templateMapMethod(Method method, NodeResolver nodeResolver) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		return twynMapMethodTemplate
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanGetName(method.getName()))
+				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 

@@ -2,7 +2,7 @@
 	public Set<COMPONENT_TYPE> METHOD_NAME() {
 		return cache.get("METHOD_NAME", () -> {
 			try {
-				return collect(COMPONENT_TYPE.class, jsonNode.get("FIELD_NAME"), PARALLEL, Collectors.toSet());
+				return collect(COMPONENT_TYPE.class, jsonNode.get(FIELD_ID), PARALLEL, Collectors.toSet());
 			} catch (NullPointerException e) {
 				throw e;
 			} catch (Exception e) {
