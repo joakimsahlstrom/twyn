@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -14,6 +13,8 @@ import se.jsa.twyn.TwynCollection;
 import se.jsa.twyn.TwynIndex;
 import se.jsa.twyn.TwynTest;
 import se.jsa.twyn.TwynTest.StringIF;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 // For development debugging
 public class TwynProxyClassJavaFileTest {
@@ -54,11 +55,11 @@ public class TwynProxyClassJavaFileTest {
 	}
 
 	@Test
-	@Ignore
+//	@Ignore
 	public void canReadComplexSet() throws Exception {
-		System.out.println(getCode(SetIF.class).getCode());
+//		System.out.println(getCode(SetIF.class).getCode());
 		System.out.println(getCode(TwynTest.ObjectHoldingSetIF.class).getCode());
-		System.out.println(getCode(ArrayElement.class).getCode());
+//		System.out.println(getCode(ArrayElement.class).getCode());
 	}
 	public static interface SetIF {
 		@TwynCollection(StringIF.class)

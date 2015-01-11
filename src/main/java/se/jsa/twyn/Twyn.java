@@ -17,12 +17,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-
 import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.NodeHolder;
@@ -30,6 +24,11 @@ import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.TwynProxyBuilder;
 import se.jsa.twyn.internal.TwynProxyClassBuilder;
 import se.jsa.twyn.internal.TwynProxyInvocationHandlerBuilder;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Twyn {
 	private final TwynContext twynContext;
@@ -64,10 +63,6 @@ public class Twyn {
 
 	public <T> T read(URL url, Class<T> type) throws JsonProcessingException, IOException {
 		return read(() -> twynContext.getObjectMapper().readTree(url), type);
-	}
-
-	public <T> T read(JsonParser parser, DeserializationConfig deserializationConfig, Class<T> type) throws JsonProcessingException, IOException {
-		return read(() -> twynContext.getObjectMapper().readTree(parser, deserializationConfig), type);
 	}
 
 	@FunctionalInterface
@@ -118,6 +113,10 @@ public class Twyn {
 		} catch (RuntimeException e) {
 			throw new IllegalArgumentException("Not a twyn object!", e);
 		}
+	}
+
+	ObjectMapper getObjectMapper() {
+		return twynContext.getObjectMapper();
 	}
 
 	public static Twyn forTest() {

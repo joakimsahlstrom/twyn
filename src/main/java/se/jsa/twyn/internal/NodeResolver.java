@@ -9,9 +9,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.codehaus.jackson.JsonNode;
-
 import se.jsa.twyn.TwynIndex;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 interface NodeResolver  {
 

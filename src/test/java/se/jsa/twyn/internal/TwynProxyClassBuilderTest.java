@@ -4,11 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 
 import se.jsa.twyn.TwynCollection;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TwynProxyClassBuilderTest {
 

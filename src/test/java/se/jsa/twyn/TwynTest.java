@@ -17,11 +17,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.codehaus.jackson.JsonParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import com.fasterxml.jackson.core.JsonParseException;
 
 @RunWith(Parameterized.class)
 public class TwynTest {

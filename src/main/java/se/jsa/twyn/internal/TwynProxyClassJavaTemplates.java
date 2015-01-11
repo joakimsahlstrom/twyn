@@ -128,7 +128,6 @@ class TwynProxyClassJavaTemplates {
 		return twynSetValueMethodTemplate
 				.replaceAll("VALUE_TYPE", valueType.getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("ARG", BasicJsonTypes.isBasicJsonType(valueType) ? "arg" : "twyn.writeValue(arg)")
 				.replaceAll("RETURN_TYPE", method.getReturnType().equals(implementedType) ? implementedType.getCanonicalName() : "void")
 				.replaceAll("RETURN", method.getReturnType().equals(implementedType) ? "return this;" : "")
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanSetName(method.getName()));

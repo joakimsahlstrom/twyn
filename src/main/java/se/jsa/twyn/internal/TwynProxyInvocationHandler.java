@@ -13,10 +13,10 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.node.ObjectNode;
-
 import se.jsa.twyn.TwynCollection;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 	private static final Object[] NO_ARGS = new Object[] {};
@@ -85,7 +85,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		Class<?> componentType = annotation.value();
 		return StreamSupport
-				.stream(Spliterators.spliteratorUnknownSize(resolveTargetGetNode(method).getFields(), 0), annotation.parallel())
+				.stream(Spliterators.spliteratorUnknownSize(resolveTargetGetNode(method).fields(), 0), annotation.parallel())
 				.collect(Collectors.toMap(Entry::getKey, (entry) -> twynContext.proxy(entry.getValue(), componentType)));
 	}
 
@@ -102,7 +102,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 
 	private Object setValue(Object proxy, Method method, Object[] args) {
 		if (!BasicJsonTypes.isBasicJsonType(args[0].getClass())) {
-			((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), twynContext.writeValue(args[0]));
+			((ObjectNode) jsonNode).set(TwynUtil.decodeJavaBeanSetName(method.getName()), twynContext.writeValue(args[0]));
 		} else {
 			switch (BasicJsonTypes.get(args[0].getClass())) {
 			case BIG_DECIMAL:	((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (BigDecimal)args[0]); break;

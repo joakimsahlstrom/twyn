@@ -1,6 +1,6 @@
 package se.jsa.twyn.internal;
 
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public interface NodeHolder {
 	JsonNode getJsonNode();

@@ -2,7 +2,7 @@ package se.jsa.twyn.internal;
 
 import java.lang.reflect.Proxy;
 
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class TwynProxyInvocationHandlerBuilder implements TwynProxyBuilder {
 

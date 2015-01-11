@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TwynContext {
 
@@ -77,7 +77,7 @@ public class TwynContext {
 	}
 
 	public <T> T readValue(JsonNode resolveTargetNode, Class<T> valueType) throws JsonParseException, JsonMappingException, IOException {
-		return objectMapper.readValue(resolveTargetNode, valueType);
+		return objectMapper.treeToValue(resolveTargetNode, valueType);
 	}
 
 	public JsonNode writeValue(Object object) {

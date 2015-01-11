@@ -9,7 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
-import org.codehaus.jackson.JsonNode;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class TwynProxyClassBuilder implements TwynProxyBuilder {
 
