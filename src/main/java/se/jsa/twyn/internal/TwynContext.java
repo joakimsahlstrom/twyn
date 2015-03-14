@@ -93,7 +93,11 @@ public class TwynContext {
 	}
 
 	Stream<Method> getIdentityMethods(Class<?> implementedType) {
-		return identityMethods.getIdentifyMethods(implementedType);
+		return identityMethods.getIdentityMethods(implementedType);
+	}
+
+	IdentityMethods getIdentityMethod() {
+		return identityMethods;
 	}
 
 	public boolean isDebug() {

@@ -10,15 +10,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import se.jsa.twyn.TwynIndex;
+import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 interface NodeResolver  {
 
 	JsonNode resolveNode(Method method, JsonNode root);
-	static Predicate<Method> WITH_TWYNINDEX = m -> m.getAnnotation(TwynIndex.class) != null;
+	static Predicate<ImplementedMethod> WITH_TWYNINDEX = m -> m.hasAnnotation(TwynIndex.class);
 
-	static NodeResolver getResolver(Class<?> implementedType) {
+	static NodeResolver getResolver(ProxiedInterface implementedType) {
 		if (isArrayType(implementedType)) {
 			return new ArrayInvocationHandlerMethodResolver(implementedType);
 		} else {
@@ -26,8 +27,8 @@ interface NodeResolver  {
 		}
 	}
 
-	static boolean isArrayType(Class<?> implementedType) {
-		List<Method> getMethods = Stream.of(implementedType.getMethods())
+	static boolean isArrayType(ProxiedInterface implementedType) {
+		List<ImplementedMethod> getMethods = implementedType.getMethods().stream()
 			.filter(MethodType.GETTER_TYPES_FILTER)
 			.collect(Collectors.toList());
 		if (getMethods.stream().allMatch(WITH_TWYNINDEX)) {

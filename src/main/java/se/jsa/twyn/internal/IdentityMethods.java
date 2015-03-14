@@ -12,7 +12,7 @@ import se.jsa.twyn.TwynId;
 class IdentityMethods {
 	private final Map<Class<?>, List<Method>> methods = new ConcurrentHashMap<Class<?>, List<Method>>();
 
-	public Stream<Method> getIdentifyMethods(Class<?> implementedType) {
+	public Stream<Method> getIdentityMethods(Class<?> implementedType) {
 		return methods.computeIfAbsent(implementedType, t -> IdentityMethods.get(t)).stream();
 	}
 
