@@ -1,7 +1,10 @@
 package se.jsa.twyn.internal;
 
+import static javax.tools.StandardLocation.CLASS_PATH;
+
 import java.io.Writer;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -11,7 +14,6 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
 
 import se.jsa.twyn.TwynProxy;
 
@@ -30,24 +32,20 @@ public class TwynProcessor extends AbstractProcessor {
 				try {
 					LOGGER.info("Generating file for: " + typeElement);
 
-					TwynProxyClassJavaTemplates templates = TwynProxyClassJavaTemplates.create(s -> {
-						try {
-							return processingEnv.getFiler().getResource(StandardLocation.CLASS_PATH, "", s).getCharContent(true).toString();
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					} );
-					TwynProxyClassJavaFile javaFile = TwynProxyClassJavaFile.create(ProxiedInterface.of(typeElement), templates, new IdentityMethods(), false);
-
+					TwynProxyClassJavaFile javaFile = TwynProxyClassJavaFile.create(
+							ProxiedInterface.of(typeElement),
+							TwynProxyClassJavaTemplates.create(s -> processingEnv.getFiler().getResource(CLASS_PATH, "", s).getCharContent(true).toString()),
+							new IdentityMethods(),
+							false);
 					JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(javaFile.getCanonicalClassName());
 					try (Writer writer = sourceFile.openWriter()) {
 						writer.write(javaFile.getCode());
 					}
-					LOGGER.info("Generated: " + sourceFile.toUri().toString());
+
+					LOGGER.info("Generated: file for " + sourceFile.toUri().toString());
 				} catch (Throwable t) {
-					System.out.println(t);
-					t.printStackTrace();
-					throw new IllegalArgumentException("Could not load/generate proxy for class " + typeElement.getQualifiedName(), t);
+					LOGGER.log(Level.SEVERE, "Could not generate proxy class for: " + typeElement.getQualifiedName(), t);
+					throw new IllegalArgumentException("Could not generate proxy for class " + typeElement.getQualifiedName(), t);
 				}
 			});
 		return true;

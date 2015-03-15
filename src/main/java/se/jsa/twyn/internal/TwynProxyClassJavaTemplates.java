@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
-import java.util.function.Function;
 
 import se.jsa.twyn.TwynCollection;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
@@ -40,32 +39,26 @@ class TwynProxyClassJavaTemplates {
 		this.twynSetValueMethodTemplate = Objects.requireNonNull(twynSetValueMethodTemplate);
 	}
 
-	public static TwynProxyClassJavaTemplates create() throws IOException, URISyntaxException {
-		return create(s -> {
-			try {
-				return new String(Files.readAllBytes(Paths.get(TwynProxyClassJavaFile.class.getResource("/" + s).toURI())));
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		});
+	public interface Reader {
+		String read(String resourceName) throws IOException, URISyntaxException;
 	}
 
-	public static TwynProxyClassJavaTemplates create(Function<String, String> reader) throws IOException, URISyntaxException {
+	public static TwynProxyClassJavaTemplates create() throws IOException, URISyntaxException {
+		return create(s -> new String(Files.readAllBytes(Paths.get(TwynProxyClassJavaFile.class.getResource("/" + s).toURI()))));
+	}
+
+	public static TwynProxyClassJavaTemplates create(Reader reader) throws IOException, URISyntaxException {
 		return new TwynProxyClassJavaTemplates(
-				reader.apply("TwynProxyClass.java.template"),
-				reader.apply("TwynProxyClass_interfaceMethod.java.template"),
-				reader.apply("TwynProxyClass_valueMethod.java.template"),
-				reader.apply("TwynProxyClass_arrayMethod.java.template"),
-				reader.apply("TwynProxyClass_listMethod.java.template"),
-				reader.apply("TwynProxyClass_setMethod.java.template"),
-				reader.apply("TwynProxyClass_mapMethod.java.template"),
-				reader.apply("TwynProxyClass_setValueMethod.java.template")
+				reader.read("TwynProxyClass.java.template"),
+				reader.read("TwynProxyClass_interfaceMethod.java.template"),
+				reader.read("TwynProxyClass_valueMethod.java.template"),
+				reader.read("TwynProxyClass_arrayMethod.java.template"),
+				reader.read("TwynProxyClass_listMethod.java.template"),
+				reader.read("TwynProxyClass_setMethod.java.template"),
+				reader.read("TwynProxyClass_mapMethod.java.template"),
+				reader.read("TwynProxyClass_setValueMethod.java.template")
 				);
 	}
-
-//	private static String readTemplate(String fileName, Function<String, String> reader) throws IOException, URISyntaxException {
-//		return new String(Files.readAllBytes(Paths.get(TwynProxyClassJavaFile.class.getResource(fileName).toURI())));
-//	}
 
 	public String templateTwynProxyClass(String className, ProxiedInterface implementedInterface, String methodBodies, String equalsComparison, String hashCodeCalls, String toString) {
 		return twynProxyClassTemplate
