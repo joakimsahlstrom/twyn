@@ -70,7 +70,7 @@ public class TwynProxyClassJavaFileTest {
 	}
 
 	private TwynProxyClassJavaFile getCode(Class<?> type) throws IOException, URISyntaxException {
-		return TwynProxyClassJavaFile.create(type, TwynProxyClassJavaTemplates.create(), new IdentityMethods(), true);
+		return TwynProxyClassJavaFile.create(ProxiedInterface.of(type), TwynProxyClassJavaTemplates.create(), new IdentityMethods(), true);
 	}
 
 }

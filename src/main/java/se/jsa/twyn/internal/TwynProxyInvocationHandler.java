@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import se.jsa.twyn.TwynCollection;
+import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
+import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethodMethod;
+import se.jsa.twyn.internal.ProxiedInterface.ProxiedElementClass;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -23,11 +26,11 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 
 	private final JsonNode jsonNode;
 	private final TwynContext twynContext;
-	private final Class<?> implementedType;
+	private final ProxiedElementClass implementedType;
 	private final Cache cache;
 	private final NodeResolver invocationHandlerNodeResolver;
 
-	public TwynProxyInvocationHandler(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) {
+	public TwynProxyInvocationHandler(JsonNode jsonNode, TwynContext twynContext, ProxiedElementClass implementedType) {
 		this.jsonNode = jsonNode;
 		this.twynContext = Objects.requireNonNull(twynContext);
 		this.implementedType = Objects.requireNonNull(implementedType);
@@ -35,7 +38,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 		this.invocationHandlerNodeResolver = NodeResolver.getResolver(implementedType);
 	}
 
-	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext, Class<?> implementedType) throws Exception {
+	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext, ProxiedElementClass implementedType) throws Exception {
 		return new TwynProxyInvocationHandler(jsonNode, twynContext, implementedType);
 	}
 
@@ -49,7 +52,8 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 	    	return hashCode();
 	    }
 
-		switch (MethodType.getType(method)) {
+		MethodType methodType = MethodType.getType(ImplementedMethod.of(method));
+		switch (methodType) {
 		case DEFAULT:	return callDefaultMethod(proxy, method, args);
 		case ARRAY:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerArrayProxy(method));
 		case LIST:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerCollectionProxy(method, Collectors.toList()));
@@ -59,7 +63,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 		case SET_VALUE: return setValue(proxy, method, args);
 
 		case VALUE:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> resolveValue(method));
-		default:		throw new RuntimeException("Could not handle methodType=" + MethodType.getType(method));
+		default:		throw new RuntimeException("Could not handle methodType=" + methodType);
 		}
 	}
 
@@ -128,7 +132,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 	}
 
 	private JsonNode resolveTargetGetNode(Method method) {
-		return invocationHandlerNodeResolver.resolveNode(method, jsonNode);
+		return invocationHandlerNodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode);
 	}
 
 	@Override
@@ -142,7 +146,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 				twynContext.getIdentityMethods(implementedType)
 				.map((m) -> {
 					try {
-						return m.getName() + "()=" + this.invoke(null, m, NO_ARGS).toString();
+						return m.getName() + "()=" + this.invoke(null, getMethod(m), NO_ARGS).toString();
 					} catch (Throwable e) {
 						throw new RuntimeException("Could not call method " + m + " for toString calculation.", e);
 					}
@@ -163,7 +167,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 		return twynContext.getIdentityMethods(implementedType)
 			.allMatch((m) -> {
 				try {
-					return Objects.equals(m.invoke(obj), this.invoke(null, m, NO_ARGS));
+					return Objects.equals(getMethod(m).invoke(obj), this.invoke(null, getMethod(m), NO_ARGS));
 				} catch (Throwable e) {
 					throw new RuntimeException("Could not call method " + m + " for equals comparison..", e);
 				}
@@ -175,12 +179,16 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 		return Objects.hash(twynContext.getIdentityMethods(implementedType)
 				.map((m) -> {
 					try {
-						return this.invoke(null, m, NO_ARGS);
+						return this.invoke(null, getMethod(m), NO_ARGS);
 					} catch (Throwable e) {
 						throw new RuntimeException("Could not call method " + m + " for hashCode calculation.", e);
 					}
 				})
 				.toArray());
+	}
+
+	private Method getMethod(ImplementedMethod method) {
+		return ((ImplementedMethodMethod) method).getMethod();
 	}
 
 }

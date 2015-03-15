@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
-public @interface Generate {
+public @interface TwynProxy {
 
 }

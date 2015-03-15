@@ -1,5 +1,6 @@
 package se.jsa.twyn.internal;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,24 +9,55 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 
 public interface ProxiedInterface {
 
+	public static ProxiedInterface of(TypeElement typeElement) {
+		return new ProxiedTypeElement(typeElement);
+	}
+
+	public static ProxiedElementClass of(Class<?> elementClass) {
+		return new ProxiedElementClass(elementClass);
+	}
+
+	String getCanonicalName();
 	String getSimpleName();
 	Collection<ImplementedMethod> getMethods();
 
-	interface ImplementedMethod {
+	@Override int hashCode();
+	@Override boolean equals(Object other);
+
+	public interface ImplementedMethod {
+
+		public static ImplementedMethod of(Method method) {
+			return new ImplementedMethodMethod(method);
+		}
+
+		String getName();
 		boolean isDefault();
-		boolean returnsArray();
 		int getNumParameters();
+		String getParameterTypeCanonicalName(int parameterIndex);
+
+		<T extends Annotation> boolean hasAnnotation(Class<T> annotationType);
+		<T extends Annotation> T getAnnotation(Class<T> annotationType);
+
+		boolean returnsArray();
+		boolean returnsArrayOfInterface();
 		boolean returnsCollection();
-		boolean hasAnnotation(Class<?> annotationType);
+		boolean returnsInterface();
+		boolean returns(Class<?> returnType);
+		boolean returns(ProxiedInterface implementedType);
+
+		String getReturnTypeCanonicalName();
+		String getReturnComponentTypeCanonicalName();
 	}
 
 	class ProxiedTypeElement implements ProxiedInterface {
@@ -33,6 +65,11 @@ public interface ProxiedInterface {
 
 		public ProxiedTypeElement(TypeElement typeElement) {
 			this.typeElement = typeElement;
+		}
+
+		@Override
+		public String getCanonicalName() {
+			return typeElement.getQualifiedName().toString();
 		}
 
 		@Override
@@ -44,18 +81,36 @@ public interface ProxiedInterface {
 		public Collection<ImplementedMethod> getMethods() {
 			return typeElement.getEnclosedElements().stream()
 				.filter(e -> e instanceof ExecutableElement)
-				.map(e -> new ImplentedMethodExecutableElement(ExecutableElement.class.cast(e)))
+				.map(e -> new ImplementedMethodExecutableElement(ExecutableElement.class.cast(e)))
 				.collect(Collectors.toList());
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof ProxiedTypeElement) {
+				return typeElement.equals(((ProxiedTypeElement) obj).typeElement);
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return typeElement.hashCode();
 		}
 	}
 
-	class ImplentedMethodExecutableElement implements ImplementedMethod {
+	class ImplementedMethodExecutableElement implements ImplementedMethod {
 		private static final Set<String> collectionQualifiedNames = new HashSet<>(Arrays.asList("java.util.List", "java.util.Set", "java.util.Map"));
 
 		private final ExecutableElement executableElement;
 
-		public ImplentedMethodExecutableElement(ExecutableElement executableElement) {
+		public ImplementedMethodExecutableElement(ExecutableElement executableElement) {
 			this.executableElement = executableElement;
+		}
+
+		@Override
+		public String getName() {
+			return executableElement.getSimpleName().toString();
 		}
 
 		@Override
@@ -64,13 +119,38 @@ public interface ProxiedInterface {
 		}
 
 		@Override
+		public int getNumParameters() {
+			return executableElement.getParameters().size();
+		}
+
+		@Override
+		public String getParameterTypeCanonicalName(int parameterIndex) {
+			return getCanonicalName(executableElement.getParameters().get(parameterIndex).asType());
+		}
+
+		@Override
+		public <T extends Annotation> boolean hasAnnotation(Class<T> annotationType) {
+			return executableElement.getAnnotation(annotationType) != null;
+		}
+
+		@Override
+		public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
+			return executableElement.getAnnotation(annotationType);
+		}
+
+		@Override
 		public boolean returnsArray() {
 			return executableElement.getReturnType() instanceof ArrayType;
 		}
 
 		@Override
-		public int getNumParameters() {
-			return executableElement.getParameters().size();
+		public boolean returnsArrayOfInterface() {
+			ArrayType returnArrayType = (ArrayType) executableElement.getReturnType();
+			if (returnArrayType.getComponentType() instanceof DeclaredType) {
+				DeclaredType declaredReturnType = (DeclaredType) returnArrayType.getComponentType();
+				return declaredReturnType.asElement().getKind() == ElementKind.INTERFACE;
+			}
+			return false;
 		}
 
 		@Override
@@ -87,8 +167,70 @@ public interface ProxiedInterface {
 		}
 
 		@Override
-		public boolean hasAnnotation(Class<?> annotationType) {
-			return executableElement.getAnnotation(annotationType)
+		public boolean returnsInterface() {
+			return executableElement.getReturnType() instanceof DeclaredType
+					&& ((DeclaredType)executableElement.getReturnType()).asElement().getKind() == ElementKind.INTERFACE;
+		}
+
+		@Override
+		public boolean returns(Class<?> returnType) {
+			if (executableElement.getReturnType() instanceof PrimitiveType) {
+				PrimitiveType primitiveReturnType = (PrimitiveType) executableElement.getReturnType();
+				switch (primitiveReturnType.getKind()) {
+				case BOOLEAN: return returnType.equals(Boolean.TYPE);
+				case BYTE: return returnType.equals(Byte.TYPE);
+				case CHAR: return returnType.equals(Character.TYPE);
+				case DOUBLE: return returnType.equals(Double.TYPE);
+				case FLOAT: return returnType.equals(Float.TYPE);
+				case INT: return returnType.equals(Integer.TYPE);
+				case LONG: return returnType.equals(Long.TYPE);
+				case SHORT: return returnType.equals(Short.TYPE);
+				default:
+					throw new IllegalArgumentException("Cannot handle primitive return type: " + primitiveReturnType.getKind());
+				}
+			}
+			return getReturnTypeCanonicalName().equals(returnType.getCanonicalName());
+		}
+
+		@Override
+		public boolean returns(ProxiedInterface implementedType) {
+			return getReturnTypeCanonicalName().equals(implementedType.getCanonicalName());
+		}
+
+		@Override
+		public String getReturnTypeCanonicalName() {
+			TypeMirror returnTypeMirror = executableElement.getReturnType();
+			return getCanonicalName(returnTypeMirror);
+		}
+
+		@Override
+		public String getReturnComponentTypeCanonicalName() {
+			ArrayType returnArrayType = (ArrayType) executableElement.getReturnType();
+			return getCanonicalName(returnArrayType.getComponentType());
+		}
+
+		private String getCanonicalName(TypeMirror typeMirror) {
+			if (typeMirror instanceof DeclaredType) {
+				DeclaredType declaredReturnType = (DeclaredType) typeMirror;
+				TypeElement returnElementType = (TypeElement) declaredReturnType.asElement();
+				return returnElementType.getQualifiedName().toString();
+			} else if (typeMirror instanceof PrimitiveType) {
+				PrimitiveType primitiveReturnType = (PrimitiveType)typeMirror;
+				switch (primitiveReturnType.getKind()) {
+				case BOOLEAN: return "boolean";
+				case BYTE: return "byte";
+				case CHAR: return "char";
+				case DOUBLE: return "double";
+				case FLOAT: return "float";
+				case INT: return "int";
+				case LONG: return "long";
+				case SHORT: return "short";
+				default:
+					throw new IllegalArgumentException("Cannot get canonical name for primitive return type: " + primitiveReturnType.getKind());
+				}
+			} else {
+				throw new RuntimeException("Cannot determine canonical name of type: " + typeMirror);
+			}
 		}
 	}
 
@@ -97,6 +239,11 @@ public interface ProxiedInterface {
 
 		public ProxiedElementClass(Class<?> type) {
 			this.type = type;
+		}
+
+		@Override
+		public String getCanonicalName() {
+			return type.getCanonicalName();
 		}
 
 		@Override
@@ -110,6 +257,23 @@ public interface ProxiedInterface {
 					.map(m -> new ImplementedMethodMethod(m))
 					.collect(Collectors.toList());
 		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof ProxiedElementClass) {
+				return type.equals(((ProxiedElementClass) obj).type);
+			}
+			return super.equals(obj);
+		}
+
+		@Override
+		public int hashCode() {
+			return type.hashCode();
+		}
+
+		public boolean isAssignableFrom(Class<? extends Object> otherClass) {
+			return type.isAssignableFrom(otherClass);
+		}
 	}
 
 	class ImplementedMethodMethod implements ImplementedMethod {
@@ -120,13 +284,13 @@ public interface ProxiedInterface {
 		}
 
 		@Override
-		public boolean isDefault() {
-			return m.isDefault();
+		public String getName() {
+			return m.getName();
 		}
 
 		@Override
-		public boolean returnsArray() {
-			return m.getReturnType().isArray();
+		public boolean isDefault() {
+			return m.isDefault();
 		}
 
 		@Override
@@ -135,15 +299,63 @@ public interface ProxiedInterface {
 		}
 
 		@Override
+		public String getParameterTypeCanonicalName(int parameterIndex) {
+			return m.getParameterTypes()[parameterIndex].getCanonicalName();
+		}
+
+		@Override
+		public <T extends Annotation> boolean hasAnnotation(Class<T> annotationType) {
+			return m.getAnnotation(annotationType) != null;
+		}
+
+		@Override
+		public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
+			return m.getAnnotation(annotationType);
+		}
+
+		@Override
+		public boolean returnsArray() {
+			return m.getReturnType().isArray();
+		}
+
+		@Override
+		public boolean returnsArrayOfInterface() {
+			return m.getReturnType().getComponentType().isInterface();
+		}
+
+		@Override
 		public boolean returnsCollection() {
 			return ClassType.isCollection(m.getReturnType());
 		}
 
 		@Override
-		public boolean hasAnnotation(Class<?> annotationType) {
-			return m.getAnnotation(annotationType) != null;
+		public boolean returnsInterface() {
+			return m.getReturnType().isInterface();
+		}
+
+		@Override
+		public boolean returns(Class<?> returnType) {
+			return m.getReturnType().equals(returnType);
+		}
+
+		@Override
+		public boolean returns(ProxiedInterface implementedType) {
+			return m.getReturnType().equals(((ProxiedElementClass) implementedType).type);
+		}
+
+		@Override
+		public String getReturnTypeCanonicalName() {
+			return m.getReturnType().getCanonicalName();
+		}
+
+		@Override
+		public String getReturnComponentTypeCanonicalName() {
+			return m.getReturnType().getComponentType().getCanonicalName();
+		}
+
+		public Method getMethod() {
+			return m;
 		}
 	}
-
 
 }

@@ -10,7 +10,7 @@ public class TwynProxyInvocationHandlerBuilder implements TwynProxyBuilder {
 	public <T> T buildProxy(Class<T> type, TwynContext twynContext, JsonNode jsonNode) {
 		return type.cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
 				new Class<?>[] { type },
-				new TwynProxyInvocationHandler(jsonNode, twynContext, type)));
+				new TwynProxyInvocationHandler(jsonNode, twynContext, ProxiedInterface.of(type))));
 	}
 
 	@Override

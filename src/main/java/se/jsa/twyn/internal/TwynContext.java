@@ -6,7 +6,6 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -15,6 +14,8 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -92,7 +93,7 @@ public class TwynContext {
 		return cacheSupplier.get();
 	}
 
-	Stream<Method> getIdentityMethods(Class<?> implementedType) {
+	Stream<ImplementedMethod> getIdentityMethods(ProxiedInterface implementedType) {
 		return identityMethods.getIdentityMethods(implementedType);
 	}
 
