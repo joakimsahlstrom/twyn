@@ -15,8 +15,11 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
+
+import se.jsa.twyn.TwynCollection;
 
 public interface ProxiedInterface {
 
@@ -58,6 +61,8 @@ public interface ProxiedInterface {
 
 		String getReturnTypeCanonicalName();
 		String getReturnComponentTypeCanonicalName();
+		String getTwynCollectionTypeCanonicalName();
+
 	}
 
 	class ProxiedTypeElement implements ProxiedInterface {
@@ -209,6 +214,16 @@ public interface ProxiedInterface {
 			return getCanonicalName(returnArrayType.getComponentType());
 		}
 
+		@Override
+		public String getTwynCollectionTypeCanonicalName() {
+			try {
+				getAnnotation(TwynCollection.class).value();
+				throw new RuntimeException("Should not get here!");
+			} catch(MirroredTypeException mte) {
+				return mte.getTypeMirror().toString();
+			}
+		}
+
 		private String getCanonicalName(TypeMirror typeMirror) {
 			if (typeMirror instanceof DeclaredType) {
 				DeclaredType declaredReturnType = (DeclaredType) typeMirror;
@@ -351,6 +366,11 @@ public interface ProxiedInterface {
 		@Override
 		public String getReturnComponentTypeCanonicalName() {
 			return m.getReturnType().getComponentType().getCanonicalName();
+		}
+
+		@Override
+		public String getTwynCollectionTypeCanonicalName() {
+			return m.getAnnotation(TwynCollection.class).value().getCanonicalName();
 		}
 
 		public Method getMethod() {

@@ -100,7 +100,7 @@ class TwynProxyClassJavaTemplates {
 	public String templateListMethod(ImplementedMethod method, NodeResolver nodeResolver) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		return twynListMethodTemplate
-				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
+				.replaceAll("COMPONENT_TYPE", method.getTwynCollectionTypeCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
