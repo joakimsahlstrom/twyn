@@ -1,24 +1,23 @@
 package se.jsa.twyn.internal;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import se.jsa.twyn.TwynIndex;
+import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 interface NodeResolver  {
 
-	JsonNode resolveNode(Method method, JsonNode root);
-	static Predicate<Method> WITH_TWYNINDEX = m -> m.getAnnotation(TwynIndex.class) != null;
+	JsonNode resolveNode(ImplementedMethod method, JsonNode root);
+	static Predicate<ImplementedMethod> WITH_TWYNINDEX = m -> m.hasAnnotation(TwynIndex.class);
 
-	static NodeResolver getResolver(Class<?> implementedType) {
+	static NodeResolver getResolver(ProxiedInterface implementedType) {
 		if (isArrayType(implementedType)) {
 			return new ArrayInvocationHandlerMethodResolver(implementedType);
 		} else {
@@ -26,8 +25,8 @@ interface NodeResolver  {
 		}
 	}
 
-	static boolean isArrayType(Class<?> implementedType) {
-		List<Method> getMethods = Stream.of(implementedType.getMethods())
+	static boolean isArrayType(ProxiedInterface implementedType) {
+		List<ImplementedMethod> getMethods = implementedType.getMethods().stream()
 			.filter(MethodType.GETTER_TYPES_FILTER)
 			.collect(Collectors.toList());
 		if (getMethods.stream().allMatch(WITH_TWYNINDEX)) {
@@ -41,15 +40,15 @@ interface NodeResolver  {
 		}
 	}
 
-	String resolveNodeId(Method method);
+	String resolveNodeId(ImplementedMethod method);
 
 	static class MethodNameInvocationHandlerMethodResolver implements NodeResolver {
 		@Override
-		public JsonNode resolveNode(Method method, JsonNode root) {
+		public JsonNode resolveNode(ImplementedMethod method, JsonNode root) {
 			return root.get(TwynUtil.decodeJavaBeanGetName(method.getName()));
 		}
 		@Override
-		public String resolveNodeId(Method method) {
+		public String resolveNodeId(ImplementedMethod method) {
 			return "\"" + TwynUtil.decodeJavaBeanGetName(method.getName()) + "\"";
 		}
 	}
@@ -57,8 +56,8 @@ interface NodeResolver  {
 	static class ArrayInvocationHandlerMethodResolver implements NodeResolver {
 		private final Map<String, Integer> fieldOrder = new HashMap<>();
 
-		public ArrayInvocationHandlerMethodResolver(Class<?> implementedType) {
-			Stream.of(implementedType.getMethods())
+		public ArrayInvocationHandlerMethodResolver(ProxiedInterface implementedType) {
+			implementedType.getMethods().stream()
 				.filter(MethodType.GETTER_TYPES_FILTER)
 				.forEachOrdered(m -> fieldOrder.put(
 					TwynUtil.decodeJavaBeanGetName(m.getName()),
@@ -70,11 +69,11 @@ interface NodeResolver  {
 		}
 
 		@Override
-		public JsonNode resolveNode(Method method, JsonNode root) {
+		public JsonNode resolveNode(ImplementedMethod method, JsonNode root) {
 			return root.get(fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())));
 		}
 		@Override
-		public String resolveNodeId(Method method) {
+		public String resolveNodeId(ImplementedMethod method) {
 			return fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())).toString();
 		}
 	}

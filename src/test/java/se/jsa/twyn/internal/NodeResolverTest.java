@@ -11,8 +11,8 @@ public class NodeResolverTest {
 
 	@Test
 	public void isArrayType() throws Exception {
-		assertTrue(NodeResolver.isArrayType(ArrayElement.class));
-		assertFalse(NodeResolver.isArrayType(NormalType.class));
+		assertTrue(NodeResolver.isArrayType(ProxiedInterface.of(ArrayElement.class)));
+		assertFalse(NodeResolver.isArrayType(ProxiedInterface.of(NormalType.class)));
 	}
 	public static interface ArrayElement {
 		@TwynIndex(0) int index();

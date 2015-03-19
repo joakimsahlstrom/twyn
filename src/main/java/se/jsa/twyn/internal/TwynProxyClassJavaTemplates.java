@@ -1,13 +1,13 @@
 package se.jsa.twyn.internal;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
 
 import se.jsa.twyn.TwynCollection;
+import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 
 class TwynProxyClassJavaTemplates {
 
@@ -39,24 +39,28 @@ class TwynProxyClassJavaTemplates {
 		this.twynSetValueMethodTemplate = Objects.requireNonNull(twynSetValueMethodTemplate);
 	}
 
+	public interface Reader {
+		String read(String resourceName) throws IOException, URISyntaxException;
+	}
+
 	public static TwynProxyClassJavaTemplates create() throws IOException, URISyntaxException {
+		return create(s -> new String(Files.readAllBytes(Paths.get(TwynProxyClassJavaFile.class.getResource("/" + s).toURI()))));
+	}
+
+	public static TwynProxyClassJavaTemplates create(Reader reader) throws IOException, URISyntaxException {
 		return new TwynProxyClassJavaTemplates(
-				readTemplate("/TwynProxyClass.java.template"),
-				readTemplate("/TwynProxyClass_interfaceMethod.java.template"),
-				readTemplate("/TwynProxyClass_valueMethod.java.template"),
-				readTemplate("/TwynProxyClass_arrayMethod.java.template"),
-				readTemplate("/TwynProxyClass_listMethod.java.template"),
-				readTemplate("/TwynProxyClass_setMethod.java.template"),
-				readTemplate("/TwynProxyClass_mapMethod.java.template"),
-				readTemplate("/TwynProxyClass_setValueMethod.java.template")
+				reader.read("TwynProxyClass.java.template"),
+				reader.read("TwynProxyClass_interfaceMethod.java.template"),
+				reader.read("TwynProxyClass_valueMethod.java.template"),
+				reader.read("TwynProxyClass_arrayMethod.java.template"),
+				reader.read("TwynProxyClass_listMethod.java.template"),
+				reader.read("TwynProxyClass_setMethod.java.template"),
+				reader.read("TwynProxyClass_mapMethod.java.template"),
+				reader.read("TwynProxyClass_setValueMethod.java.template")
 				);
 	}
 
-	private static String readTemplate(String fileName) throws IOException, URISyntaxException {
-		return new String(Files.readAllBytes(Paths.get(TwynProxyClassJavaFile.class.getResource(fileName).toURI())));
-	}
-
-	public String templateTwynProxyClass(String className, Class<?> implementedInterface, String methodBodies, String equalsComparison, String hashCodeCalls, String toString) {
+	public String templateTwynProxyClass(String className, ProxiedInterface implementedInterface, String methodBodies, String equalsComparison, String hashCodeCalls, String toString) {
 		return twynProxyClassTemplate
 				.replaceAll("CLASS_NAME", className)
 				.replaceAll("TARGET_INTERFACE_QUALIFIED", implementedInterface.getCanonicalName())
@@ -67,43 +71,43 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("TOSTRING", toString);
 	}
 
-	public String templateInterfaceMethod(Method method, NodeResolver nodeResolver) {
+	public String templateInterfaceMethod(ImplementedMethod method, NodeResolver nodeResolver) {
 		return twynInterfaceMethodTemplate
-				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
+				.replaceAll("RETURN_TYPE", method.getReturnTypeCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
 	}
 
-	public String templateValueMethod(Method method, NodeResolver nodeResolver) {
+	public String templateValueMethod(ImplementedMethod method, NodeResolver nodeResolver) {
 		return twynValueMethodTemplate
-				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
+				.replaceAll("RETURN_TYPE", method.getReturnTypeCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
 	}
 
-	public String templateArrayMethod(Method method, NodeResolver nodeResolver) {
+	public String templateArrayMethod(ImplementedMethod method, NodeResolver nodeResolver) {
 		return twynArrayMethodTemplate
-				.replaceAll("RETURN_TYPE", method.getReturnType().getCanonicalName())
-				.replaceAll("COMPONENT_TYPE", method.getReturnType().getComponentType().getCanonicalName())
+				.replaceAll("RETURN_TYPE", method.getReturnTypeCanonicalName())
+				.replaceAll("COMPONENT_TYPE", method.getReturnComponentTypeCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
-				.replaceAll("PARALLEL", Boolean.valueOf(method.getAnnotation(TwynCollection.class) != null && method.getAnnotation(TwynCollection.class).parallel()).toString());
+				.replaceAll("PARALLEL", Boolean.valueOf(method.hasAnnotation(TwynCollection.class) && method.getAnnotation(TwynCollection.class).parallel()).toString());
 	}
 
-	public String templateListMethod(Method method, NodeResolver nodeResolver) {
+	public String templateListMethod(ImplementedMethod method, NodeResolver nodeResolver) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		return twynListMethodTemplate
-				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
+				.replaceAll("COMPONENT_TYPE", method.getTwynCollectionTypeCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 
-	public String templateSetMethod(Method method, NodeResolver nodeResolver) {
+	public String templateSetMethod(ImplementedMethod method, NodeResolver nodeResolver) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		return twynSetMethodTemplate
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
@@ -113,7 +117,7 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 
-	public String templateMapMethod(Method method, NodeResolver nodeResolver) {
+	public String templateMapMethod(ImplementedMethod method, NodeResolver nodeResolver) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		return twynMapMethodTemplate
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
@@ -123,13 +127,12 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 
-	public String templateSetValueMethod(Method method, Class<?> implementedType) {
-		Class<?> valueType = method.getParameterTypes()[0];
+	public String templateSetValueMethod(ImplementedMethod method, ProxiedInterface implementedType) {
 		return twynSetValueMethodTemplate
-				.replaceAll("VALUE_TYPE", valueType.getCanonicalName())
+				.replaceAll("VALUE_TYPE", method.getParameterTypeCanonicalName(0))
 				.replaceAll("METHOD_NAME", method.getName())
-				.replaceAll("RETURN_TYPE", method.getReturnType().equals(implementedType) ? implementedType.getCanonicalName() : "void")
-				.replaceAll("RETURN", method.getReturnType().equals(implementedType) ? "return this;" : "")
+				.replaceAll("RETURN_TYPE", method.returns(implementedType) ? implementedType.getCanonicalName() : "void")
+				.replaceAll("RETURN", method.returns(implementedType) ? "return this;" : "")
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanSetName(method.getName()));
 	}
 

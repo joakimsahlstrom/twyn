@@ -6,6 +6,8 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
@@ -13,6 +15,7 @@ import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class TwynProxyClassBuilder implements TwynProxyBuilder {
+	private static final Logger LOGGER = Logger.getLogger(TwynProxyClassBuilder.class.getName());
 
 	private final JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
 	private final Map<Class<?>, Class<?>> implementations = new ConcurrentHashMap<Class<?>, Class<?>>();
@@ -36,13 +39,22 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 	}
 
 	private Class<?> getImplementingClass(Class<?> type, TwynContext twyn) {
-		return implementations.computeIfAbsent(type, t -> createClass(t, twyn));
+		return implementations.computeIfAbsent(type, t -> loadOrCreateClass(t, twyn));
 	}
 
-	private Class<?> createClass(Class<?> type, TwynContext twynContext) {
+	private Class<?> loadOrCreateClass(Class<?> type, TwynContext twynContext) {
+		try {
+			String className = TwynProxyClassJavaFile.generateClassName(ProxiedInterface.of(type));
+			Class<?> loadClass = Thread.currentThread().getContextClassLoader().loadClass(className);
+			LOGGER.log(Level.INFO, "Prebuilt class found for type " + type + "!");
+			return loadClass;
+		} catch (ClassNotFoundException e1) {
+			LOGGER.log(Level.FINEST, "No prebuilt class found for type " + type);
+		}
+
 		TwynProxyClassJavaFile twynProxyJavaFile = null;
 		try {
-			twynProxyJavaFile = TwynProxyClassJavaFile.create(type, templates, twynContext);
+			twynProxyJavaFile = TwynProxyClassJavaFile.create(ProxiedInterface.of(type), templates, twynContext.getIdentityMethod(), twynContext.isDebug());
 			return javaSourceCompiler
 					.compile(twynProxyJavaFile.setupCompilationUnit(javaSourceCompiler))
 					.loadClass(twynProxyJavaFile.getCanonicalClassName());

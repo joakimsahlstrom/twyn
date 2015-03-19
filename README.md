@@ -187,6 +187,15 @@ Twyn.configurer().withClassGeneration().withPrecompiledClasses(myClasses).config
 Twyn.configurer().withClassGeneration().withDebugMode().configure();
 ```
 
+###Twyn supports annotation processing for proxy class generation
+```java
+@TwynProxy
+public static interface ArrayObject {
+	ArrayElement arr();
+}
+```
+A twyn proxy for this class will generated directly at runtime. .withClassGeneration() must be configured in order to use the generated file. 
+
 ###Twyn can process collections in parallel
 ```java
 interface Offspring {
@@ -233,3 +242,5 @@ JsonNode root = twyn.getJsonNode(contact);
 * has-methods that can test if an underlying node is present?
 * Delete values/structures
 * Collection modifications
+* AnnotationProcessing for generating java proxy files at compilation
+  * Add subinterfaces for proxies that are annotated with @TwynProxy 

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.Collection;
@@ -15,11 +14,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.NodeHolder;
+import se.jsa.twyn.internal.ProxiedInterface;
+import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
+import se.jsa.twyn.internal.ProxiedInterface.ProxiedElementClass;
 import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.TwynProxyBuilder;
 import se.jsa.twyn.internal.TwynProxyClassBuilder;
@@ -84,19 +85,20 @@ public class Twyn {
 	}
 
 	private <T> Class<T> validate(Class<T> type) {
-		Stream.of(type.getMethods())
+		ProxiedElementClass proxiedInterface = ProxiedInterface.of(type);
+		proxiedInterface.getMethods().stream()
 			.filter(MethodType.ILLEGAL_TYPES_FILTER)
 			.findAny()
-			.ifPresent(m -> { throw new IllegalArgumentException(getErrorMessage(type, m)); });
+			.ifPresent(m -> { throw new IllegalArgumentException(getErrorMessage(proxiedInterface, m)); });
 		return type;
 	}
 
-	private String getErrorMessage(Class<?> type, Method m) {
+	private String getErrorMessage(ProxiedInterface type, ImplementedMethod m) {
 		switch (MethodType.getType(m)) {
 		case ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT:
 			return "Type " + type + " defines method " + m.getName() + " which is nondefault and has method arguments. Proxy cannot be created.";
 		case ILLEGAL_COLLECTION_NO_ANNOTATION:
-			return "Collection method " + m.getName() + " on type " + type.getName() + " is missing annotation " + TwynCollection.class.getSimpleName();
+			return "Collection method " + m.getName() + " on type " + type.getCanonicalName() + " is missing annotation " + TwynCollection.class.getSimpleName();
 		default:
 			throw new RuntimeException("Error message not supported for " + MethodType.class.getSimpleName() + " " + MethodType.getType(m));
 		}
