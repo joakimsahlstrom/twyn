@@ -187,14 +187,14 @@ Twyn.configurer().withClassGeneration().withPrecompiledClasses(myClasses).config
 Twyn.configurer().withClassGeneration().withDebugMode().configure();
 ```
 
-###Twyn supports annotation processing for proxy class generation
+###Twyn supports annotation processing for proxy classes
 ```java
 @TwynProxy
 public static interface ArrayObject {
 	ArrayElement arr();
 }
 ```
-A twyn proxy for this class will generated directly at runtime. .withClassGeneration() must be configured in order to use the generated file. 
+A twyn proxy for this class will generated directly at compile-time. Use the configuration .withClassGeneration() in order to use the generated class(es). 
 
 ###Twyn can process collections in parallel
 ```java
