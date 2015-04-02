@@ -172,7 +172,7 @@ public interface ProxiedInterface {
 		}
 
 		private <T> Optional<T> tryCast(Object o, Class<T> type) {
-			return type.equals(o.getClass()) ? Optional.of(type.cast(o)) : Optional.empty();
+			return type.isAssignableFrom(o.getClass()) ? Optional.of(type.cast(o)) : Optional.empty();
 		}
 
 		@Override

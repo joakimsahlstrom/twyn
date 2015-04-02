@@ -192,6 +192,12 @@ Twyn.configurer().withClassGeneration().withDebugMode().configure();
 @TwynProxy
 public static interface ArrayObject {
 	ArrayElement arr();
+	
+	// Inner interfaces are automatically handled if 
+	// containing class is annotated with @TwynProxy
+	public interface Inner {
+		String getName();
+	}
 }
 ```
 A twyn proxy for this class will generated directly at compile-time. Use the configuration .withClassGeneration() in order to use the generated class(es). 
@@ -242,5 +248,3 @@ JsonNode root = twyn.getJsonNode(contact);
 * has-methods that can test if an underlying node is present?
 * Delete values/structures
 * Collection modifications
-* AnnotationProcessing for generating java proxy files at compilation - Done
-  * Add subinterfaces for proxies that are annotated with @TwynProxy 

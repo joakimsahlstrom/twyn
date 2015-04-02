@@ -45,9 +45,9 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 	private Class<?> loadOrCreateClass(Class<?> type, TwynContext twynContext) {
 		try {
 			String className = TwynProxyClassJavaFile.generateClassName(ProxiedInterface.of(type));
-			Class<?> loadClass = Thread.currentThread().getContextClassLoader().loadClass(className);
-			LOGGER.log(Level.INFO, "Prebuilt class found for type " + type + "!");
-			return loadClass;
+			Class<?> prebuiltClass = Thread.currentThread().getContextClassLoader().loadClass(className);
+			LOGGER.log(Level.INFO, "Prebuilt class found for type " + type + "! prebuiltClass=" + prebuiltClass.getName());
+			return prebuiltClass;
 		} catch (ClassNotFoundException e1) {
 			LOGGER.log(Level.FINEST, "No prebuilt class found for type " + type);
 		}
