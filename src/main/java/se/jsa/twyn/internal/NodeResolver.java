@@ -18,11 +18,9 @@ interface NodeResolver  {
 	static Predicate<ImplementedMethod> WITH_TWYNINDEX = m -> m.hasAnnotation(TwynIndex.class);
 
 	static NodeResolver getResolver(ProxiedInterface implementedType) {
-		if (isArrayType(implementedType)) {
-			return new ArrayInvocationHandlerMethodResolver(implementedType);
-		} else {
-			return new MethodNameInvocationHandlerMethodResolver();
-		}
+		return isArrayType(implementedType)
+				? new ArrayInvocationHandlerMethodResolver(implementedType)
+				: new MethodNameInvocationHandlerMethodResolver();
 	}
 
 	static boolean isArrayType(ProxiedInterface implementedType) {

@@ -20,7 +20,7 @@ class IdentityMethods {
 		List<ImplementedMethod> methods = implementedType.getMethods().stream().parallel()
 				.filter(m -> !MethodType.DEFAULT.test(m) && m.getNumParameters() == 0)
 				.collect(Collectors.toList());
-		List<ImplementedMethod> idAnnotatedMethods = methods.stream().filter((m) -> { return m.hasAnnotation(TwynId.class); }).collect(Collectors.toList());
+		List<ImplementedMethod> idAnnotatedMethods = methods.stream().filter(m ->  m.hasAnnotation(TwynId.class)).collect(Collectors.toList());
 		return (idAnnotatedMethods.size() > 0) ? idAnnotatedMethods : methods;
 	}
 }

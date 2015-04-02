@@ -1,6 +1,5 @@
 package se.jsa.twyn.internal;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,7 +37,7 @@ public enum MethodType implements Predicate<ProxiedInterface.ImplementedMethod> 
 	}
 
 	public static MethodType getType(ImplementedMethod m) {
-		return Arrays.asList(values()).stream()
+		return Stream.of(values())
 				.filter(mt -> mt.test(m))
 				.findFirst()
 				.orElseThrow(() -> new RuntimeException("Could not determine MethodType for " + m));

@@ -242,5 +242,5 @@ JsonNode root = twyn.getJsonNode(contact);
 * has-methods that can test if an underlying node is present?
 * Delete values/structures
 * Collection modifications
-* AnnotationProcessing for generating java proxy files at compilation
+* AnnotationProcessing for generating java proxy files at compilation - Done
   * Add subinterfaces for proxies that are annotated with @TwynProxy 

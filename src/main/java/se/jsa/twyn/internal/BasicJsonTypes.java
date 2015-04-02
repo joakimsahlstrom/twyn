@@ -1,7 +1,6 @@
 package se.jsa.twyn.internal;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -33,11 +32,12 @@ enum BasicJsonTypes implements Predicate<Class<?>> {
 	}
 
 	public static BasicJsonTypes get(Class<?> type) {
-		return typeStream().filter(bjt -> bjt.test(type)).findFirst()
+		return typeStream().filter(bjt -> bjt.test(type))
+				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Not a basic Json type: " + type));
 	}
 
 	private static Stream<BasicJsonTypes> typeStream() {
-		return Arrays.asList(BasicJsonTypes.values()).stream();
+		return Stream.of(BasicJsonTypes.values());
 	}
 }

@@ -21,6 +21,7 @@ public interface Cache {
 			cache.remove(key);
 		}
 	}
+
 	class FullConcurrent implements Cache {
 		private final Map<Object, Object> cache = new ConcurrentHashMap<Object, Object>();
 		@SuppressWarnings("unchecked")
@@ -33,6 +34,7 @@ public interface Cache {
 			cache.remove(key);
 		}
 	}
+
 	class None implements Cache {
 		@Override
 		public <T> T get(String key, Supplier<T> supplier) {
@@ -43,4 +45,5 @@ public interface Cache {
 			// do nothing
 		}
 	}
+
 }

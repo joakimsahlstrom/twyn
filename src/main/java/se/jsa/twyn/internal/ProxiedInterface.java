@@ -2,10 +2,8 @@ package se.jsa.twyn.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -105,8 +103,6 @@ public interface ProxiedInterface {
 	}
 
 	class ImplementedMethodExecutableElement implements ImplementedMethod {
-		private static final Set<String> collectionQualifiedNames = new HashSet<>(Arrays.asList("java.util.List", "java.util.Set", "java.util.Map"));
-
 		private final ExecutableElement executableElement;
 
 		public ImplementedMethodExecutableElement(ExecutableElement executableElement) {
@@ -150,12 +146,9 @@ public interface ProxiedInterface {
 
 		@Override
 		public boolean returnsArrayOfInterface() {
-			ArrayType returnArrayType = (ArrayType) executableElement.getReturnType();
-			if (returnArrayType.getComponentType() instanceof DeclaredType) {
-				DeclaredType declaredReturnType = (DeclaredType) returnArrayType.getComponentType();
-				return declaredReturnType.asElement().getKind() == ElementKind.INTERFACE;
-			}
-			return false;
+			return tryCast(ArrayType.class.cast(executableElement.getReturnType()).getComponentType(), DeclaredType.class)
+				.map(dt -> dt.asElement().getKind() == ElementKind.INTERFACE)
+				.orElse(false);
 		}
 
 		@Override
@@ -166,35 +159,30 @@ public interface ProxiedInterface {
 				return returnedElement.getInterfaces().stream()
 					.filter(tm -> (tm instanceof DeclaredType))
 					.map(tm -> TypeElement.class.cast(DeclaredType.class.cast(tm).asElement()).getQualifiedName().toString())
-					.anyMatch(n -> collectionQualifiedNames.contains(n));
+					.anyMatch(ClassType::isCollectionQualifiedName);
 			}
 			return false;
 		}
 
 		@Override
 		public boolean returnsInterface() {
-			return executableElement.getReturnType() instanceof DeclaredType
-					&& ((DeclaredType)executableElement.getReturnType()).asElement().getKind() == ElementKind.INTERFACE;
+			return tryCast(executableElement.getReturnType(), DeclaredType.class)
+				.map(dt -> dt.asElement().getKind() == ElementKind.INTERFACE)
+				.orElse(false);
+		}
+
+		private <T> Optional<T> tryCast(Object o, Class<T> type) {
+			return type.equals(o.getClass()) ? Optional.of(type.cast(o)) : Optional.empty();
 		}
 
 		@Override
 		public boolean returns(Class<?> returnType) {
 			if (executableElement.getReturnType() instanceof PrimitiveType) {
 				PrimitiveType primitiveReturnType = (PrimitiveType) executableElement.getReturnType();
-				switch (primitiveReturnType.getKind()) {
-				case BOOLEAN: return returnType.equals(Boolean.TYPE);
-				case BYTE: return returnType.equals(Byte.TYPE);
-				case CHAR: return returnType.equals(Character.TYPE);
-				case DOUBLE: return returnType.equals(Double.TYPE);
-				case FLOAT: return returnType.equals(Float.TYPE);
-				case INT: return returnType.equals(Integer.TYPE);
-				case LONG: return returnType.equals(Long.TYPE);
-				case SHORT: return returnType.equals(Short.TYPE);
-				default:
-					throw new IllegalArgumentException("Cannot handle primitive return type: " + primitiveReturnType.getKind());
-				}
+				return PrimitiveTypeMap.toPrimitive(primitiveReturnType).equals(returnType);
+			} else {
+				return getReturnTypeCanonicalName().equals(returnType.getCanonicalName());
 			}
-			return getReturnTypeCanonicalName().equals(returnType.getCanonicalName());
 		}
 
 		@Override
@@ -204,8 +192,7 @@ public interface ProxiedInterface {
 
 		@Override
 		public String getReturnTypeCanonicalName() {
-			TypeMirror returnTypeMirror = executableElement.getReturnType();
-			return getCanonicalName(returnTypeMirror);
+			return getCanonicalName(executableElement.getReturnType());
 		}
 
 		@Override
@@ -216,10 +203,11 @@ public interface ProxiedInterface {
 
 		@Override
 		public String getTwynCollectionTypeCanonicalName() {
+			// But ugly but quick and easy way to get this data
 			try {
 				getAnnotation(TwynCollection.class).value();
 				throw new RuntimeException("Should not get here!");
-			} catch(MirroredTypeException mte) {
+			} catch (MirroredTypeException mte) {
 				return mte.getTypeMirror().toString();
 			}
 		}
@@ -230,19 +218,7 @@ public interface ProxiedInterface {
 				TypeElement returnElementType = (TypeElement) declaredReturnType.asElement();
 				return returnElementType.getQualifiedName().toString();
 			} else if (typeMirror instanceof PrimitiveType) {
-				PrimitiveType primitiveReturnType = (PrimitiveType)typeMirror;
-				switch (primitiveReturnType.getKind()) {
-				case BOOLEAN: return "boolean";
-				case BYTE: return "byte";
-				case CHAR: return "char";
-				case DOUBLE: return "double";
-				case FLOAT: return "float";
-				case INT: return "int";
-				case LONG: return "long";
-				case SHORT: return "short";
-				default:
-					throw new IllegalArgumentException("Cannot get canonical name for primitive return type: " + primitiveReturnType.getKind());
-				}
+				return PrimitiveTypeMap.toPrimitive((PrimitiveType)typeMirror).getName();
 			} else {
 				throw new RuntimeException("Cannot determine canonical name of type: " + typeMirror);
 			}
@@ -277,8 +253,9 @@ public interface ProxiedInterface {
 		public boolean equals(Object obj) {
 			if (obj instanceof ProxiedElementClass) {
 				return type.equals(((ProxiedElementClass) obj).type);
+			} else {
+				return super.equals(obj);
 			}
-			return super.equals(obj);
 		}
 
 		@Override
