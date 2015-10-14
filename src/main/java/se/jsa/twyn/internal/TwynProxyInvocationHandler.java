@@ -37,7 +37,7 @@ import se.jsa.twyn.internal.ProxiedInterface.ProxiedElementClass;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
+class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private static final Object[] NO_ARGS = new Object[] {};
 
 	private final JsonNode jsonNode;

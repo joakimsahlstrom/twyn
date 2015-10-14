@@ -2,7 +2,7 @@ package se.jsa.twyn;
 
 import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.TwynContext;
-import se.jsa.twyn.internal.NodeHolder;
+import se.jsa.twyn.internal.NodeSupplier;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,7 +25,7 @@ import java.util.stream.StreamSupport;
 
 import TARGET_INTERFACE_QUALIFIED;
 
-public class CLASS_NAME implements TARGET_INTERFACE, NodeHolder {
+public class CLASS_NAME implements TARGET_INTERFACE, NodeSupplier {
 	private final TwynContext twyn;
 	private final JsonNode jsonNode;
 	private final Cache cache;

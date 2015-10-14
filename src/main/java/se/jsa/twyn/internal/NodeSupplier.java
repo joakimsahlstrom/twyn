@@ -20,6 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  * Internal marker interface
  */
-public interface NodeHolder {
+public interface NodeSupplier {
 	JsonNode getJsonNode();
 }

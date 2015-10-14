@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 
 import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.MethodType;
-import se.jsa.twyn.internal.NodeHolder;
+import se.jsa.twyn.internal.NodeSupplier;
 import se.jsa.twyn.internal.ProxiedInterface;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 import se.jsa.twyn.internal.ProxiedInterface.ProxiedElementClass;
@@ -120,12 +120,12 @@ public class Twyn {
 	}
 
 	public JsonNode getJsonNode(Object obj) {
-		if (obj instanceof NodeHolder) {
-			return ((NodeHolder) obj).getJsonNode();
+		if (obj instanceof NodeSupplier) {
+			return ((NodeSupplier) obj).getJsonNode();
 		}
 		try {
 			InvocationHandler invocationHandler = Proxy.getInvocationHandler(obj);
-			NodeHolder twynProxyInvocationHandler = ((NodeHolder)invocationHandler);
+			NodeSupplier twynProxyInvocationHandler = ((NodeSupplier)invocationHandler);
 			return twynProxyInvocationHandler.getJsonNode();
 		} catch (RuntimeException e) {
 			throw new IllegalArgumentException("Not a twyn object!", e);
