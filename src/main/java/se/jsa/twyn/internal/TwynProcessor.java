@@ -57,7 +57,7 @@ public class TwynProcessor extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		if (templates == null) {
-
+			throw new IllegalStateException("Cannot run without templates!");
 		}
 		generateJavaFiles(roundEnv.getElementsAnnotatedWith(TwynProxy.class).stream());
 		return true;
