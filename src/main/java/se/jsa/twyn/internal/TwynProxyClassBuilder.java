@@ -27,6 +27,8 @@ import java.util.logging.Logger;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
 
+import se.jsa.twyn.TwynProxyException;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class TwynProxyClassBuilder implements TwynProxyBuilder {
@@ -40,7 +42,7 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 		try {
 			templates = TwynProxyClassJavaTemplates.create();
 		} catch (IOException | URISyntaxException e) {
-			throw new RuntimeException("Internal error, could not read code template files.", e);
+			throw new TwynProxyException("Internal error, could not read code template files.", e);
 		}
 	}
 
@@ -74,9 +76,9 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 					.compile(twynProxyJavaFile.setupCompilationUnit(javaSourceCompiler))
 					.loadClass(twynProxyJavaFile.getCanonicalClassName());
 		} catch (IllegalStateException e) {
-			throw new RuntimeException("Could not create class for " + type.getSimpleName() + ". Source:\n" + twynProxyJavaFile != null ? twynProxyJavaFile.getCode() : "n/a", e);
+			throw new TwynProxyException("Could not create class for " + type.getSimpleName() + ". Source:\n" + twynProxyJavaFile != null ? twynProxyJavaFile.getCode() : "n/a", e);
 		} catch (ClassNotFoundException | IOException | URISyntaxException e) {
-			throw new RuntimeException("Could not create class for " + type.getSimpleName() + ".", e);
+			throw new TwynProxyException("Could not create class for " + type.getSimpleName() + ".", e);
 		}
 	}
 
@@ -84,7 +86,7 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 		try {
 			return typeImpl.getConstructor(TwynContext.class, JsonNode.class).newInstance(twyn, jsonNode);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException("Could not instantiate class " + typeImpl.getSimpleName(), e);
+			throw new TwynProxyException("Could not instantiate class " + typeImpl.getSimpleName(), e);
 		}
 	}
 

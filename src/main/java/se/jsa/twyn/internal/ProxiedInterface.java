@@ -33,6 +33,7 @@ import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 
 import se.jsa.twyn.TwynCollection;
+import se.jsa.twyn.TwynProxyException;
 
 public interface ProxiedInterface {
 
@@ -218,10 +219,10 @@ public interface ProxiedInterface {
 
 		@Override
 		public String getTwynCollectionTypeCanonicalName() {
-			// But ugly but quick and easy way to get this data
+			// Butt ugly but quick and easy way to get this data
 			try {
 				getAnnotation(TwynCollection.class).value();
-				throw new RuntimeException("Should not get here!");
+				throw new TwynProxyException("Expected exception before this line!");
 			} catch (MirroredTypeException mte) {
 				return mte.getTypeMirror().toString();
 			}
@@ -235,7 +236,7 @@ public interface ProxiedInterface {
 			} else if (typeMirror instanceof PrimitiveType) {
 				return PrimitiveTypeMap.toPrimitive((PrimitiveType)typeMirror).getName();
 			} else {
-				throw new RuntimeException("Cannot determine canonical name of type: " + typeMirror);
+				throw new TwynProxyException("Cannot determine canonical name of type: " + typeMirror);
 			}
 		}
 	}

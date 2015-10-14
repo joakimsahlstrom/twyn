@@ -23,6 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import se.jsa.twyn.TwynCollection;
+import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 
 public enum MethodType implements Predicate<ProxiedInterface.ImplementedMethod> {
@@ -55,7 +56,7 @@ public enum MethodType implements Predicate<ProxiedInterface.ImplementedMethod> 
 		return Stream.of(values())
 				.filter(mt -> mt.test(m))
 				.findFirst()
-				.orElseThrow(() -> new RuntimeException("Could not determine MethodType for " + m));
+				.orElseThrow(() -> new TwynProxyException("Could not determine MethodType for " + m));
 	}
 
 	public static Predicate<ImplementedMethod> GETTER_TYPES_FILTER = any(ARRAY, LIST, MAP, SET, INTERFACE, VALUE);

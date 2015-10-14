@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import se.jsa.twyn.TwynCollection;
+import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethodMethod;
 import se.jsa.twyn.internal.ProxiedInterface.ProxiedElementClass;
@@ -78,7 +79,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 		case SET_VALUE: return setValue(proxy, method, args);
 
 		case VALUE:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> resolveValue(method));
-		default:		throw new RuntimeException("Could not handle methodType=" + methodType);
+		default:		throw new TwynProxyException("Could not handle methodType=" + methodType);
 		}
 	}
 
@@ -142,7 +143,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 		try {
 			return twynContext.readValue(resolveTargetGetNode(method), method.getReturnType());
 		} catch (IOException e) {
-			throw new RuntimeException("Could not resolve value for node " + resolveTargetGetNode(method) + ". Wanted type: " + method.getReturnType(), e);
+			throw new TwynProxyException("Could not resolve value for node " + resolveTargetGetNode(method) + ". Wanted type: " + method.getReturnType(), e);
 		}
 	}
 
@@ -163,7 +164,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 					try {
 						return m.getName() + "()=" + this.invoke(null, getMethod(m), NO_ARGS).toString();
 					} catch (Throwable e) {
-						throw new RuntimeException("Could not call method " + m + " for toString calculation.", e);
+						throw new TwynProxyException("Could not call method " + m + " for toString calculation.", e);
 					}
 				})
 				.reduce(null, (s1, s2) -> { return (s1 == null ? s2 : (s2 == null ? s1 : s1 + ", " + s2)); })
@@ -184,7 +185,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 				try {
 					return Objects.equals(getMethod(m).invoke(obj), this.invoke(null, getMethod(m), NO_ARGS));
 				} catch (Throwable e) {
-					throw new RuntimeException("Could not call method " + m + " for equals comparison..", e);
+					throw new TwynProxyException("Could not call method " + m + " for equals comparison..", e);
 				}
 			});
 	}
@@ -196,7 +197,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeHolder {
 					try {
 						return this.invoke(null, getMethod(m), NO_ARGS);
 					} catch (Throwable e) {
-						throw new RuntimeException("Could not call method " + m + " for hashCode calculation.", e);
+						throw new TwynProxyException("Could not call method " + m + " for hashCode calculation.", e);
 					}
 				})
 				.toArray());

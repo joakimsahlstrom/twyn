@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -58,7 +59,7 @@ public class TwynContext {
 				methodHandleLookupConstructor.setAccessible(true);
 			}
 		} catch (NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException("Unexpected internal error!");
+			throw new TwynProxyException("Unexpected internal error!");
 		}
 	}
 
@@ -70,7 +71,7 @@ public class TwynContext {
 		try {
 			return proxyBuilder.buildProxy(type, this, jsonNode);
 		} catch (Exception e) {
-			throw new RuntimeException("Could not create Twyn proxy", e);
+			throw new TwynProxyException("Could not create Twyn proxy", e);
 		}
 	}
 
@@ -86,7 +87,7 @@ public class TwynContext {
 					try {
 						return componentType.isInterface() ? proxy(n, componentType) : readValue(n, componentType);
 					} catch (Exception e) {
-						throw new RuntimeException(e);
+						throw new TwynProxyException("Could not proxy collection " + n + " of type " + componentType, e);
 					}
 				} )
 				.collect(collector);

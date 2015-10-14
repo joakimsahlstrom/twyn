@@ -95,7 +95,7 @@ public class Twyn {
 		} catch (IOException | RuntimeException e) { // also handles JsonProcessingException
 			throw e;
 		} catch (Exception e) {
-			throw new RuntimeException("Could not read input!", e);
+			throw new TwynProxyException("Could not read input!", e);
 		}
 	}
 
@@ -115,7 +115,7 @@ public class Twyn {
 		case ILLEGAL_COLLECTION_NO_ANNOTATION:
 			return "Collection method " + m.getName() + " on type " + type.getCanonicalName() + " is missing annotation " + TwynCollection.class.getSimpleName();
 		default:
-			throw new RuntimeException("Error message not supported for " + MethodType.class.getSimpleName() + " " + MethodType.getType(m));
+			throw new TwynProxyException("Error message not supported for " + MethodType.class.getSimpleName() + " " + MethodType.getType(m));
 		}
 	}
 

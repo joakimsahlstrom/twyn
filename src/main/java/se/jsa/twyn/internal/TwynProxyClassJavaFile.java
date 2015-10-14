@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
+import se.jsa.twyn.TwynProxyException;
 
 class TwynProxyClassJavaFile {
 	private final String code;
@@ -66,7 +67,7 @@ class TwynProxyClassJavaFile {
 				case INTERFACE: return templates.templateInterfaceMethod(m, nodeResolver);
 				case VALUE:		return templates.templateValueMethod(m, nodeResolver);
 				case SET_VALUE: return templates.templateSetValueMethod(m, implementedInterface);
-				default: 		throw new RuntimeException("Could not handle method=" + m.getName()
+				default: 		throw new TwynProxyException("Could not handle method=" + m.getName()
 						+ " with methodType=" + MethodType.getType(m) + " on interface " + implementedInterface.getCanonicalName());
 			} })
 			.collect(Collectors.joining("\n\n"))
