@@ -36,7 +36,7 @@ class IdentityMethods {
 	}
 
 	private static List<ImplementedMethod> get(ProxiedInterface implementedType) {
-		List<ImplementedMethod> methods = implementedType.getMethods().stream().parallel()
+		List<ImplementedMethod> methods = implementedType.getMethods().stream()
 				.filter(m -> !MethodType.DEFAULT.test(m) && m.getNumParameters() == 0)
 				.collect(Collectors.toList());
 		List<ImplementedMethod> idAnnotatedMethods = methods.stream().filter(m ->  m.hasAnnotation(TwynId.class)).collect(Collectors.toList());
