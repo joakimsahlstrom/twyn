@@ -28,7 +28,11 @@ class IdentityMethods {
 	private final Map<ProxiedInterface, List<ImplementedMethod>> methods = new ConcurrentHashMap<ProxiedInterface, List<ImplementedMethod>>();
 
 	public Stream<ImplementedMethod> getIdentityMethods(ProxiedInterface implementedType) {
-		return methods.computeIfAbsent(implementedType, t -> IdentityMethods.get(t)).stream();
+		if (!methods.containsKey(implementedType)) {
+			List<ImplementedMethod> implementedMethods = IdentityMethods.get(implementedType);
+			return methods.computeIfAbsent(implementedType, t -> implementedMethods).stream();
+		}
+		return methods.get(implementedType).stream();
 	}
 
 	private static List<ImplementedMethod> get(ProxiedInterface implementedType) {
