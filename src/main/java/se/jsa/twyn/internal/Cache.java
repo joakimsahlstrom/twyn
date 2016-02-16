@@ -42,7 +42,11 @@ public interface Cache {
 		@SuppressWarnings("unchecked")
 		@Override
 		public <T> T get(String key, Supplier<T> supplier) {
-			return (T)cache.computeIfAbsent(key, (k) -> supplier.get());
+			if (!cache.containsKey(key)) {
+				T value = supplier.get();
+				return (T)cache.computeIfAbsent(key, k -> value);
+			}
+			return (T)cache.get(key);
 		}
 		@Override
 		public void clear(String key) {

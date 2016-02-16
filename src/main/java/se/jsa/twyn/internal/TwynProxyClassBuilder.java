@@ -56,7 +56,11 @@ public class TwynProxyClassBuilder implements TwynProxyBuilder {
 	}
 
 	private Class<?> getImplementingClass(Class<?> type, TwynContext twyn) {
-		return implementations.computeIfAbsent(type, t -> loadOrCreateClass(t, twyn));
+		if (!implementations.containsKey(type)) {
+			Class<?> createdClass = loadOrCreateClass(type, twyn);
+			return implementations.computeIfAbsent(type, t -> createdClass);
+		}
+		return implementations.get(type);
 	}
 
 	private Class<?> loadOrCreateClass(Class<?> type, TwynContext twynContext) {
