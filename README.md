@@ -104,7 +104,7 @@ interface Offspring {
 	Map<String, Nick> daughterNickNames();
 	
 	@TwynCollection(value=Nick.class, keyType=DaughterKey.class)
-	Map<DaughterKey, Nick> daughterNickNames(); // Key can be any class that takes string as only constructor argument
+	Map<DaughterKey, Nick> getDaughterNickNames(); // Typed key must have constructor(String)
 	
 	String[] sons();
 	
