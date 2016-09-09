@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 Joakim Sahlström
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,7 @@ import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 
 public enum MethodType implements Predicate<ProxiedInterface.ImplementedMethod> {
 	ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT(m -> !m.isDefault() && m.getNumParameters() > 1),
-	ILLEGAL_COLLECTION_NO_ANNOTATION(m -> m.returnsCollection() && m.getNumParameters() == 0 && !m.hasAnnotation(TwynCollection.class)),
+	ILLEGAL_COLLECTION_NO_ANNOTATION(m -> m.returnsCollection() && m.getNumParameters() == 0 && !m.hasAnnotation(TwynCollection.class) && !m.isDefault()),
 
 	DEFAULT(m 	-> m.isDefault()),
 	ARRAY(m 	-> m.returnsArray() 		&& m.getNumParameters() == 0 && m.returnsArrayOfInterface()),
