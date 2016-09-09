@@ -1,0 +1,24 @@
+	@Override
+	public Map<KEY_TYPE, COMPONENT_TYPE> METHOD_NAME() {
+		return cache.get("FIELD_NAME", () -> {
+			try {
+				return StreamSupport
+					.stream(Spliterators.spliteratorUnknownSize(jsonNode.get(FIELD_ID).fields(), 0), PARALLEL)
+					.collect(Collectors.<Entry<String, JsonNode>, KEY_TYPE, COMPONENT_TYPE>toMap((entry) -> readKey_METHOD_NAME(entry.getKey()), (entry) -> twyn.proxy(entry.getValue(), COMPONENT_TYPE.class)));
+			} catch (NullPointerException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+	}
+	
+	private KEY_TYPE readKey_METHOD_NAME(String key) {
+		try {
+			return KEY_TYPE.class.getConstructor(String.class).newInstance(key);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			throw new TwynProxyException("Could not create map keyType=KEY_TYPE from key=" + key, e);
+		}
+	}
+	

@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 Joakim Sahlström
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -251,6 +252,41 @@ public class TwynTest {
 	public static interface MapIF {
 		@TwynCollection(StringIF.class)
 		Map<String, StringIF> data();
+	}
+
+	@Test
+	public void canMapWithNonStringKeys() throws Exception {
+		MapIFComplexKey maps = twyn.read("{ \"data\" : { \"k1\" : { \"name\" : \"s1!\" },  \"k2\" : { \"name\" : \"s2?\" }, \"k3\" : { \"name\" : \"s3#\" } } }", MapIFComplexKey.class);
+		assertEquals(3, maps.data().size());
+		assertEquals("s1!", maps.data().get(new MyKey("k1")).getName());
+	}
+	public static interface MapIFComplexKey {
+		@TwynCollection(value=StringIF.class, keyType=MyKey.class)
+		Map<MyKey, StringIF> data();
+	}
+	public static class MyKey {
+		private final String key;
+		public MyKey(String key) {
+			this.key = key;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			TwynTest.MyKey other = (TwynTest.MyKey) obj;
+			return this.key.equals(other.key);
+		}
+		@Override
+		public int hashCode() {
+			return Objects.hash(key);
+		}
 	}
 
 	@Test

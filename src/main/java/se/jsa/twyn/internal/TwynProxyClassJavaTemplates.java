@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 Joakim Sahlström
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,6 +32,7 @@ class TwynProxyClassJavaTemplates {
 	private final String twynArrayMethodTemplate;
 	private final String twynListMethodTemplate;
 	private final String twynMapMethodTemplate;
+	private final String twynMapMethodTypedKeyTemplate;
 	private final String twynSetMethodTemplate;
 	private final String twynSetValueMethodTemplate;
 
@@ -43,7 +44,8 @@ class TwynProxyClassJavaTemplates {
 			String twynListMethodTemplate,
 			String twynSetMethodTemplate,
 			String twynMapMethodTemplate,
-			String twynSetValueMethodTemplate) {
+			String twynSetValueMethodTemplate,
+			String twynMapMethodTypedKeyTemplate) {
 		this.twynProxyClassTemplate = Objects.requireNonNull(twynProxyClassTemplate);
 		this.twynInterfaceMethodTemplate = Objects.requireNonNull(twynInterfaceMethodTemplate);
 		this.twynValueMethodTemplate = Objects.requireNonNull(twynValueMethodTemplate);
@@ -52,6 +54,7 @@ class TwynProxyClassJavaTemplates {
 		this.twynSetMethodTemplate = Objects.requireNonNull(twynSetMethodTemplate);
 		this.twynMapMethodTemplate = Objects.requireNonNull(twynMapMethodTemplate);
 		this.twynSetValueMethodTemplate = Objects.requireNonNull(twynSetValueMethodTemplate);
+		this.twynMapMethodTypedKeyTemplate = Objects.requireNonNull(twynMapMethodTypedKeyTemplate);
 	}
 
 	public interface Reader {
@@ -71,7 +74,8 @@ class TwynProxyClassJavaTemplates {
 				reader.read("TwynProxyClass_listMethod.java.template"),
 				reader.read("TwynProxyClass_setMethod.java.template"),
 				reader.read("TwynProxyClass_mapMethod.java.template"),
-				reader.read("TwynProxyClass_setValueMethod.java.template")
+				reader.read("TwynProxyClass_setValueMethod.java.template"),
+				reader.read("TwynProxyClass_mapMethodTyped.java.template")
 				);
 	}
 
@@ -134,11 +138,26 @@ class TwynProxyClassJavaTemplates {
 
 	public String templateMapMethod(ImplementedMethod method, NodeResolver nodeResolver) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		return twynMapMethodTemplate
+		if (!annotation.keyType().equals(String.class)) {
+			return templateMapMethodTyped(method, nodeResolver);
+		} else {
+			return twynMapMethodTemplate
+					.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
+					.replaceAll("METHOD_NAME", method.getName())
+					.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
+					.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
+					.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
+		}
+	}
+
+	public String templateMapMethodTyped(ImplementedMethod method, NodeResolver nodeResolver) {
+		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
+		return twynMapMethodTypedKeyTemplate
 				.replaceAll("COMPONENT_TYPE", annotation.value().getCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
+				.replaceAll("KEY_TYPE", annotation.keyType().getCanonicalName())
 				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
 	}
 

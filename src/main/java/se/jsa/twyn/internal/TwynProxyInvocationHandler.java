@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 Joakim Sahlström
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,25 +17,25 @@ package se.jsa.twyn.internal;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Spliterators;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import se.jsa.twyn.TwynCollection;
 import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethodMethod;
 import se.jsa.twyn.internal.ProxiedInterface.ProxiedElementClass;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private static final Object[] NO_ARGS = new Object[] {};
@@ -103,10 +103,25 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 
 	private Map<?, ?> innerMapProxy(Method method) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		Class<?> componentType = annotation.value();
+		Class<?> valueComponentType = annotation.value();
+		Class<?> keyType = annotation.keyType();
+
 		return StreamSupport
 				.stream(Spliterators.spliteratorUnknownSize(resolveTargetGetNode(method).fields(), 0), annotation.parallel())
-				.collect(Collectors.toMap(Entry::getKey, (entry) -> twynContext.proxy(entry.getValue(), componentType)));
+				.collect(Collectors.toMap((entry) -> readKeyType(entry.getKey(), keyType), (entry) -> twynContext.proxy(entry.getValue(), valueComponentType)));
+	}
+
+	private Object readKeyType(String key, Class<?> keyType) {
+		if (keyType.equals(String.class)) {
+			return key;
+		} else {
+			try {
+				return keyType.getConstructor(String.class).newInstance(key);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				throw new TwynProxyException("Could not create map keyType=" + keyType + " from key=" + key, e);
+			}
+		}
 	}
 
 	private <T> Object innerArrayProxy(Method method) {
