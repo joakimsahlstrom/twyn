@@ -101,7 +101,10 @@ interface Offspring {
 	Daughter[] daughters();
 	
 	@TwynCollection(Nick.class) // Collections without this annotation are ignored
-	Map<String, Nick> daughterNickNames(); // Key is always of type String
+	Map<String, Nick> daughterNickNames();
+	
+	@TwynCollection(value=Nick.class, keyType=DaughterKey.class)
+	Map<DaughterKey, Nick> daughterNickNames(); // Key can be any class that takes string as only constructor argument
 	
 	String[] sons();
 	
@@ -123,6 +126,12 @@ interface Entity {
 }
 interface Song {
 	String name();
+}
+class DaughterKey {
+	public DaughterKey(String key) {
+		// ...
+	}
+	// ...
 }
 ```
 
