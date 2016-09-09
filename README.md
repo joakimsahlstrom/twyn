@@ -248,3 +248,7 @@ JsonNode root = twyn.getJsonNode(contact);
 * has-methods that can test if an underlying node is present?
 * Delete values/structures
 * Collection modifications
+* 
+* Complex map keys
+* Allow collection methods without annotation if they have a default implementation
+* @PostConstruct annotated methods
