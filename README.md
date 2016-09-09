@@ -258,6 +258,4 @@ JsonNode root = twyn.getJsonNode(contact);
 * Delete values/structures
 * Collection modifications
 * 
-* Complex map keys
-* Allow collection methods without annotation if they have a default implementation
 * @PostConstruct annotated methods
