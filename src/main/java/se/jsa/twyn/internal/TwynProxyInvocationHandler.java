@@ -31,6 +31,7 @@ import java.util.stream.StreamSupport;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import se.jsa.twyn.NoSuchJsonNodeException;
 import se.jsa.twyn.TwynCollection;
 import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
@@ -163,7 +164,11 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	}
 
 	private JsonNode resolveTargetGetNode(Method method) {
-		return invocationHandlerNodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode);
+		return Require.notNull(
+				invocationHandlerNodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode),
+				() -> new NoSuchJsonNodeException("Could not resolve json node matching method=" 
+						+ method.getDeclaringClass().getSimpleName() + "." + method.getName() + "()."
+						+ " Current json fragment=" + jsonNode));
 	}
 
 	@Override

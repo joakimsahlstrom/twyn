@@ -4,7 +4,8 @@
 			try {
 				return twyn.readValue(jsonNode.get(FIELD_ID), RETURN_TYPE.class);
 			} catch (NullPointerException e) {
-				throw e;
+				throw new se.jsa.twyn.NoSuchJsonNodeException("Could not resolve json node matching method=" 
+						+ "METHOD_NAME(). Current json fragment=" + jsonNode);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
