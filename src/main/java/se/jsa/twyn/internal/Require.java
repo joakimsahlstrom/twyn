@@ -12,4 +12,10 @@ public class Require {
 		}
 	}
 	
+	public static void that(boolean c, Supplier<? extends RuntimeException> s) {
+		if (!c) {
+			throw s.get();
+		}
+	}
+	
 }

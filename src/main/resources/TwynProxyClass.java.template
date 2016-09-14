@@ -1,8 +1,10 @@
 package se.jsa.twyn;
 
+import se.jsa.twyn.BadJsonNodeTypeException;
 import se.jsa.twyn.internal.Cache;
-import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.NodeSupplier;
+import se.jsa.twyn.internal.Require;
+import se.jsa.twyn.internal.TwynContext;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -43,6 +45,7 @@ public class CLASS_NAME implements TARGET_INTERFACE, NodeSupplier {
 IMPLEMENTED_METHODS
 
 	private <T, A, R> R collect(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
+		Require.that(jsonNode.isArray(), () -> new BadJsonNodeTypeException("Did not find collection of " + componentType.getSimpleName() + " where expected. Current json fragment=" + jsonNode));
 		return StreamSupport.stream(jsonNode.spliterator(), parallel)
 			.map((n) -> {
 				try {

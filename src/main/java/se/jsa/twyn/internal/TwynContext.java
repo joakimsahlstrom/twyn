@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import se.jsa.twyn.BadJsonNodeTypeException;
 import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 
@@ -82,6 +83,7 @@ public class TwynContext {
 	}
 
 	public <T, A, R> R proxyCollection(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
+		Require.that(jsonNode.isArray(), () -> new BadJsonNodeTypeException("Did not find collection of " + componentType.getSimpleName() + " where expected. Current json fragment=" + jsonNode));
 		return StreamSupport.stream(jsonNode.spliterator(), parallel)
 				.map((n) -> {
 					try {

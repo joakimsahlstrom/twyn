@@ -3,7 +3,7 @@
 		return cache.get("FIELD_NAME", () -> {
 			try {
 				return collect(COMPONENT_TYPE.class, jsonNode.get(FIELD_ID), PARALLEL, Collectors.toList());
-			} catch (NullPointerException e) {
+			} catch (RuntimeException e) {
 				throw e;
 			} catch (Exception e) {
 				throw new RuntimeException(e);

@@ -4,7 +4,7 @@
 			try {
 				List<COMPONENT_TYPE> result = collect(COMPONENT_TYPE.class, jsonNode.get(FIELD_ID), PARALLEL, Collectors.toList());
 				return result.toArray((COMPONENT_TYPE[]) Array.newInstance(COMPONENT_TYPE.class, result.size()));
-			} catch (NullPointerException e) {
+			} catch (RuntimeException e) {
 				throw e;
 			} catch (Exception e) {
 				throw new RuntimeException(e);

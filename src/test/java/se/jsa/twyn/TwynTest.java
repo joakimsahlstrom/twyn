@@ -203,7 +203,7 @@ public class TwynTest {
 		assertNull(nulled.getName());
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test(expected = NoSuchJsonNodeException.class)
 	public void throwsExceptionIfValueIsMissing() throws Exception {
 		StringIF missing = twyn.read(input("{ }"), StringIF.class);
 		missing.getName();
