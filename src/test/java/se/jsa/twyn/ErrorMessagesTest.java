@@ -18,6 +18,7 @@ package se.jsa.twyn;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +52,23 @@ public class ErrorMessagesTest {
 		Person[] persons();
 	}
 	
+	public interface PersonMap {
+		@TwynCollection(Person.class)
+		Map<String, Person> persons();
+	}
+	
+	public interface TypedPersonMap {
+		@TwynCollection(value = Person.class, keyType = Key.class)
+		Map<Key, Person> persons();
+	}
+	
+	public static class Key {
+		String key;
+		public Key(String key) {
+			this.key = key;
+		}
+	}
+	
 	public interface Name {
 		String firstName();
 		String lastName();
@@ -74,6 +92,16 @@ public class ErrorMessagesTest {
 	@Test(expected = BadJsonNodeTypeException.class)
 	public void noArray() throws Exception {
 		twyn.read("{ \"persons\": \"horse\" }", Persons.class).persons()[0].name();
+	}
+	
+	@Test(expected = BadJsonNodeTypeException.class)
+	public void noMap() throws Exception {
+		twyn.read("{ \"persons\": \"oh.\" }", PersonMap.class).persons();
+	}
+	
+	@Test(expected = BadJsonNodeTypeException.class)
+	public void noTypedMap() throws Exception {
+		twyn.read("{ \"persons\": \"oh.\" }", TypedPersonMap.class).persons();
 	}
 	
 }

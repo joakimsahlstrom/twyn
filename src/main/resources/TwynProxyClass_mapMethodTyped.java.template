@@ -2,10 +2,14 @@
 	public Map<KEY_TYPE, COMPONENT_TYPE> METHOD_NAME() {
 		return cache.get("FIELD_NAME", () -> {
 			try {
+				JsonNode node = jsonNode.get(FIELD_ID);
+				Require.that(node.isContainerNode(), () -> new BadJsonNodeTypeException(
+						"Did not find json map structure when resolving method=FIELD_NAME(). Current json fragment=" + jsonNode));
+			
 				return StreamSupport
-					.stream(Spliterators.spliteratorUnknownSize(jsonNode.get(FIELD_ID).fields(), 0), PARALLEL)
+					.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), PARALLEL)
 					.collect(Collectors.<Entry<String, JsonNode>, KEY_TYPE, COMPONENT_TYPE>toMap((entry) -> readKey_METHOD_NAME(entry.getKey()), (entry) -> twyn.proxy(entry.getValue(), COMPONENT_TYPE.class)));
-			} catch (NullPointerException e) {
+			} catch (RuntimeException e) {
 				throw e;
 			} catch (Exception e) {
 				throw new RuntimeException(e);

@@ -259,3 +259,4 @@ JsonNode root = twyn.getJsonNode(contact);
 * Collection modifications
 * 
 * @PostConstruct annotated methods
+* Typed map should check keytype in annotation against return value of method

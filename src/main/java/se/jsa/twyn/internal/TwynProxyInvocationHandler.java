@@ -31,6 +31,7 @@ import java.util.stream.StreamSupport;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import se.jsa.twyn.BadJsonNodeTypeException;
 import se.jsa.twyn.NoSuchJsonNodeException;
 import se.jsa.twyn.TwynCollection;
 import se.jsa.twyn.TwynProxyException;
@@ -106,9 +107,15 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		Class<?> valueComponentType = annotation.value();
 		Class<?> keyType = annotation.keyType();
+		
+		JsonNode node = resolveTargetGetNode(method);
+		Require.that(node.isContainerNode(), () -> new BadJsonNodeTypeException(
+				"Did not find json map structure when resolving method=" 
+						+ method.getDeclaringClass().getSimpleName() + "." + method.getName() 
+						+ "(). Current json fragment=" + jsonNode));
 
 		return StreamSupport
-				.stream(Spliterators.spliteratorUnknownSize(resolveTargetGetNode(method).fields(), 0), annotation.parallel())
+				.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), annotation.parallel())
 				.collect(Collectors.toMap((entry) -> readKeyType(entry.getKey(), keyType), (entry) -> twynContext.proxy(entry.getValue(), valueComponentType)));
 	}
 
