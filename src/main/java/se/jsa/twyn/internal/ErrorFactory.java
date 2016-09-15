@@ -55,8 +55,11 @@ public class ErrorFactory {
 	}
 
 	public static Supplier<? extends RuntimeException> proxyCollectionJsonNotArrayType(Class<?> componentType, JsonNode node) {
+		return proxyCollectionJsonNotArrayType(componentType.getSimpleName(), node);
+	}
+	public static Supplier<? extends RuntimeException> proxyCollectionJsonNotArrayType(String componentTypeName, JsonNode node) {
 		return () -> new BadJsonNodeTypeException(
-				"Did not find collection of " + componentType.getSimpleName()
+				"Did not find collection of " + componentTypeName
 				+ " where expected. Bad json fragment=" + node);
 	}
 

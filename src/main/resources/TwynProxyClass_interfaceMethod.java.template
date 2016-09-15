@@ -1,8 +1,10 @@
 	@Override
 	public RETURN_TYPE METHOD_NAME() {
 		return cache.get("FIELD_NAME", () -> {
-			JsonNode node = jsonNode.get(FIELD_ID);
-			Require.that(node == null || node.isContainerNode(), ErrorFactory.innerProxyNoStruct("DECLARING_CLASS.METHOD_NAME", RETURN_TYPE.class.getSimpleName(), node));
+			JsonNode node = Require.notNull(
+				jsonNode.get(FIELD_ID),
+				ErrorFactory.couldNotResolveTargetNode("DECLARING_CLASS.METHOD_NAME", RETURN_TYPE.class.getSimpleName(), jsonNode));
+			Require.that(node.isContainerNode(), ErrorFactory.innerProxyNoStruct("DECLARING_CLASS.METHOD_NAME", RETURN_TYPE.class.getSimpleName(), node));
 	        try {
 	            return twyn.proxy(node, RETURN_TYPE.class);
 	        } catch (RuntimeException e) {

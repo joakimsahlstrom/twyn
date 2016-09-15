@@ -74,9 +74,9 @@ public class ErrorMessagesTest {
 		String lastName();
 	}
 
-	@Test//(expected = NoSuchJsonNodeException.class)
+	@Test(expected = NoSuchJsonNodeException.class)
 	public void missingNode() throws JsonProcessingException, IOException {
-		twyn.read("{  }", Person.class).name().firstName();
+		twyn.read("{  }", Person.class).name();
 	}
 
 	@Test(expected = NoSuchJsonNodeException.class)
@@ -84,7 +84,7 @@ public class ErrorMessagesTest {
 		twyn.read("{ \"name\": { \"banana\": \"brown\" } }", Person.class).name().firstName();
 	}
 
-	@Test(expected = NoSuchJsonNodeException.class)
+	@Test(expected = BadJsonNodeTypeException.class)
 	public void notAStruct() throws Exception {
 		twyn.read("{ \"name\": \"horse\" }", Person.class).name();
 	}
