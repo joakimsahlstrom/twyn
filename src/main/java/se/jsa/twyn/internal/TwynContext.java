@@ -83,7 +83,7 @@ public class TwynContext {
 	}
 
 	public <T, A, R> R proxyCollection(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
-		Require.that(jsonNode.isArray(), () -> new BadJsonNodeTypeException("Did not find collection of " + componentType.getSimpleName() + " where expected. Current json fragment=" + jsonNode));
+		Require.that(jsonNode.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType(componentType, jsonNode)); 
 		return StreamSupport.stream(jsonNode.spliterator(), parallel)
 				.map((n) -> {
 					try {

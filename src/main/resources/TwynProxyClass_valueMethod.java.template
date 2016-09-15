@@ -2,10 +2,11 @@
 	public RETURN_TYPE METHOD_NAME() {
 		return cache.get("FIELD_NAME", () -> {
 			try {
-				return twyn.readValue(jsonNode.get(FIELD_ID), RETURN_TYPE.class);
-			} catch (NullPointerException e) {
-				throw new se.jsa.twyn.NoSuchJsonNodeException("Could not resolve json node matching method=" 
-						+ "METHOD_NAME(). Current json fragment=" + jsonNode);
+				JsonNode node = jsonNode.get(FIELD_ID);
+				Require.notNull(node, ErrorFactory.couldNotResolveTargetNode("DECLARING_CLASS.METHOD_NAME", RETURN_TYPE.class.getSimpleName(), jsonNode));
+				return twyn.readValue(node, RETURN_TYPE.class);
+			} catch (RuntimeException e) {
+				throw e;
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

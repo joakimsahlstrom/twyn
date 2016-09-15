@@ -31,8 +31,6 @@ import java.util.stream.StreamSupport;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import se.jsa.twyn.BadJsonNodeTypeException;
-import se.jsa.twyn.NoSuchJsonNodeException;
 import se.jsa.twyn.TwynCollection;
 import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
@@ -107,13 +105,9 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		Class<?> valueComponentType = annotation.value();
 		Class<?> keyType = annotation.keyType();
-		
-		JsonNode node = resolveTargetGetNode(method);
-		Require.that(node.isContainerNode(), () -> new BadJsonNodeTypeException(
-				"Did not find json map structure when resolving method=" 
-						+ method.getDeclaringClass().getSimpleName() + "." + method.getName() 
-						+ "(). Current json fragment=" + jsonNode));
 
+		JsonNode node = resolveTargetGetNode(method);
+		Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure(method, node));
 		return StreamSupport
 				.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), annotation.parallel())
 				.collect(Collectors.toMap((entry) -> readKeyType(entry.getKey(), keyType), (entry) -> twynContext.proxy(entry.getValue(), valueComponentType)));
@@ -140,7 +134,9 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	}
 
 	private Object innerProxy(Method method) {
-		return twynContext.proxy(resolveTargetGetNode(method), method.getReturnType());
+		JsonNode node = resolveTargetGetNode(method);
+		Require.that(node.isContainerNode(), ErrorFactory.innerProxyNoStruct(method, node));
+		return twynContext.proxy(node, method.getReturnType());
 	}
 
 	private Object setValue(Object proxy, Method method, Object[] args) {
@@ -173,9 +169,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private JsonNode resolveTargetGetNode(Method method) {
 		return Require.notNull(
 				invocationHandlerNodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode),
-				() -> new NoSuchJsonNodeException("Could not resolve json node matching method=" 
-						+ method.getDeclaringClass().getSimpleName() + "." + method.getName() + "()."
-						+ " Current json fragment=" + jsonNode));
+				ErrorFactory.couldNotResolveTargetNode(method, jsonNode));
 	}
 
 	@Override

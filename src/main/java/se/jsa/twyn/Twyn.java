@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 Joakim Sahlström
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,21 +30,21 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import se.jsa.twyn.internal.Cache;
+import se.jsa.twyn.internal.ErrorFactory;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.NodeSupplier;
 import se.jsa.twyn.internal.ProxiedInterface;
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 import se.jsa.twyn.internal.ProxiedInterface.ProxiedElementClass;
 import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.TwynProxyBuilder;
 import se.jsa.twyn.internal.TwynProxyClassBuilder;
 import se.jsa.twyn.internal.TwynProxyInvocationHandlerBuilder;
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Twyn {
 	private final TwynContext twynContext;
@@ -104,19 +104,8 @@ public class Twyn {
 		proxiedInterface.getMethods().stream()
 			.filter(MethodType.ILLEGAL_TYPES_FILTER)
 			.findAny()
-			.ifPresent(m -> { throw new IllegalArgumentException(getErrorMessage(proxiedInterface, m)); });
+			.ifPresent(m -> { throw ErrorFactory.proxyValidationError(proxiedInterface, m).get(); });
 		return type;
-	}
-
-	private String getErrorMessage(ProxiedInterface type, ImplementedMethod m) {
-		switch (MethodType.getType(m)) {
-		case ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT:
-			return "Type " + type + " defines method " + m.getName() + " which is nondefault and has method arguments. Proxy cannot be created.";
-		case ILLEGAL_COLLECTION_NO_ANNOTATION:
-			return "Collection method " + m.getName() + " on type " + type.getCanonicalName() + " is missing annotation " + TwynCollection.class.getSimpleName();
-		default:
-			throw new TwynProxyException("Error message not supported for " + MethodType.class.getSimpleName() + " " + MethodType.getType(m));
-		}
 	}
 
 	public JsonNode getJsonNode(Object obj) {

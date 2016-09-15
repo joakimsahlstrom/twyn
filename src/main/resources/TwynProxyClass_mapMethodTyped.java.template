@@ -3,8 +3,7 @@
 		return cache.get("FIELD_NAME", () -> {
 			try {
 				JsonNode node = jsonNode.get(FIELD_ID);
-				Require.that(node.isContainerNode(), () -> new BadJsonNodeTypeException(
-						"Did not find json map structure when resolving method=FIELD_NAME(). Current json fragment=" + jsonNode));
+				Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure("DECLARING_CLASS.METHOD_NAME", "Map<String, COMPONENT_TYPE>", jsonNode));
 			
 				return StreamSupport
 					.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), PARALLEL)

@@ -2,6 +2,7 @@ package se.jsa.twyn;
 
 import se.jsa.twyn.BadJsonNodeTypeException;
 import se.jsa.twyn.internal.Cache;
+import se.jsa.twyn.internal.ErrorFactory;
 import se.jsa.twyn.internal.NodeSupplier;
 import se.jsa.twyn.internal.Require;
 import se.jsa.twyn.internal.TwynContext;

@@ -95,7 +95,8 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("RETURN_TYPE", method.getReturnTypeCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
+				.replaceAll("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
 	public String templateValueMethod(ImplementedMethod method, NodeResolver nodeResolver) {
@@ -103,7 +104,8 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("RETURN_TYPE", method.getReturnTypeCanonicalName())
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
-				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()));
+				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
+				.replaceAll("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
 	public String templateArrayMethod(ImplementedMethod method, NodeResolver nodeResolver) {
@@ -146,7 +148,8 @@ class TwynProxyClassJavaTemplates {
 					.replaceAll("METHOD_NAME", method.getName())
 					.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 					.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
-					.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
+					.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString())
+					.replaceAll("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 		}
 	}
 
@@ -158,7 +161,8 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replaceAll("KEY_TYPE", annotation.keyType().getCanonicalName())
-				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
+				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString())
+				.replaceAll("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
 	public String templateSetValueMethod(ImplementedMethod method, ProxiedInterface implementedType) {
