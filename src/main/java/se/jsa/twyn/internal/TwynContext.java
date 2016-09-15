@@ -30,14 +30,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import se.jsa.twyn.BadJsonNodeTypeException;
-import se.jsa.twyn.TwynProxyException;
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import se.jsa.twyn.TwynProxyException;
+import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 
 public class TwynContext {
 
@@ -83,7 +82,6 @@ public class TwynContext {
 	}
 
 	public <T, A, R> R proxyCollection(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
-		Require.that(jsonNode.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType(componentType, jsonNode)); 
 		return StreamSupport.stream(jsonNode.spliterator(), parallel)
 				.map((n) -> {
 					try {

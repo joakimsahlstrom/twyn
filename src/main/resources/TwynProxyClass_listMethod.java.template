@@ -2,7 +2,9 @@
 	public List<COMPONENT_TYPE> METHOD_NAME() {
 		return cache.get("FIELD_NAME", () -> {
 			try {
-				return collect(COMPONENT_TYPE.class, jsonNode.get(FIELD_ID), PARALLEL, Collectors.toList());
+				JsonNode node = jsonNode.get(FIELD_ID);
+				Require.that(node.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType("DECLARING_CLASS.METHOD_NAME", COMPONENT_TYPE.class.getSimpleName(), jsonNode));
+				return collect(COMPONENT_TYPE.class, node, PARALLEL, Collectors.toList());
 			} catch (RuntimeException e) {
 				throw e;
 			} catch (Exception e) {

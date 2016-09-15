@@ -98,7 +98,9 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	@SuppressWarnings("unchecked")
 	private <T, A, R> R innerCollectionProxy(Method method, Collector<T, A, R> collector) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		return twynContext.proxyCollection((Class<T>)annotation.value(), resolveTargetGetNode(method), annotation.parallel(), collector);
+		JsonNode node = resolveTargetGetNode(method);
+		Require.that(node.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType(annotation.value(), method, jsonNode));
+		return twynContext.proxyCollection((Class<T>)annotation.value(), node, annotation.parallel(), collector);
 	}
 
 	private Map<?, ?> innerMapProxy(Method method) {
@@ -130,7 +132,9 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		@SuppressWarnings("unchecked")
 		Class<T> componentType = (Class<T>) method.getReturnType().getComponentType();
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		return twynContext.proxyArray(resolveTargetGetNode(method), componentType, annotation != null ? annotation.parallel() : false);
+		JsonNode node = resolveTargetGetNode(method);
+		Require.that(node.isArray(), ErrorFactory.proxyArrayJsonNotArrayType(componentType, method, jsonNode));
+		return twynContext.proxyArray(node, componentType, annotation != null ? annotation.parallel() : false);
 	}
 
 	private Object innerProxy(Method method) {

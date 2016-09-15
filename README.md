@@ -247,8 +247,8 @@ JsonNode root = twyn.getJsonNode(contact);
 ```
 
 ##Todo:
-* @PostConstruct annotated methods
 * Improve error message for bad array mappings
+* @PostConstruct annotated methods
 * Have Optional as a return type to allow testing of values / has-methods that can test if an underlying node is present?
 * Ability to parse json that starts with a Map (eg. { \"a\" : { 1 }, \"b\" : { 2 } } w/ 
 	interface MyMap { @TwynCollection(MyNode.class) @TwynRoot Map<String, MyNode> nodes(); }

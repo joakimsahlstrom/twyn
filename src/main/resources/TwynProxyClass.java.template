@@ -46,7 +46,6 @@ public class CLASS_NAME implements TARGET_INTERFACE, NodeSupplier {
 IMPLEMENTED_METHODS
 
 	private <T, A, R> R collect(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
-		Require.that(jsonNode.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType(componentType, jsonNode));
 		return StreamSupport.stream(jsonNode.spliterator(), parallel)
 			.map((n) -> {
 				try {

@@ -115,7 +115,8 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
-				.replaceAll("PARALLEL", Boolean.valueOf(method.hasAnnotation(TwynCollection.class) && method.getAnnotation(TwynCollection.class).parallel()).toString());
+				.replaceAll("PARALLEL", Boolean.valueOf(method.hasAnnotation(TwynCollection.class) && method.getAnnotation(TwynCollection.class).parallel()).toString())
+				.replaceAll("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
 	public String templateListMethod(ImplementedMethod method, NodeResolver nodeResolver) {
@@ -125,7 +126,8 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
-				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
+				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString())
+				.replaceAll("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
 	public String templateSetMethod(ImplementedMethod method, NodeResolver nodeResolver) {
@@ -135,7 +137,8 @@ class TwynProxyClassJavaTemplates {
 				.replaceAll("METHOD_NAME", method.getName())
 				.replaceAll("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replaceAll("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
-				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString());
+				.replaceAll("PARALLEL", Boolean.valueOf(annotation.parallel()).toString())
+				.replaceAll("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
 	public String templateMapMethod(ImplementedMethod method, NodeResolver nodeResolver) {

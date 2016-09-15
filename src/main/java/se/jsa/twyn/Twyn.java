@@ -41,6 +41,7 @@ import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.NodeSupplier;
 import se.jsa.twyn.internal.ProxiedInterface;
 import se.jsa.twyn.internal.ProxiedInterface.ProxiedElementClass;
+import se.jsa.twyn.internal.Require;
 import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.TwynProxyBuilder;
 import se.jsa.twyn.internal.TwynProxyClassBuilder;
@@ -89,9 +90,13 @@ public class Twyn {
 	private <T> T read(JsonProducer jsonProducer, Class<T> type) throws JsonProcessingException, IOException {
 		try {
 			JsonNode node = jsonProducer.get();
-			return type.isArray()
-					? type.cast(twynContext.proxyArray(node, validate(type.getComponentType()), false))
-					: twynContext.proxy(node, validate(type));
+			if (type.isArray()) {
+				Class<?> componentType = type.getComponentType();
+				Require.that(node.isArray(), ErrorFactory.proxyArrayJsonNotArrayType("ROOT", componentType.getSimpleName(), node));
+				return type.cast(twynContext.proxyArray(node, validate(componentType), false));
+			} else {
+				return twynContext.proxy(node, validate(type)); 
+			}
 		} catch (IOException | RuntimeException e) { // also handles JsonProcessingException
 			throw e;
 		} catch (Exception e) {

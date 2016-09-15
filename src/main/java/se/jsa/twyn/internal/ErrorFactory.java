@@ -30,49 +30,47 @@ import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 public class ErrorFactory {
 
 	public static Supplier<? extends RuntimeException> innerProxyNoStruct(Method method, JsonNode node) {
-		return innerProxyNoStruct(
-				method.getDeclaringClass().getSimpleName() + "." + method.getName(),
-				method.getReturnType().getSimpleName(),
-				node);
+		return innerProxyNoStruct(getName(method), getReturnTypeName(method), node);
 	}
 	public static Supplier<? extends RuntimeException> innerProxyNoStruct(String methodName, String returnTypeName, JsonNode node) {
 		return () -> new BadJsonNodeTypeException(
-				"Did not find json structure matching type=" + returnTypeName
-				+ " for method=" + methodName + "(). Bad json fragment=" + node);
+				"Did not find json structure matching type=" + returnTypeName + " for method=" + methodName + "(). Bad json fragment=" + node);
 	}
 
 	public static Supplier<? extends RuntimeException> innerMapProxyNoMapStructure(Method method, JsonNode node) {
 		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		return innerMapProxyNoMapStructure(
-				method.getDeclaringClass().getSimpleName() + "." + method.getName(),
+				getName(method),
 				"Map<" + Optional.ofNullable(annotation.keyType().getSimpleName()).orElse("String") + ", " + annotation.value().getSimpleName() +">",
 				node);
 	}
 	public static Supplier<? extends RuntimeException> innerMapProxyNoMapStructure(String methodName, String returnTypeName, JsonNode node) {
 		return () -> new BadJsonNodeTypeException(
-				"Did not find json map structure when resolving type=" + returnTypeName
-				+ " for method=" + methodName + "(). Bad json fragment=" + node);
+				"Did not find json map structure when resolving type=" + returnTypeName + " for method=" + methodName + "(). Bad json fragment=" + node);
 	}
 
-	public static Supplier<? extends RuntimeException> proxyCollectionJsonNotArrayType(Class<?> componentType, JsonNode node) {
-		return proxyCollectionJsonNotArrayType(componentType.getSimpleName(), node);
+	public static Supplier<? extends RuntimeException> proxyArrayJsonNotArrayType(Class<?> componentType, Method method, JsonNode node) {
+		return proxyArrayJsonNotArrayType(getName(method), componentType.getSimpleName(), node);
 	}
-	public static Supplier<? extends RuntimeException> proxyCollectionJsonNotArrayType(String componentTypeName, JsonNode node) {
+	public static Supplier<? extends RuntimeException> proxyArrayJsonNotArrayType(String methodName, String componentTypeName, JsonNode node) {
 		return () -> new BadJsonNodeTypeException(
-				"Did not find collection of " + componentTypeName
-				+ " where expected. Bad json fragment=" + node);
+				"Did not find array of " + componentTypeName + " for method=" + methodName + "(). Bad json fragment=" + node);
+	}
+	
+	public static Supplier<? extends RuntimeException> proxyCollectionJsonNotArrayType(Class<?> componentType, Method method, JsonNode node) {
+		return proxyCollectionJsonNotArrayType(getName(method), componentType.getSimpleName(), node);
+	}
+	public static Supplier<? extends RuntimeException> proxyCollectionJsonNotArrayType(String methodName, String componentTypeName, JsonNode node) {
+		return () -> new BadJsonNodeTypeException(
+				"Did not find collection of " + componentTypeName + " for method=" + methodName + "(). Bad json fragment=" + node);
 	}
 
 	public static Supplier<? extends RuntimeException> couldNotResolveTargetNode(Method method, JsonNode node) {
-		return couldNotResolveTargetNode(
-				method.getDeclaringClass().getSimpleName() + "." + method.getName(),
-				method.getReturnType().getSimpleName(),
-				node);
+		return couldNotResolveTargetNode(getName(method), getReturnTypeName(method), node);
 	}
 	public static Supplier<? extends RuntimeException> couldNotResolveTargetNode(String methodName, String returnTypeName, JsonNode node) {
 		return () -> new NoSuchJsonNodeException(
-				"Could not resolve json node when resolving type=" + returnTypeName
-				+ " for method=" + methodName + "(). Bad json fragment=" + node);
+				"Could not resolve json node when resolving type=" + returnTypeName + " for method=" + methodName + "(). Bad json fragment=" + node);
 	}
 
 	public static Supplier<? extends RuntimeException> proxyValidationError(ProxiedInterface type, ImplementedMethod m) {
@@ -84,6 +82,16 @@ public class ErrorFactory {
 		default:
 			return () -> new TwynProxyException("Error message not supported for " + MethodType.class.getSimpleName() + " " + MethodType.getType(m));
 		}
+	}
+	
+	// Helper methods
+	
+	private static String getReturnTypeName(Method method) {
+		return method.getReturnType().getSimpleName();
+	}
+	
+	private static String getName(Method method) {
+		return method.getDeclaringClass().getSimpleName() + "." + method.getName();
 	}
 
 }
