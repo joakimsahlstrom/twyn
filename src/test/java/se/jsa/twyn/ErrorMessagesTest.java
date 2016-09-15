@@ -89,7 +89,7 @@ public class ErrorMessagesTest {
 		twyn.read("{ \"name\": \"horse\" }", Person.class).name();
 	}
 
-	@Test//(expected = BadJsonNodeTypeException.class)
+	@Test(expected = BadJsonNodeTypeException.class)
 	public void noArray() throws Exception {
 		twyn.read("{ \"persons\": \"horse\" }", Persons.class).persons()[0].name();
 	}
