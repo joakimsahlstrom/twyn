@@ -247,17 +247,15 @@ JsonNode root = twyn.getJsonNode(contact);
 ```
 
 ##Todo:
+* @PostConstruct annotated methods
+* Improve error message for bad array mappings
+* Have Optional as a return type to allow testing of values / has-methods that can test if an underlying node is present?
 * Ability to parse json that starts with a Map (eg. { \"a\" : { 1 }, \"b\" : { 2 } } w/ 
 	interface MyMap { @TwynCollection(MyNode.class) @TwynRoot Map<String, MyNode> nodes(); }
 	twyn.read(jsonResponse, MyMap.class)
 	or
 	twyn.readMap(jsonResponse, MyNode.class);
-* Ability to chose custom names for fields by using annotation (e.g. @TwynName)
-* Better defined error handling
-* has-methods that can test if an underlying node is present?
 * Delete values/structures
 * Collection modifications
-* 
-* @PostConstruct annotated methods
+* Ability to chose custom names for fields by using annotation (e.g. @TwynName)
 * Typed map should check keytype in annotation against return value of method (can it?)
-* Improve error message for bad array mappings
