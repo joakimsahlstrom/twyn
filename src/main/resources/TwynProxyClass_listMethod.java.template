@@ -4,7 +4,7 @@
 			try {
 				JsonNode node = jsonNode.get(FIELD_ID);
 				Require.that(node.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType("DECLARING_CLASS.METHOD_NAME", COMPONENT_TYPE.class.getSimpleName(), jsonNode));
-				return collect(COMPONENT_TYPE.class, node, PARALLEL, Collectors.toList());
+				return collect(COMPONENT_TYPE.class, node, Collectors.toList());
 			} catch (RuntimeException e) {
 				throw e;
 			} catch (Exception e) {

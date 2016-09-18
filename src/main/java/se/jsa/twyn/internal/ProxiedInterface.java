@@ -17,6 +17,7 @@ package se.jsa.twyn.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,11 +29,9 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 
-import se.jsa.twyn.TwynCollection;
 import se.jsa.twyn.TwynProxyException;
 
 public interface ProxiedInterface {
@@ -75,9 +74,16 @@ public interface ProxiedInterface {
 
 		String getReturnTypeCanonicalName();
 		String getReturnComponentTypeCanonicalName();
-		String getTwynCollectionTypeCanonicalName();
 		String getDeclaringClassSimpleName();
 
+		String getReturnTypeParameterTypeCanonicalName(int i);
+		default Class<?> getReturnTypeParameterType(int i) {
+			try {
+				return this.getClass().getClassLoader().loadClass(getReturnTypeParameterTypeCanonicalName(i));
+			} catch (ClassNotFoundException e) {
+				throw new TwynProxyException("Could not load expected return class=" + getReturnTypeParameterTypeCanonicalName(i), e);
+			}
+		}
 	}
 
 	class ProxiedTypeElement implements ProxiedInterface {
@@ -219,19 +225,14 @@ public interface ProxiedInterface {
 		}
 
 		@Override
-		public String getTwynCollectionTypeCanonicalName() {
-			// Butt ugly but quick and easy way to get this data
-			try {
-				getAnnotation(TwynCollection.class).value();
-				throw new TwynProxyException("Expected exception before this line!");
-			} catch (MirroredTypeException mte) {
-				return mte.getTypeMirror().toString();
-			}
-		}
-
-		@Override
 		public String getDeclaringClassSimpleName() {
 			return executableElement.getEnclosingElement().getSimpleName().toString();
+		}
+		
+		@Override
+		public String getReturnTypeParameterTypeCanonicalName(int i) {
+			DeclaredType returnType = (DeclaredType) executableElement.getReturnType();
+			return returnType.getTypeArguments().get(i).toString();
 		}
 
 		private String getCanonicalName(TypeMirror typeMirror) {
@@ -368,13 +369,14 @@ public interface ProxiedInterface {
 		}
 
 		@Override
-		public String getTwynCollectionTypeCanonicalName() {
-			return m.getAnnotation(TwynCollection.class).value().getCanonicalName();
-		}
-
-		@Override
 		public String getDeclaringClassSimpleName() {
 			return m.getDeclaringClass().getSimpleName();
+		}
+		
+		@Override
+		public String getReturnTypeParameterTypeCanonicalName(int i) {
+			ParameterizedType genericReturnType = (ParameterizedType) m.getGenericReturnType();
+			return genericReturnType.getActualTypeArguments()[i].getTypeName();
 		}
 
 		public Method getMethod() {

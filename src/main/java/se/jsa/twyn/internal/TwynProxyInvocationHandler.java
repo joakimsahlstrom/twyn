@@ -31,7 +31,6 @@ import java.util.stream.StreamSupport;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import se.jsa.twyn.TwynCollection;
 import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethodMethod;
@@ -97,21 +96,24 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 
 	@SuppressWarnings("unchecked")
 	private <T, A, R> R innerCollectionProxy(Method method, Collector<T, A, R> collector) {
-		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
+		ImplementedMethod implementedMethod = ImplementedMethod.of(method);
+		String returnTypeParameterTypeCanonicalName = implementedMethod.getReturnTypeParameterTypeCanonicalName(0);
 		JsonNode node = resolveTargetGetNode(method);
-		Require.that(node.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType(annotation.value(), method, jsonNode));
-		return twynContext.proxyCollection((Class<T>)annotation.value(), node, annotation.parallel(), collector);
+		Require.that(node.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType(returnTypeParameterTypeCanonicalName, method, jsonNode));
+		return twynContext.proxyCollection((Class<T>)implementedMethod.getReturnTypeParameterType(0), 
+				node, 
+				collector);
 	}
 
 	private Map<?, ?> innerMapProxy(Method method) {
-		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
-		Class<?> valueComponentType = annotation.value();
-		Class<?> keyType = annotation.keyType();
+		ImplementedMethod implementedMethod = ImplementedMethod.of(method);
+		Class<?> valueComponentType = implementedMethod.getReturnTypeParameterType(1);
+		Class<?> keyType = implementedMethod.getReturnTypeParameterType(0);
 
 		JsonNode node = resolveTargetGetNode(method);
 		Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure(method, node));
 		return StreamSupport
-				.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), annotation.parallel())
+				.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), false)
 				.collect(Collectors.toMap((entry) -> readKeyType(entry.getKey(), keyType), (entry) -> twynContext.proxy(entry.getValue(), valueComponentType)));
 	}
 
@@ -131,10 +133,9 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private <T> Object innerArrayProxy(Method method) {
 		@SuppressWarnings("unchecked")
 		Class<T> componentType = (Class<T>) method.getReturnType().getComponentType();
-		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
 		JsonNode node = resolveTargetGetNode(method);
 		Require.that(node.isArray(), ErrorFactory.proxyArrayJsonNotArrayType(componentType, method, jsonNode));
-		return twynContext.proxyArray(node, componentType, annotation != null ? annotation.parallel() : false);
+		return twynContext.proxyArray(node, componentType);
 	}
 
 	private Object innerProxy(Method method) {

@@ -16,14 +16,13 @@
 package se.jsa.twyn.internal;
 
 import java.lang.reflect.Method;
-import java.util.Optional;
+import java.lang.reflect.ParameterizedType;
 import java.util.function.Supplier;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import se.jsa.twyn.BadJsonNodeTypeException;
 import se.jsa.twyn.NoSuchJsonNodeException;
-import se.jsa.twyn.TwynCollection;
 import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 
@@ -38,10 +37,10 @@ public class ErrorFactory {
 	}
 
 	public static Supplier<? extends RuntimeException> innerMapProxyNoMapStructure(Method method, JsonNode node) {
-		TwynCollection annotation = method.getAnnotation(TwynCollection.class);
+		ParameterizedType genericReturnType = (ParameterizedType) method.getGenericReturnType();
 		return innerMapProxyNoMapStructure(
 				getName(method),
-				"Map<" + Optional.ofNullable(annotation.keyType().getSimpleName()).orElse("String") + ", " + annotation.value().getSimpleName() +">",
+				"Map<" + genericReturnType.getActualTypeArguments()[0].getTypeName() + ", " + genericReturnType.getActualTypeArguments()[1].getTypeName() +">",
 				node);
 	}
 	public static Supplier<? extends RuntimeException> innerMapProxyNoMapStructure(String methodName, String returnTypeName, JsonNode node) {
@@ -57,8 +56,8 @@ public class ErrorFactory {
 				"Did not find array of " + componentTypeName + " for method=" + methodName + "(). Bad json fragment=" + node);
 	}
 	
-	public static Supplier<? extends RuntimeException> proxyCollectionJsonNotArrayType(Class<?> componentType, Method method, JsonNode node) {
-		return proxyCollectionJsonNotArrayType(getName(method), componentType.getSimpleName(), node);
+	public static Supplier<? extends RuntimeException> proxyCollectionJsonNotArrayType(String componentTypeName, Method method, JsonNode node) {
+		return proxyCollectionJsonNotArrayType(getName(method), componentTypeName, node);
 	}
 	public static Supplier<? extends RuntimeException> proxyCollectionJsonNotArrayType(String methodName, String componentTypeName, JsonNode node) {
 		return () -> new BadJsonNodeTypeException(
@@ -77,8 +76,6 @@ public class ErrorFactory {
 		switch (MethodType.getType(m)) {
 		case ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT:
 			return () -> new IllegalArgumentException("Type " + type + " defines method " + m.getName() + " which is nondefault and has method arguments. Proxy cannot be created.");
-		case ILLEGAL_COLLECTION_NO_ANNOTATION:
-			return () -> new IllegalArgumentException("Collection method " + m.getName() + " on type " + type.getCanonicalName() + " is missing annotation " + TwynCollection.class.getSimpleName());
 		default:
 			return () -> new TwynProxyException("Error message not supported for " + MethodType.class.getSimpleName() + " " + MethodType.getType(m));
 		}

@@ -19,7 +19,7 @@ import java.util.List;
 
 public interface InterfaceHolder {
 
-	@TwynCollection(String.class) List<String> string();
+	List<String> string();
 
 	public static interface Inner {
 		String getName();

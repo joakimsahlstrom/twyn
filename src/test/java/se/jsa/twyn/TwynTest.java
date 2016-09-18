@@ -64,8 +64,7 @@ public class TwynTest {
 	}
 
 	private static final Collection<Class<?>> INTENTIONALLY_BROKEN_INTERFACES = Arrays.asList(
-			InterfaceWithNonDefaultMethodWithParameters.class,
-			NoAnnotCollectionIF.class);
+			InterfaceWithNonDefaultMethodWithParameters.class);
 	private static Collection<Class<?>> getInterfaces() {
 		return Arrays.asList(TwynTest.class.getDeclaredClasses()).stream()
 			.filter(c -> c.isInterface() && !INTENTIONALLY_BROKEN_INTERFACES.contains(c))
@@ -216,18 +215,6 @@ public class TwynTest {
 		assertEquals("s3#", complexArray.getStrings().get(2).getName());
 	}
 	public static interface ListIF {
-		@TwynCollection(StringIF.class)
-		List<StringIF> getStrings();
-	}
-
-	@Test
-	public void canReadComplexListParallel() throws Exception {
-		ParallelListIF complexArray = twyn.read("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }", ParallelListIF.class);
-		assertEquals("s2?", complexArray.getStrings().get(1).getName());
-		assertEquals("s3#", complexArray.getStrings().get(2).getName());
-	}
-	public static interface ParallelListIF {
-		@TwynCollection(value = StringIF.class, parallel = true)
 		List<StringIF> getStrings();
 	}
 
@@ -250,7 +237,6 @@ public class TwynTest {
 		assertEquals("s1!", maps.data().get("k1").getName());
 	}
 	public static interface MapIF {
-		@TwynCollection(StringIF.class)
 		Map<String, StringIF> data();
 	}
 
@@ -261,7 +247,6 @@ public class TwynTest {
 		assertEquals("s1!", maps.data().get(new MyKey("k1")).getName());
 	}
 	public static interface MapIFComplexKey {
-		@TwynCollection(value=StringIF.class, keyType=MyKey.class)
 		Map<MyKey, StringIF> data();
 	}
 	public static class MyKey {
@@ -311,15 +296,12 @@ public class TwynTest {
 	public static interface Offspring {
 		Daughter[] daughters();
 
-		@TwynCollection(Nick.class)
 		Map<String, Nick> daughterNickNames();
 
 		String[] sons();
 
-		@TwynCollection(Entity.class)
 		List<Entity> getUnknowns();
 
-		@TwynCollection(Song.class)
 		Set<Song> songs();
 	}
 	public static interface Daughter {
@@ -430,7 +412,6 @@ public class TwynTest {
 		assertEquals(2, complexArray.getStrings().size());
 	}
 	public static interface SetIF {
-		@TwynCollection(StringIF.class)
 		Set<StringIF> getStrings();
 	}
 
@@ -571,7 +552,6 @@ public class TwynTest {
 		stringList.toString();
 	}
 	public static interface StringList {
-		@TwynCollection(String.class)
 		List<String> get();
 	}
 
@@ -606,13 +586,6 @@ public class TwynTest {
 		assertEquals(2, elements[1].index());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void nonAnnotatedCollectionMethodResultsInIllegalArgumentException() throws Exception {
-		twyn.read("{ \"col\" : [] }", NoAnnotCollectionIF.class);
-	}
-	public static interface NoAnnotCollectionIF {
-		List<ArrayElement> col();
-	}
 
 	// Helper methods
 

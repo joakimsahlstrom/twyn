@@ -34,7 +34,8 @@
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- 
+		
+		<!--
 		<dependency>
 			<groupId>com.google.testing.compile</groupId>
 			<artifactId>compile-testing</artifactId>
@@ -47,7 +48,7 @@
 			<version>18.0</version>
 			<scope>test</scope>
 		</dependency>
-		 -->
+		-->
 	</dependencies>
 	
 	<build>

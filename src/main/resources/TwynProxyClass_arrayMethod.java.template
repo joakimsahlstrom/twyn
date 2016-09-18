@@ -4,7 +4,7 @@
 			try {
 				JsonNode node = jsonNode.get(FIELD_ID);
 				Require.that(node.isArray(), ErrorFactory.proxyArrayJsonNotArrayType("DECLARING_CLASS.METHOD_NAME", COMPONENT_TYPE.class.getSimpleName(), jsonNode));
-				List<COMPONENT_TYPE> result = collect(COMPONENT_TYPE.class, node, PARALLEL, Collectors.toList());
+				List<COMPONENT_TYPE> result = collect(COMPONENT_TYPE.class, node, Collectors.toList());
 				return result.toArray((COMPONENT_TYPE[]) Array.newInstance(COMPONENT_TYPE.class, result.size()));
 			} catch (RuntimeException e) {
 				throw e;

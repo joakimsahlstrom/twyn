@@ -55,22 +55,18 @@ public class ErrorMessagesTest {
 	}
 
 	public interface PersonMap {
-		@TwynCollection(Person.class)
 		Map<String, Person> persons();
 	}
 	
 	public interface PersonList {
-		@TwynCollection(Person.class)
 		List<Person> persons();
 	}
 	
 	public interface PersonSet {
-		@TwynCollection(Person.class)
 		Set<Person> persons();
 	}
 
 	public interface TypedPersonMap {
-		@TwynCollection(value = Person.class, keyType = Key.class)
 		Map<Key, Person> persons();
 	}
 

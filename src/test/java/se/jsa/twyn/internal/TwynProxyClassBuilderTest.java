@@ -21,8 +21,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import se.jsa.twyn.TwynCollection;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -57,7 +55,6 @@ public class TwynProxyClassBuilderTest {
 		assertEquals("s3#", complexArray.getStrings().get(2).getName());
 	}
 	public static interface ListIF {
-		@TwynCollection(StringIF.class)
 		List<StringIF> getStrings();
 	}
 

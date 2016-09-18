@@ -93,7 +93,7 @@ public class Twyn {
 			if (type.isArray()) {
 				Class<?> componentType = type.getComponentType();
 				Require.that(node.isArray(), ErrorFactory.proxyArrayJsonNotArrayType("ROOT", componentType.getSimpleName(), node));
-				return type.cast(twynContext.proxyArray(node, validate(componentType), false));
+				return type.cast(twynContext.proxyArray(node, validate(componentType)));
 			} else {
 				return twynContext.proxy(node, validate(type)); 
 			}

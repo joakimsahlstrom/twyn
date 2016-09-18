@@ -45,8 +45,8 @@ public class CLASS_NAME implements TARGET_INTERFACE, NodeSupplier {
 	
 IMPLEMENTED_METHODS
 
-	private <T, A, R> R collect(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
-		return StreamSupport.stream(jsonNode.spliterator(), parallel)
+	private <T, A, R> R collect(Class<T> componentType, JsonNode jsonNode, Collector<T, A, R> collector) {
+		return StreamSupport.stream(jsonNode.spliterator(), false)
 			.map((n) -> {
 				try {
 					return componentType.isInterface() ? twyn.proxy(n, componentType) : twyn.readValue(n, componentType);

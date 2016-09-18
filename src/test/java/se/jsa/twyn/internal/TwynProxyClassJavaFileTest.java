@@ -24,7 +24,6 @@ import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import se.jsa.twyn.TwynCollection;
 import se.jsa.twyn.TwynIndex;
 import se.jsa.twyn.TwynTest;
 import se.jsa.twyn.TwynTest.StringIF;
@@ -42,15 +41,12 @@ public class TwynProxyClassJavaFileTest {
 
 		Daughter[] daughters();
 
-		@TwynCollection(value = Nick.class, parallel = true)
 		Map<String, Nick> daughterNickNames();
 
 		String[] sons();
 
-		@TwynCollection(Entity.class)
 		List<Entity> getUnknowns();
 
-		@TwynCollection(Song.class)
 		Set<Song> songs();
 	}
 	public static interface Daughter {
@@ -75,7 +71,6 @@ public class TwynProxyClassJavaFileTest {
 //		System.out.println(getCode(ArrayElement.class).getCode());
 	}
 	public static interface SetIF {
-		@TwynCollection(StringIF.class)
 		Set<StringIF> getStrings();
 	}
 

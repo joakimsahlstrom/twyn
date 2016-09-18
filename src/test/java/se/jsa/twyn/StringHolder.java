@@ -19,6 +19,6 @@ import java.util.List;
 
 public interface StringHolder {
 
-	@TwynCollection(String.class) List<String> string();
+	List<String> string();
 
 }

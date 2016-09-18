@@ -100,18 +100,13 @@ Can be mapped with:
 interface Offspring {
 	Daughter[] daughters();
 	
-	@TwynCollection(Nick.class) // Collections without this annotation are ignored
 	Map<String, Nick> daughterNickNames();
-	
-	@TwynCollection(value=Nick.class, keyType=DaughterKey.class)
 	Map<DaughterKey, Nick> getDaughterNickNames(); // Typed key must have constructor(String)
 	
 	String[] sons();
 	
-	@TwynCollection(Entity.class) // ...goes for all collection types
 	List<Entity> getUnknowns();
 	
-	@TwynCollection(Song.class)
 	Set<Song> songs(); // Object equality is described below
 }
 interface Daughter {
@@ -211,17 +206,6 @@ public static interface ArrayObject {
 ```
 A twyn proxy for this class will generated directly at compile-time. Use the configuration .withClassGeneration() in order to use the generated class(es). 
 
-###Twyn can process collections in parallel
-```java
-interface Offspring {
-	// ...
-	@TwynCollection(value = Nick.class, parallel = true)
-	Map<String, Nick> daughterNickNames();
-	// ...
-}
-```
-Likely only efficient for large collections
-
 ###Twyn supports toString, hashCode and equals
 Equals and hashCode are calculated from all mapped values, or, if any, those annotated with @TwynId.
 toString prints the values that equals and hashCode are calculated from.
@@ -251,7 +235,7 @@ JsonNode root = twyn.getJsonNode(contact);
 * @PostConstruct annotated methods
 * Have Optional as a return type to allow testing of values / has-methods that can test if an underlying node is present?
 * Ability to parse json that starts with a Map (eg. { \"a\" : { 1 }, \"b\" : { 2 } } w/ 
-	interface MyMap { @TwynCollection(MyNode.class) @TwynRoot Map<String, MyNode> nodes(); }
+	interface MyMap { @TwynRoot Map<String, MyNode> nodes(); }
 	twyn.read(jsonResponse, MyMap.class)
 	or
 	twyn.readMap(jsonResponse, MyNode.class);

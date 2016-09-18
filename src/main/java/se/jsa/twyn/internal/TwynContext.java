@@ -76,13 +76,13 @@ public class TwynContext {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> Object proxyArray(JsonNode node, Class<T> componentType, boolean parallel) {
-		List<T> result = proxyCollection(componentType, node, parallel, Collectors.toList());
+	public <T> Object proxyArray(JsonNode node, Class<T> componentType) {
+		List<T> result = proxyCollection(componentType, node, Collectors.toList());
 		return result.toArray((T[]) Array.newInstance(componentType, result.size()));
 	}
 
-	public <T, A, R> R proxyCollection(Class<T> componentType, JsonNode jsonNode, boolean parallel, Collector<T, A, R> collector) {
-		return StreamSupport.stream(jsonNode.spliterator(), parallel)
+	public <T, A, R> R proxyCollection(Class<T> componentType, JsonNode jsonNode, Collector<T, A, R> collector) {
+		return StreamSupport.stream(jsonNode.spliterator(), false)
 				.map((n) -> {
 					try {
 						return componentType.isInterface() ? proxy(n, componentType) : readValue(n, componentType);

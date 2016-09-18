@@ -14,22 +14,9 @@
  * limitations under the License.
  */
 package se.jsa.twyn.internal;
-/*
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import org.junit.Test;
-import org.truth0.Truth;
-
-import se.jsa.twyn.InterfaceHolder;
-import se.jsa.twyn.Simple;
-import se.jsa.twyn.StringHolder;
-
-import com.google.testing.compile.JavaFileObjects;
-import com.google.testing.compile.JavaSourceSubjectFactory;
 
 public class TwynProcessorTest {
-
+/*
 	@Test
 	public void canGenerateProxyJavaFileWithAP() throws Exception {
 		Truth.ASSERT.about(JavaSourceSubjectFactory.javaSource())
@@ -52,7 +39,7 @@ public class TwynProcessorTest {
 					"package se.jsa.twyn;"
 					+ "@se.jsa.twyn.TwynProxy\n"
 					+ "public interface StringHolder {\n"
-					+ "@TwynCollection(String.class) java.util.List<String> string();\n"
+					+ " java.util.List<String> string();\n"
 					+ "}"))
 			.processedWith(new TwynProcessor())
 			.compilesWithoutError()
@@ -67,7 +54,7 @@ public class TwynProcessorTest {
 				"package se.jsa.twyn;"
 				+ "@se.jsa.twyn.TwynProxy\n"
 				+ "public interface InterfaceHolder {\n"
-				+ "@TwynCollection(String.class) java.util.List<String> string();\n"
+				+ " java.util.List<String> string();\n"
 				+ "   public static interface Inner {\n"
 				+ "		String getName();\n"
 				+ "   }"
@@ -88,6 +75,5 @@ public class TwynProcessorTest {
 				new IdentityMethods(),
 				false).getCode();
 	}
-
-}
 */
+}
