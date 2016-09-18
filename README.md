@@ -238,8 +238,7 @@ JsonNode root = twyn.getJsonNode(contact);
 	interface MyMap { @TwynRoot Map<String, MyNode> nodes(); }
 	twyn.read(jsonResponse, MyMap.class)
 	or
-	twyn.readMap(jsonResponse, MyNode.class);
+	twyn.readMap(jsonResponse, MyNode.class) )
 * Delete values/structures
 * Collection modifications
 * Ability to chose custom names for fields by using annotation (e.g. @TwynName)
-* Typed map should check keytype in annotation against return value of method (can it?)
