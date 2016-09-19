@@ -28,7 +28,7 @@ import se.jsa.twyn.internal.IdentityMethods;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
-import se.jsa.twyn.internal.write.NodeResolver;
+import se.jsa.twyn.internal.write.common.NodeResolver;
 
 class TwynProxyClassJavaFile {
 	private final String code;

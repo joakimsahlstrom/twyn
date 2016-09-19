@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import se.jsa.twyn.TwynProxyException;
 
-public class DefaultMethodLookup {
+class DefaultMethodLookup {
 	private final Constructor<MethodHandles.Lookup> methodHandleLookupConstructor;
 	
 	public DefaultMethodLookup() {

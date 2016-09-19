@@ -23,8 +23,8 @@ import java.util.Objects;
 
 import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
-import se.jsa.twyn.internal.write.NodeResolver;
-import se.jsa.twyn.internal.write.TwynUtil;
+import se.jsa.twyn.internal.write.common.NodeResolver;
+import se.jsa.twyn.internal.write.common.TwynUtil;
 
 class TwynProxyClassJavaTemplates {
 

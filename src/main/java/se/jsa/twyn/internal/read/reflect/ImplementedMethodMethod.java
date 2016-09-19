@@ -19,9 +19,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 
-import se.jsa.twyn.internal.read.ClassType;
 import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
+import se.jsa.twyn.internal.read.common.ClassType;
 
 public class ImplementedMethodMethod implements ImplementedMethod {
 	private final Method m;

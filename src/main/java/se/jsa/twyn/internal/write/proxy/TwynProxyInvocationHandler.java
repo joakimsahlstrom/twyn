@@ -41,9 +41,8 @@ import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.reflect.ImplementedMethodMethod;
 import se.jsa.twyn.internal.read.reflect.ProxiedInterfaceClass;
-import se.jsa.twyn.internal.write.BasicJsonTypes;
-import se.jsa.twyn.internal.write.NodeResolver;
-import se.jsa.twyn.internal.write.TwynUtil;
+import se.jsa.twyn.internal.write.common.NodeResolver;
+import se.jsa.twyn.internal.write.common.TwynUtil;
 
 class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private static final Object[] NO_ARGS = new Object[] {};

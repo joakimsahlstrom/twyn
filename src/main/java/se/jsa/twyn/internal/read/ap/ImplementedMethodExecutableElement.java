@@ -28,9 +28,9 @@ import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 
 import se.jsa.twyn.TwynProxyException;
-import se.jsa.twyn.internal.read.ClassType;
 import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
+import se.jsa.twyn.internal.read.common.ClassType;
 
 public class ImplementedMethodExecutableElement implements ImplementedMethod {
 	private final ExecutableElement executableElement;
