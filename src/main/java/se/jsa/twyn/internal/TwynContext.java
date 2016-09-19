@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -36,7 +35,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import se.jsa.twyn.TwynProxyException;
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
+import se.jsa.twyn.internal.write.TwynProxyBuilder;
+import se.jsa.twyn.internal.write.TwynProxyClassBuilder;
 
 public class TwynContext {
 
@@ -109,11 +109,7 @@ public class TwynContext {
 		return cacheSupplier.get();
 	}
 
-	Stream<ImplementedMethod> getIdentityMethods(ProxiedInterface implementedType) {
-		return identityMethods.getIdentityMethods(implementedType);
-	}
-
-	IdentityMethods getIdentityMethod() {
+	public IdentityMethods getIdentityMethod() {
 		return identityMethods;
 	}
 

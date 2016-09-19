@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.write;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import se.jsa.twyn.internal.TwynContext;
 
 public interface TwynProxyBuilder {
 	<T> T buildProxy(Class<T> type, TwynContext twynContext, JsonNode jsonNode);

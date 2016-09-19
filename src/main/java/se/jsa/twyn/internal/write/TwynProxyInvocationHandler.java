@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.write;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
@@ -32,9 +32,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import se.jsa.twyn.TwynProxyException;
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethodMethod;
-import se.jsa.twyn.internal.ProxiedInterface.ProxiedElementClass;
+import se.jsa.twyn.internal.Cache;
+import se.jsa.twyn.internal.ErrorFactory;
+import se.jsa.twyn.internal.MethodType;
+import se.jsa.twyn.internal.NodeSupplier;
+import se.jsa.twyn.internal.Require;
+import se.jsa.twyn.internal.TwynContext;
+import se.jsa.twyn.internal.read.ProxiedInterface.ImplementedMethod;
+import se.jsa.twyn.internal.read.ProxiedInterface.ImplementedMethodMethod;
+import se.jsa.twyn.internal.read.ProxiedInterface.ProxiedElementClass;
 
 class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private static final Object[] NO_ARGS = new Object[] {};
@@ -185,7 +191,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	@Override
 	public String toString() {
 		return "TwynInvocationHandler<" + implementedType.getSimpleName() + "> [" +
-				twynContext.getIdentityMethods(implementedType)
+				twynContext.getIdentityMethod().getIdentityMethods(implementedType)
 				.map((m) -> {
 					try {
 						return m.getName() + "()=" + this.invoke(null, getMethod(m), NO_ARGS).toString();
@@ -206,7 +212,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		if (!implementedType.isAssignableFrom(obj.getClass())) {
 			return false;
 		}
-		return twynContext.getIdentityMethods(implementedType)
+		return twynContext.getIdentityMethod().getIdentityMethods(implementedType)
 			.allMatch((m) -> {
 				try {
 					return Objects.equals(getMethod(m).invoke(obj), this.invoke(null, getMethod(m), NO_ARGS));
@@ -218,7 +224,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(twynContext.getIdentityMethods(implementedType)
+		return Objects.hash(twynContext.getIdentityMethod().getIdentityMethods(implementedType)
 				.map((m) -> {
 					try {
 						return this.invoke(null, getMethod(m), NO_ARGS);

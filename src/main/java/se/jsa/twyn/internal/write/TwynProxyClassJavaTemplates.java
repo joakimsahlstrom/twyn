@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.write;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -21,7 +21,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
+import se.jsa.twyn.internal.read.ProxiedInterface;
+import se.jsa.twyn.internal.read.ProxiedInterface.ImplementedMethod;
 
 class TwynProxyClassJavaTemplates {
 

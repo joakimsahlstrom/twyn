@@ -23,7 +23,8 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import se.jsa.twyn.TwynProxyException;
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
+import se.jsa.twyn.internal.read.ProxiedInterface;
+import se.jsa.twyn.internal.read.ProxiedInterface.ImplementedMethod;
 
 public enum MethodType implements Predicate<ProxiedInterface.ImplementedMethod> {
 	ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT(m -> !m.isDefault() && m.getNumParameters() > 1),

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.read;
 
 import javax.lang.model.type.PrimitiveType;
 
-public class PrimitiveTypeMap {
+class PrimitiveTypeMap {
 
 	public static Class<?> toPrimitive(PrimitiveType primitiveType) {
 		switch (primitiveType.getKind()) {

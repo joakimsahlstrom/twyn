@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.write;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -23,8 +23,11 @@ import java.util.stream.Collectors;
 
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 import se.jsa.twyn.TwynProxyException;
+import se.jsa.twyn.internal.IdentityMethods;
+import se.jsa.twyn.internal.MethodType;
+import se.jsa.twyn.internal.read.ProxiedInterface;
+import se.jsa.twyn.internal.read.ProxiedInterface.ImplementedMethod;
 
 class TwynProxyClassJavaFile {
 	private final String code;

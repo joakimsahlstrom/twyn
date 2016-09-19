@@ -39,13 +39,13 @@ import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.ErrorFactory;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.NodeSupplier;
-import se.jsa.twyn.internal.ProxiedInterface;
-import se.jsa.twyn.internal.ProxiedInterface.ProxiedElementClass;
 import se.jsa.twyn.internal.Require;
 import se.jsa.twyn.internal.TwynContext;
-import se.jsa.twyn.internal.TwynProxyBuilder;
-import se.jsa.twyn.internal.TwynProxyClassBuilder;
-import se.jsa.twyn.internal.TwynProxyInvocationHandlerBuilder;
+import se.jsa.twyn.internal.read.ProxiedInterface;
+import se.jsa.twyn.internal.read.ProxiedInterface.ProxiedElementClass;
+import se.jsa.twyn.internal.write.TwynProxyBuilder;
+import se.jsa.twyn.internal.write.TwynProxyClassBuilder;
+import se.jsa.twyn.internal.write.TwynProxyInvocationHandlerBuilder;
 
 public class Twyn {
 	private final TwynContext twynContext;

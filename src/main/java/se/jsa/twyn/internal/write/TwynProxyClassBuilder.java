@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.write;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +28,8 @@ import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
 
 import se.jsa.twyn.TwynProxyException;
+import se.jsa.twyn.internal.TwynContext;
+import se.jsa.twyn.internal.read.ProxiedInterface;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
