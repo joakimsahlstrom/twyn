@@ -38,20 +38,20 @@ import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.NodeSupplier;
 import se.jsa.twyn.internal.Require;
 import se.jsa.twyn.internal.TwynContext;
-import se.jsa.twyn.internal.read.ProxiedInterface.ImplementedMethod;
-import se.jsa.twyn.internal.read.ProxiedInterface.ImplementedMethodMethod;
-import se.jsa.twyn.internal.read.ProxiedInterface.ProxiedElementClass;
+import se.jsa.twyn.internal.read.ImplementedMethod;
+import se.jsa.twyn.internal.read.reflect.ImplementedMethodMethod;
+import se.jsa.twyn.internal.read.reflect.ProxiedInterfaceClass;
 
 class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private static final Object[] NO_ARGS = new Object[] {};
 
 	private final JsonNode jsonNode;
 	private final TwynContext twynContext;
-	private final ProxiedElementClass implementedType;
+	private final ProxiedInterfaceClass implementedType;
 	private final Cache cache;
 	private final NodeResolver invocationHandlerNodeResolver;
 
-	public TwynProxyInvocationHandler(JsonNode jsonNode, TwynContext twynContext, ProxiedElementClass implementedType) {
+	public TwynProxyInvocationHandler(JsonNode jsonNode, TwynContext twynContext, ProxiedInterfaceClass implementedType) {
 		this.jsonNode = jsonNode;
 		this.twynContext = Objects.requireNonNull(twynContext);
 		this.implementedType = Objects.requireNonNull(implementedType);
@@ -59,7 +59,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		this.invocationHandlerNodeResolver = NodeResolver.getResolver(implementedType);
 	}
 
-	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext, ProxiedElementClass implementedType) throws Exception {
+	public static TwynProxyInvocationHandler create(JsonNode jsonNode, TwynContext twynContext, ProxiedInterfaceClass implementedType) throws Exception {
 		return new TwynProxyInvocationHandler(jsonNode, twynContext, implementedType);
 	}
 

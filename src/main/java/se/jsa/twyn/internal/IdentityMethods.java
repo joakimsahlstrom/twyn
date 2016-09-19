@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import se.jsa.twyn.TwynId;
+import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
-import se.jsa.twyn.internal.read.ProxiedInterface.ImplementedMethod;
 
 public class IdentityMethods {
 	private final Map<ProxiedInterface, List<ImplementedMethod>> methods = new ConcurrentHashMap<ProxiedInterface, List<ImplementedMethod>>();

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal.read;
+package se.jsa.twyn.internal.read.element;
 
 import javax.lang.model.type.PrimitiveType;
 

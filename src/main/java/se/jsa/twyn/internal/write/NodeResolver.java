@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 
 import se.jsa.twyn.TwynIndex;
 import se.jsa.twyn.internal.MethodType;
+import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
-import se.jsa.twyn.internal.read.ProxiedInterface.ImplementedMethod;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

@@ -24,8 +24,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import se.jsa.twyn.BadJsonNodeTypeException;
 import se.jsa.twyn.NoSuchJsonNodeException;
 import se.jsa.twyn.TwynProxyException;
+import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
-import se.jsa.twyn.internal.read.ProxiedInterface.ImplementedMethod;
 
 public class ErrorFactory {
 

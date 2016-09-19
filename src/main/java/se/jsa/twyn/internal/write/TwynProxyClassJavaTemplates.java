@@ -21,8 +21,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
-import se.jsa.twyn.internal.read.ProxiedInterface.ImplementedMethod;
 
 class TwynProxyClassJavaTemplates {
 

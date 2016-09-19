@@ -42,7 +42,7 @@ import se.jsa.twyn.internal.NodeSupplier;
 import se.jsa.twyn.internal.Require;
 import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.read.ProxiedInterface;
-import se.jsa.twyn.internal.read.ProxiedInterface.ProxiedElementClass;
+import se.jsa.twyn.internal.read.reflect.ProxiedInterfaceClass;
 import se.jsa.twyn.internal.write.TwynProxyBuilder;
 import se.jsa.twyn.internal.write.TwynProxyClassBuilder;
 import se.jsa.twyn.internal.write.TwynProxyInvocationHandlerBuilder;
@@ -105,7 +105,7 @@ public class Twyn {
 	}
 
 	private <T> Class<T> validate(Class<T> type) {
-		ProxiedElementClass proxiedInterface = ProxiedInterface.of(type);
+		ProxiedInterfaceClass proxiedInterface = ProxiedInterface.of(type);
 		proxiedInterface.getMethods().stream()
 			.filter(MethodType.ILLEGAL_TYPES_FILTER)
 			.findAny()
