@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal.write;
+package se.jsa.twyn.internal.write.proxy;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
@@ -41,6 +41,9 @@ import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.reflect.ImplementedMethodMethod;
 import se.jsa.twyn.internal.read.reflect.ProxiedInterfaceClass;
+import se.jsa.twyn.internal.write.BasicJsonTypes;
+import se.jsa.twyn.internal.write.NodeResolver;
+import se.jsa.twyn.internal.write.TwynUtil;
 
 class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private static final Object[] NO_ARGS = new Object[] {};

@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class TwynUtil {
+public class TwynUtil {
 
 	// Getter helpers
 

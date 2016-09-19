@@ -44,8 +44,8 @@ import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.read.ProxiedInterface;
 import se.jsa.twyn.internal.read.reflect.ProxiedInterfaceClass;
 import se.jsa.twyn.internal.write.TwynProxyBuilder;
-import se.jsa.twyn.internal.write.TwynProxyClassBuilder;
-import se.jsa.twyn.internal.write.TwynProxyInvocationHandlerBuilder;
+import se.jsa.twyn.internal.write.cg.TwynProxyClassBuilder;
+import se.jsa.twyn.internal.write.proxy.TwynProxyInvocationHandlerBuilder;
 
 public class Twyn {
 	private final TwynContext twynContext;

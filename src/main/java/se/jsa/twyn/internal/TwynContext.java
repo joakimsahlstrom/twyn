@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.write.TwynProxyBuilder;
-import se.jsa.twyn.internal.write.TwynProxyClassBuilder;
+import se.jsa.twyn.internal.write.cg.TwynProxyClassBuilder;
 
 public class TwynContext {
 

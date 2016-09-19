@@ -22,14 +22,14 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import se.jsa.twyn.TwynIndex;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-interface NodeResolver  {
+public interface NodeResolver  {
 
 	JsonNode resolveNode(ImplementedMethod method, JsonNode root);
 	static Predicate<ImplementedMethod> WITH_TWYNINDEX = m -> m.hasAnnotation(TwynIndex.class);

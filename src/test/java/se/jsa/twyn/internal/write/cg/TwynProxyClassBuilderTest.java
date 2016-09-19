@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal.write;
+package se.jsa.twyn.internal.write.cg;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,8 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.TwynContext;
 import se.jsa.twyn.internal.Cache.None;
-
-import se.jsa.twyn.internal.write.TwynProxyClassBuilder;
+import se.jsa.twyn.internal.write.cg.TwynProxyClassBuilder;
 
 public class TwynProxyClassBuilderTest {
 

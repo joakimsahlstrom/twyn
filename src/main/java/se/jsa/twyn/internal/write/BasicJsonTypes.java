@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-enum BasicJsonTypes implements Predicate<Class<?>> {
+public enum BasicJsonTypes implements Predicate<Class<?>> {
 	BIG_DECIMAL(BigDecimal.class),
 	BOOLEAN(Boolean.class),
 	BYTE_ARRAY(byte[].class),

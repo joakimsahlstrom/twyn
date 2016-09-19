@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal.write;
+package se.jsa.twyn.internal.write.cg;
 
 import static javax.tools.StandardLocation.CLASS_PATH;
 
