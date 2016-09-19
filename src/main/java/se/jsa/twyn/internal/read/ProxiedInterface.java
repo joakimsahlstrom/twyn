@@ -19,7 +19,7 @@ import java.util.Collection;
 
 import javax.lang.model.element.TypeElement;
 
-import se.jsa.twyn.internal.read.element.ProxiedInterfaceTypeElement;
+import se.jsa.twyn.internal.read.ap.ProxiedInterfaceTypeElement;
 import se.jsa.twyn.internal.read.reflect.ProxiedInterfaceClass;
 
 public interface ProxiedInterface {
