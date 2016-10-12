@@ -3,8 +3,7 @@
 		return cache.get("FIELD_NAME", () -> {
 			try {
 				JsonNode node = jsonNode.get(FIELD_ID);
-				Require.notNull(node, ErrorFactory.couldNotResolveTargetNode("DECLARING_CLASS.METHOD_NAME", RETURN_TYPE.class.getSimpleName(), jsonNode));
-				return twyn.readValue(node, RETURN_TYPE.class);
+				return node == null ? null : twyn.readValue(node, RETURN_TYPE.class);
 			} catch (RuntimeException e) {
 				throw e;
 			} catch (Exception e) {

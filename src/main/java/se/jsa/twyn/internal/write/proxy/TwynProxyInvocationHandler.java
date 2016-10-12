@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Spliterators;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -149,9 +150,10 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	}
 
 	private Object innerProxy(Method method) {
-		JsonNode node = resolveTargetGetNode(method);
-		Require.that(node.isContainerNode(), ErrorFactory.innerProxyNoStruct(method, node));
-		return twynContext.proxy(node, method.getReturnType());
+		return tryResolveTargetGetNode(method).map(node -> {
+			Require.that(node.isContainerNode(), ErrorFactory.innerProxyNoStruct(method, node));
+			return twynContext.proxy(node, method.getReturnType());
+		}).orElse(null);
 	}
 
 	private Object setValue(Object proxy, Method method, Object[] args) {
@@ -174,19 +176,24 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	}
 
 	private Object resolveValue(Method method) {
-		try {
-			return twynContext.readValue(resolveTargetGetNode(method), method.getReturnType());
-		} catch (IOException e) {
-			throw new TwynProxyException("Could not resolve value for node " + resolveTargetGetNode(method) + ". Wanted type: " + method.getReturnType(), e);
-		}
+		return tryResolveTargetGetNode(method).map(node -> {
+			try {
+				return twynContext.readValue(node, method.getReturnType());	
+			} catch (IOException e) {
+				throw new TwynProxyException("Could not resolve value for node " + node + ". Wanted type: " + method.getReturnType(), e);
+			}
+		}).orElse(null);
 	}
 
 	private JsonNode resolveTargetGetNode(Method method) {
-		return Require.notNull(
-				invocationHandlerNodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode),
-				ErrorFactory.couldNotResolveTargetNode(method, jsonNode));
+		return tryResolveTargetGetNode(method)
+				.orElseThrow(ErrorFactory.couldNotResolveTargetNode(method, jsonNode));
 	}
-
+	
+	private Optional<JsonNode> tryResolveTargetGetNode(Method method) {
+		return Optional.ofNullable(invocationHandlerNodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode));
+	}
+	
 	@Override
 	public JsonNode getJsonNode() {
 		return jsonNode;

@@ -202,12 +202,6 @@ public class TwynTest {
 		assertNull(nulled.getName());
 	}
 
-	@Test(expected = NoSuchJsonNodeException.class)
-	public void throwsExceptionIfValueIsMissing() throws Exception {
-		StringIF missing = twyn.read(input("{ }"), StringIF.class);
-		missing.getName();
-	}
-
 	@Test
 	public void canReadComplexList() throws Exception {
 		ListIF complexArray = twyn.read("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }", ListIF.class);
@@ -584,6 +578,15 @@ public class TwynTest {
 		ArrayElement[] elements = twyn.read("[[ 1, \"JS\", 33, \"iCode\" ], [ 2, \"LS\", 30, \"iChem\" ]]", ArrayElement[].class);
 		assertEquals(1, elements[0].index());
 		assertEquals(2, elements[1].index());
+	}
+	
+	@Test
+	public void returnsNullWhenValueMissing() throws Exception {
+		StringValueIF stringValueIF = twyn.read("{}", StringValueIF.class);
+		assertEquals(null, stringValueIF.value());
+	}
+	public static interface StringValueIF {
+		String value();
 	}
 
 
