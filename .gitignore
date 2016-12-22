@@ -1,7 +1,4 @@
-#################
 ## Eclipse
-#################
-
 *.pydevproject
 .project
 .metadata
@@ -16,6 +13,10 @@ local.properties
 .settings/
 .loadpath
 target/
+
+# IntelliJ
+.idea/
+*.iml
 
 # jles
 events.def
