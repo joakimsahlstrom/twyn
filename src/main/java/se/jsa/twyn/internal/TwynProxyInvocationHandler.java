@@ -172,9 +172,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	}
 
 	private JsonNode resolveTargetGetNode(Method method) {
-		return Require.notNull(
-				invocationHandlerNodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode),
-				ErrorFactory.couldNotResolveTargetNode(method, jsonNode));
+		return invocationHandlerNodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode);
 	}
 
 	@Override

@@ -17,6 +17,8 @@ local.properties
 .loadpath
 target/
 
+*.iml
+
 # jles
 events.def
 events.if

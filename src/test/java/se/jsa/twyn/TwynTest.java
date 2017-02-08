@@ -25,12 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -45,19 +40,19 @@ public class TwynTest {
 
 	private final Twyn twyn;
 
-	public TwynTest(Twyn twyn) {
+	public TwynTest(String name, Twyn twyn) {
 		this.twyn = twyn;
 	}
 
-	@Parameters
+	@Parameters(name = "{0}")
 	public static Collection<Object[]> twyns() {
 		return Arrays.<Object[]>asList(
-				new Object[] { Twyn.configurer().withJavaProxies().withDebugMode().configure() },
-				new Object[] { Twyn.configurer().withJavaProxies().withFullCaching().withDebugMode().configure() },
-				new Object[] { Twyn.configurer().withClassGeneration()
+				new Object[] { "Java proxies", Twyn.configurer().withJavaProxies().withDebugMode().configure() },
+				new Object[] { "Java proxies, full caching", Twyn.configurer().withJavaProxies().withFullCaching().withDebugMode().configure() },
+				new Object[] { "Code Generation", Twyn.configurer().withClassGeneration()
 						.withPrecompiledClasses(getInterfaces())
 						.withDebugMode().configure() },
-				new Object[] { Twyn.configurer().withClassGeneration()
+				new Object[] { "Code Generation, full caching", Twyn.configurer().withClassGeneration()
 						.withPrecompiledClasses(getInterfaces())
 						.withFullCaching().withDebugMode().configure() }
 				);
@@ -586,6 +581,31 @@ public class TwynTest {
 		assertEquals(2, elements[1].index());
 	}
 
+	@Test
+	public void handlesMultipleInheritance() throws Exception {
+		MultipleInheritance mi = twyn.read(input("{ \"name\" : \"Arthur\", \"lastName\": \"Clarke\", \"middleName\": \"C.\" }"), MultipleInheritance.class);
+		assertEquals("Arthur", mi.getName());
+		assertEquals("C.", mi.getMiddleName());
+		assertEquals("Clarke", mi.getLastName());
+	}
+	public interface MultipleInheritance extends Parent1, Parent2 {
+		String getName();
+	}
+	public interface Parent1 {
+		String getLastName();
+	}
+	public interface Parent2 {
+		String getMiddleName();
+	}
+
+	@Test
+	public void canUseOptionalReturnType() throws Exception {
+		assertFalse(twyn.read(input("{ }"), OptionalReturnType.class).getName().isPresent());
+		assertFalse(twyn.read(input("{ \"name\": \"present\" }"), OptionalReturnType.class).getName().isPresent());
+	}
+	public interface OptionalReturnType {
+		Optional<String> getName();
+	}
 
 	// Helper methods
 
