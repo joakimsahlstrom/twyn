@@ -86,6 +86,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		case SET:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerCollectionProxy(method, Collectors.toSet()));
 		case MAP:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerMapProxy(method));
 		case INTERFACE:	return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerProxy(method));
+		case OPTIONAL:	return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> resolveOptionalValue(method));
 		case SET_VALUE: return setValue(proxy, method, args);
 
 		case VALUE:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> resolveValue(method));
@@ -183,6 +184,16 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 				throw new TwynProxyException("Could not resolve value for node " + node + ". Wanted type: " + method.getReturnType(), e);
 			}
 		}).orElse(null);
+	}
+
+	private Object resolveOptionalValue(Method method) {
+		return tryResolveTargetGetNode(method).<Object>map(node -> {
+			try {
+				return Optional.of(twynContext.readValue(node, ImplementedMethod.of(method).getReturnTypeParameterType(0)));
+			} catch (IOException e) {
+				throw new TwynProxyException("Could not resolve value for node " + node + ". Wanted type: " + method.getReturnType(), e);
+			}
+		}).orElse(Optional.empty());
 	}
 
 	private JsonNode resolveTargetGetNode(Method method) {
