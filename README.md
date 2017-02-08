@@ -175,6 +175,20 @@ it can be parsed like this:
 ArrayElement[] elements = twyn.read(jsonResponse, ArrayElement[].class);
 ```
 
+###Twyn supports interface inheritance
+Instances of C1 in the example below will have all properties specified by Parent1 & Parent2
+```java
+public interface C1 extends Parent1, Parent2 {
+	String getName();
+}
+public interface Parent1 {
+	String getLastName();
+}
+public interface Parent2 {
+	String getMiddleName();
+}
+```
+
 
 ###Twyn can be configured for different use cases
 ```java
