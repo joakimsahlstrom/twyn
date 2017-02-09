@@ -3,7 +3,7 @@
         return cache.get("FIELD_NAME", () -> {
             JsonNode node = jsonNode.get(FIELD_ID);
             if (node == null) {
-                return Optional.empty();
+                return Optional.<RETURN_TYPE>empty();
             } else {
                 Require.that(node.isContainerNode(), ErrorFactory.innerProxyNoStruct("DECLARING_CLASS.METHOD_NAME", RETURN_TYPE.class.getSimpleName(), node));
                 try {
