@@ -3,7 +3,7 @@
         return cache.get("FIELD_NAME", () -> {
             try {
                 JsonNode node = jsonNode.get(FIELD_ID);
-                return node == null ? Optional.empty() : Optional.of(twyn.readValue(node, RETURN_TYPE.class));
+                return node == null ? Optional.<RETURN_TYPE>empty() : Optional.of(twyn.readValue(node, RETURN_TYPE.class));
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
