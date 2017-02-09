@@ -71,6 +71,7 @@ class TwynProxyClassJavaFile {
 				case INTERFACE: return templates.templateInterfaceMethod(m, nodeResolver);
 				case VALUE:		return templates.templateValueMethod(m, nodeResolver);
 				case SET_VALUE: return templates.templateSetValueMethod(m, implementedInterface);
+				case OPTIONAL:	return templates.templateOptionalMethod(m, nodeResolver);
 				default: 		throw new TwynProxyException("Could not handle method=" + m.getName()
 						+ " with methodType=" + MethodType.getType(m) + " on interface " + implementedInterface.getCanonicalName());
 			} })

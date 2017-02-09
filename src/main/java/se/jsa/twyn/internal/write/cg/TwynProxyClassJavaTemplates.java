@@ -37,6 +37,8 @@ class TwynProxyClassJavaTemplates {
 	private final String twynMapMethodTypedKeyTemplate;
 	private final String twynSetMethodTemplate;
 	private final String twynSetValueMethodTemplate;
+	private final String twynOptionalMethodTemplate;
+	private final String twynOptionalInterfaceMethodTemplate;
 
 	public TwynProxyClassJavaTemplates(
 			String twynProxyClassTemplate,
@@ -47,7 +49,9 @@ class TwynProxyClassJavaTemplates {
 			String twynSetMethodTemplate,
 			String twynMapMethodTemplate,
 			String twynSetValueMethodTemplate,
-			String twynMapMethodTypedKeyTemplate) {
+			String twynMapMethodTypedKeyTemplate,
+			String twynOptionalMethodTemplate,
+			String twynOptionalInterfaceMethodTemplate) {
 		this.twynProxyClassTemplate = Objects.requireNonNull(twynProxyClassTemplate);
 		this.twynInterfaceMethodTemplate = Objects.requireNonNull(twynInterfaceMethodTemplate);
 		this.twynValueMethodTemplate = Objects.requireNonNull(twynValueMethodTemplate);
@@ -57,6 +61,8 @@ class TwynProxyClassJavaTemplates {
 		this.twynMapMethodTemplate = Objects.requireNonNull(twynMapMethodTemplate);
 		this.twynSetValueMethodTemplate = Objects.requireNonNull(twynSetValueMethodTemplate);
 		this.twynMapMethodTypedKeyTemplate = Objects.requireNonNull(twynMapMethodTypedKeyTemplate);
+		this.twynOptionalMethodTemplate = Objects.requireNonNull(twynOptionalMethodTemplate);
+		this.twynOptionalInterfaceMethodTemplate = Objects.requireNonNull(twynOptionalInterfaceMethodTemplate);
 	}
 
 	public interface Reader {
@@ -77,7 +83,9 @@ class TwynProxyClassJavaTemplates {
 				reader.read("TwynProxyClass_setMethod.java.template"),
 				reader.read("TwynProxyClass_mapMethod.java.template"),
 				reader.read("TwynProxyClass_setValueMethod.java.template"),
-				reader.read("TwynProxyClass_mapMethodTyped.java.template")
+				reader.read("TwynProxyClass_mapMethodTyped.java.template"),
+				reader.read("TwynProxyClass_optionalMethod.java.template"),
+				reader.read("TwynProxyClass_optionalInterfaceMethod.java.template")
 				);
 	}
 
@@ -104,6 +112,30 @@ class TwynProxyClassJavaTemplates {
 	public String templateValueMethod(ImplementedMethod method, NodeResolver nodeResolver) {
 		return twynValueMethodTemplate
 				.replace("RETURN_TYPE", method.getReturnTypeCanonicalName())
+				.replace("METHOD_NAME", method.getName())
+				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
+				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
+				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName());
+	}
+
+	public String templateOptionalMethod(ImplementedMethod method, NodeResolver nodeResolver) {
+		return method.getReturnTypeParameterType(0).isInterface()
+				? templateOptionalInterfaceMethod(method, nodeResolver)
+				: templateOptionalValueMethod(method, nodeResolver);
+	}
+
+	public String templateOptionalInterfaceMethod(ImplementedMethod method, NodeResolver nodeResolver) {
+		return twynOptionalInterfaceMethodTemplate
+				.replace("RETURN_TYPE", method.getReturnTypeParameterTypeCanonicalName(0).replace("$", "."))
+				.replace("METHOD_NAME", method.getName())
+				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
+				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
+				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName());
+	}
+
+	public String templateOptionalValueMethod(ImplementedMethod method, NodeResolver nodeResolver) {
+		return twynOptionalMethodTemplate
+				.replace("RETURN_TYPE", method.getReturnTypeParameterTypeCanonicalName(0).replace("$", "."))
 				.replace("METHOD_NAME", method.getName())
 				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))

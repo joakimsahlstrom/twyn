@@ -574,15 +574,6 @@ public class TwynTest {
 		assertEquals(1, elements[0].index());
 		assertEquals(2, elements[1].index());
 	}
-	
-	@Test
-	public void returnsNullWhenValueMissing() throws Exception {
-		StringValueIF stringValueIF = twyn.read("{}", StringValueIF.class);
-		assertEquals(null, stringValueIF.value());
-	}
-	public static interface StringValueIF {
-		String value();
-	}
 
 	@Test
 	public void handlesMultipleInheritance() throws Exception {
@@ -599,6 +590,15 @@ public class TwynTest {
 	}
 	public interface Parent2 {
 		String getMiddleName();
+	}
+
+	@Test
+	public void returnsNullWhenValueMissing() throws Exception {
+		StringValueIF stringValueIF = twyn.read("{}", StringValueIF.class);
+		assertEquals(null, stringValueIF.value());
+	}
+	public static interface StringValueIF {
+		String value();
 	}
 
 	@Test
@@ -622,7 +622,9 @@ public class TwynTest {
 		String getName();
 	}
 
-// Helper methods
+	// TODO: Collections and Map should be empty, not wrappable by null!
+
+	// Helper 1methods
 
 	private InputStream input(String string) {
 		return new ByteArrayInputStream(string.getBytes());
