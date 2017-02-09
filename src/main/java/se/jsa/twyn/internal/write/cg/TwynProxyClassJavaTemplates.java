@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import se.jsa.twyn.internal.ErrorFactory;
 import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
 import se.jsa.twyn.internal.write.common.NodeResolver;
@@ -120,6 +121,16 @@ class TwynProxyClassJavaTemplates {
 	}
 
 	public String templateOptionalMethod(ImplementedMethod method, NodeResolver nodeResolver) {
+		if (method.getReturnTypeParameterTypeCanonicalName(0).endsWith("[]")) {
+			throw ErrorFactory.illegalOptionalWrap(method, "an array").get();
+		} else if (method.getReturnTypeParameterTypeCanonicalName(0).contains("java.util.List<")) {
+			throw ErrorFactory.illegalOptionalWrap(method, "a List").get();
+		} else if (method.getReturnTypeParameterTypeCanonicalName(0).contains("java.util.Set<")) {
+			throw ErrorFactory.illegalOptionalWrap(method, "a Set").get();
+		} else if (method.getReturnTypeParameterTypeCanonicalName(0).contains("java.util.Map<")) {
+			throw ErrorFactory.illegalOptionalWrap(method, "a Map").get();
+		}
+
 		return method.getReturnTypeParameterType(0).isInterface()
 				? templateOptionalInterfaceMethod(method, nodeResolver)
 				: templateOptionalValueMethod(method, nodeResolver);

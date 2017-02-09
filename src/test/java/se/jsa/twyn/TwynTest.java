@@ -658,9 +658,44 @@ public class TwynTest {
 		assertTrue(twyn.read("{ \"strings\": [] }", ComplexArrayIF.class).getStrings().length == 0);
 	}
 
-	// TODO: Collections and Map should be empty, not wrappable by null!
+	/*
 
-	// Helper 1methods
+	THESE ARE NOT TESTABLE AS THE ERRORS CAUSE THE TEST CASE TO FAIL COMPILATION :-)
+
+	@Test(expected = TwynProxyException.class)
+	public void mayNotWrapArrayInOptional() throws Exception {
+		twyn.read("{ }", OptionalWrappedArray.class);
+	}
+	interface OptionalWrappedArray {
+		Optional<byte[]> oBytes();
+	}
+
+	@Test(expected = TwynProxyException.class)
+	public void mayNotWrapListInOptional() throws Exception {
+		twyn.read("{ }", OptionalWrappedList.class);
+	}
+	interface OptionalWrappedList {
+		Optional<List<String>> oString();
+	}
+
+	@Test(expected = TwynProxyException.class)
+	public void mayNotWrapMapInOptional() throws Exception {
+		twyn.read("{ }", OptionalWrappedMap.class);
+	}
+	interface OptionalWrappedMap {
+		Optional<Map<String, String>> oStrings();
+	}
+
+	@Test(expected = TwynProxyException.class)
+	public void mayNotWrapSetInOptional() throws Exception {
+		twyn.read("{ }", OptionalWrappedSet.class);
+	}
+	interface OptionalWrappedSet {
+		Optional<Set<String>> oStrings();
+	}
+	*/
+
+	// Helper methods
 
 	private InputStream input(String string) {
 		return new ByteArrayInputStream(string.getBytes());

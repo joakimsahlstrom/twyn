@@ -188,7 +188,17 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 
 	private Object resolveOptional(Method method) {
 		ImplementedMethod implementedMethod = ImplementedMethod.of(method);
-		return implementedMethod.getReturnTypeParameterType(0).isInterface()
+		Class<?> returnTypeParameterType = implementedMethod.getReturnTypeParameterType(0);
+		if (returnTypeParameterType.isArray()) {
+			throw ErrorFactory.illegalOptionalWrap(implementedMethod, "an array").get();
+		} else if (returnTypeParameterType.equals(List.class)) {
+			throw ErrorFactory.illegalOptionalWrap(implementedMethod, "a List").get();
+		} else if (returnTypeParameterType.equals(Set.class)) {
+			throw ErrorFactory.illegalOptionalWrap(implementedMethod, "a Set").get();
+		} else if (returnTypeParameterType.equals(Map.class)) {
+			throw ErrorFactory.illegalOptionalWrap(implementedMethod, "a Map").get();
+		}
+		return returnTypeParameterType.isInterface()
 				? resolveOptionalInterface(method, implementedMethod)
 				: resolveOptionalValue(method, implementedMethod);
 	}
