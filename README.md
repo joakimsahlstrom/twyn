@@ -60,8 +60,8 @@ interface Contact {
 
 public void doStuff() {
 	String json = "{ \"nickName\" : \"nick\" }";
-	System.out.println(new Twyn().read(json, Contact.class).getAlternativeAddress().isPresent()); // outputs "false"
-	System.out.println(new Twyn().read(json, Contact.class).getNickName().isPresent()); // outputs "true"
+	System.out.println(new Twyn().read(json, Contact.class).getAlternativeAddress().isPresent()); // outputs false
+	System.out.println(new Twyn().read(json, Contact.class).getNickName().isPresent()); // outputs true
 }
 ```
 
@@ -259,10 +259,9 @@ JsonNode root = twyn.getJsonNode(contact);
 ```
 
 ##Todo:
-* Improve error message for bad array mappings
 * @PostConstruct annotated methods
-* Have Optional as a return type to allow testing of values / has-methods that can test if an underlying node is present
 * Allow for shallow getters to point to "deeper" fields eg: @TwynResolve("name.lastName") String getLastName()
+* Improve error message for bad array mappings
 * Ability to parse json that starts with a Map (eg. { \"a\" : { 1 }, \"b\" : { 2 } } w/
 	interface MyMap { @TwynRoot Map<String, MyNode> nodes(); }
 	twyn.read(jsonResponse, MyMap.class)
