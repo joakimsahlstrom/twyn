@@ -59,8 +59,9 @@ interface Contact {
 }
 
 public void doStuff() {
-	System.out.println(new Twyn().read("{}").getAlternativeAddress().isPresent()); // outputs "false"
-	System.out.println(new Twyn().read("{ \"nickName\" : \"nick\" }").getNickName().isPresent()); // outputs "true"
+	String json = "{ \"nickName\" : \"nick\" }";
+	System.out.println(new Twyn().read(json, Contact.class).getAlternativeAddress().isPresent()); // outputs "false"
+	System.out.println(new Twyn().read(json, Contact.class).getNickName().isPresent()); // outputs "true"
 }
 ```
 
