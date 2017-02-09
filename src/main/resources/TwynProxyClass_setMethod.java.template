@@ -3,6 +3,10 @@
 		return cache.get("FIELD_NAME", () -> {
 			try {
 				JsonNode node = jsonNode.get(FIELD_ID);
+				if (node == null) {
+					return Collections.<COMPONENT_TYPE>emptySet();
+				}
+
 				Require.that(node.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType("DECLARING_CLASS.METHOD_NAME", COMPONENT_TYPE.class.getSimpleName(), jsonNode));
 				return collect(COMPONENT_TYPE.class, node, Collectors.toSet());
 			} catch (RuntimeException e) {

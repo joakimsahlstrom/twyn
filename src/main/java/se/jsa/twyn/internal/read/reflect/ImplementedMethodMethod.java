@@ -71,11 +71,6 @@ public class ImplementedMethodMethod implements ImplementedMethod {
 	}
 
 	@Override
-	public boolean returnsCollection() {
-		return ClassType.isCollection(m.getReturnType());
-	}
-
-	@Override
 	public boolean returnsInterface() {
 		return m.getReturnType().isInterface();
 	}

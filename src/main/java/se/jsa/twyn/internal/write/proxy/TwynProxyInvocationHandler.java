@@ -16,15 +16,12 @@
 package se.jsa.twyn.internal.write.proxy;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -110,23 +107,25 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private <T, A, R> R innerCollectionProxy(Method method, Collector<T, A, R> collector) {
 		ImplementedMethod implementedMethod = ImplementedMethod.of(method);
 		String returnTypeParameterTypeCanonicalName = implementedMethod.getReturnTypeParameterTypeCanonicalName(0);
-		JsonNode node = resolveTargetGetNode(method);
-		Require.that(node.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType(returnTypeParameterTypeCanonicalName, method, jsonNode));
-		return twynContext.proxyCollection((Class<T>)implementedMethod.getReturnTypeParameterType(0),
+		return tryResolveTargetGetNode(method).map(node -> {
+			Require.that(node.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType(returnTypeParameterTypeCanonicalName, method, jsonNode));
+			return twynContext.proxyCollection((Class<T>)implementedMethod.getReturnTypeParameterType(0),
 				node,
 				collector);
+		}).orElseGet(() -> collector.finisher().apply(collector.supplier().get()));
 	}
 
-	private Map<?, ?> innerMapProxy(Method method) {
+	private Object innerMapProxy(Method method) {
 		ImplementedMethod implementedMethod = ImplementedMethod.of(method);
 		Class<?> valueComponentType = implementedMethod.getReturnTypeParameterType(1);
 		Class<?> keyType = implementedMethod.getReturnTypeParameterType(0);
 
-		JsonNode node = resolveTargetGetNode(method);
-		Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure(method, node));
-		return StreamSupport
-				.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), false)
-				.collect(Collectors.toMap((entry) -> readKeyType(entry.getKey(), keyType), (entry) -> twynContext.proxy(entry.getValue(), valueComponentType)));
+		return tryResolveTargetGetNode(method).map(node -> {
+			Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure(method, node));
+			return StreamSupport
+					.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), false)
+					.collect(Collectors.toMap((entry) -> readKeyType(entry.getKey(), keyType), (entry) -> twynContext.proxy(entry.getValue(), valueComponentType)));
+		}).orElseGet(Collections::emptyMap);
 	}
 
 	private Object readKeyType(String key, Class<?> keyType) {
@@ -145,9 +144,10 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private <T> Object innerArrayProxy(Method method) {
 		@SuppressWarnings("unchecked")
 		Class<T> componentType = (Class<T>) method.getReturnType().getComponentType();
-		JsonNode node = resolveTargetGetNode(method);
-		Require.that(node.isArray(), ErrorFactory.proxyArrayJsonNotArrayType(componentType, method, jsonNode));
-		return twynContext.proxyArray(node, componentType);
+		return tryResolveTargetGetNode(method).map(node -> {
+			Require.that(node.isArray(), ErrorFactory.proxyArrayJsonNotArrayType(componentType, method, jsonNode));
+			return twynContext.proxyArray(node, componentType);
+		}).orElseGet(() -> Array.newInstance(componentType, 0));
 	}
 
 	private Object innerProxy(Method method) {
@@ -179,11 +179,11 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private Object resolveValue(Method method) {
 		return tryResolveTargetGetNode(method).map(node -> {
 			try {
-				return twynContext.readValue(node, method.getReturnType());
+				return (Object) twynContext.readValue(node, method.getReturnType());
 			} catch (IOException e) {
 				throw new TwynProxyException("Could not resolve value for node " + node + ". Wanted type: " + method.getReturnType(), e);
 			}
-		}).orElse(null);
+		}).orElseGet(() -> ImplementedMethod.of(method).returnsArray() ? Array.newInstance(method.getReturnType().getComponentType(), 0) : null);
 	}
 
 	private Object resolveOptional(Method method) {
@@ -210,11 +210,6 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		}).orElse(Optional.empty());
 	}
 
-	private JsonNode resolveTargetGetNode(Method method) {
-		return tryResolveTargetGetNode(method)
-				.orElseThrow(ErrorFactory.couldNotResolveTargetNode(method, jsonNode));
-	}
-	
 	private Optional<JsonNode> tryResolveTargetGetNode(Method method) {
 		return Optional.ofNullable(invocationHandlerNodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode));
 	}

@@ -115,7 +115,8 @@ class TwynProxyClassJavaTemplates {
 				.replace("METHOD_NAME", method.getName())
 				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
 				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
-				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName());
+				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName())
+				.replace("NULL_RETURN", method.returnsArray() ? "new " + method.getReturnComponentTypeCanonicalName() + "[0]" : "null");
 	}
 
 	public String templateOptionalMethod(ImplementedMethod method, NodeResolver nodeResolver) {

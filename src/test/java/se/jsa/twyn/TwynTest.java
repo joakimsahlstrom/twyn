@@ -451,7 +451,7 @@ public class TwynTest {
 		getSet.setBool(true);
 		assertEquals(true, getSet.getBool());
 
-		assertEquals(null, getSet.getByteArray());
+		assertTrue(getSet.getByteArray().length == 0);
 		getSet.setByteArray("apa".getBytes());
 		assertTrue(Arrays.equals("apa".getBytes(), getSet.getByteArray()));
 
@@ -620,6 +620,42 @@ public class TwynTest {
 	}
 	public interface InnerOptional {
 		String getName();
+	}
+
+	@Test
+	public void missingListResultsInEmptyCollection() throws Exception {
+		assertTrue(twyn.read("{ }", ListIF.class).getStrings().isEmpty());
+		assertTrue(twyn.read("{ \"strings\": [] }", ListIF.class).getStrings().isEmpty());
+	}
+
+	@Test
+	public void missingSetResultsInEmptyCollection() throws Exception {
+		assertTrue(twyn.read("{ }", SetIF.class).getStrings().isEmpty());
+		assertTrue(twyn.read("{ \"strings\": [] }", SetIF.class).getStrings().isEmpty());
+	}
+
+	@Test
+	public void missingMapResultsInEmptyMap() throws Exception {
+		assertTrue(twyn.read("{ }", MapIF.class).data().isEmpty());
+		assertTrue(twyn.read("{ \"data\": { } }", MapIF.class).data().isEmpty());
+	}
+
+	@Test
+	public void missingMapComplexKeyResultsInEmptyMap() throws Exception {
+		assertTrue(twyn.read("{ }", MapIFComplexKey.class).data().isEmpty());
+		assertTrue(twyn.read("{ \"data\": { } }", MapIFComplexKey.class).data().isEmpty());
+	}
+
+	@Test
+	public void missingPrimitiveArrayResultsInEmptyMap() throws Exception {
+		assertTrue(twyn.read("{}", PrimitiveArrayIF.class).getData().length == 0);
+		assertTrue(twyn.read("{ \"data\": [] }", PrimitiveArrayIF.class).getData().length == 0);
+	}
+
+	@Test
+	public void missingComplexArrayResultsInEmptyMap() throws Exception {
+		assertTrue(twyn.read("{ }", ComplexArrayIF.class).getStrings().length == 0);
+		assertTrue(twyn.read("{ \"strings\": [] }", ComplexArrayIF.class).getStrings().length == 0);
 	}
 
 	// TODO: Collections and Map should be empty, not wrappable by null!

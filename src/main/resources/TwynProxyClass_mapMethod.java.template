@@ -3,6 +3,9 @@
 		return cache.get("FIELD_NAME", () -> {
 			try {
 				JsonNode node = jsonNode.get(FIELD_ID);
+				if (node == null) {
+					return Collections.<String, COMPONENT_TYPE>emptyMap();
+				}
 				Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure("DECLARING_CLASS.METHOD_NAME", "Map<String, COMPONENT_TYPE>", jsonNode)); 
 			
 				return StreamSupport

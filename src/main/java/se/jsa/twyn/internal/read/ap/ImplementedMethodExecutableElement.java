@@ -82,19 +82,6 @@ public class ImplementedMethodExecutableElement implements ImplementedMethod {
 	}
 
 	@Override
-	public boolean returnsCollection() {
-		TypeMirror returnType = executableElement.getReturnType();
-		if (returnType instanceof DeclaredType) {
-			TypeElement returnedElement = TypeElement.class.cast(DeclaredType.class.cast(returnType).asElement());
-			return returnedElement.getInterfaces().stream()
-				.filter(tm -> (tm instanceof DeclaredType))
-				.map(tm -> TypeElement.class.cast(DeclaredType.class.cast(tm).asElement()).getQualifiedName().toString())
-				.anyMatch(ClassType::isCollectionQualifiedName);
-		}
-		return false;
-	}
-
-	@Override
 	public boolean returnsInterface() {
 		return tryCast(executableElement.getReturnType(), DeclaredType.class)
 			.map(dt -> dt.asElement().getKind() == ElementKind.INTERFACE)

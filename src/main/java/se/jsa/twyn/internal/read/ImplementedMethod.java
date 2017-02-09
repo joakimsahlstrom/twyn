@@ -37,7 +37,6 @@ public interface ImplementedMethod {
 
 	boolean returnsArray();
 	boolean returnsArrayOfInterface();
-	boolean returnsCollection();
 	boolean returnsInterface();
 	boolean returns(Class<?> returnType);
 	boolean returns(ProxiedInterface implementedType);
