@@ -8,9 +8,9 @@
 				}
 				Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure("DECLARING_CLASS.METHOD_NAME", "Map<String, COMPONENT_TYPE>", jsonNode)); 
 			
-				return (Map<String, COMPONENT_TYPE>) StreamSupport
+				return StreamSupport
 					.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), false)
-					.collect(Collectors.toMap(Entry::getKey, (entry) -> twyn.proxy(entry.getValue(), COMPONENT_TYPE.class)));
+					.collect(Collectors.<Entry<String, JsonNode>, String, COMPONENT_TYPE>toMap(Entry::getKey, (entry) -> twyn.proxy(entry.getValue(), COMPONENT_TYPE.class)));
 			} catch (RuntimeException e) {
 				throw e;
 			} catch (Exception e) {
