@@ -55,7 +55,7 @@ public class TwynTest {
 				new Object[] { "Code Generation, full caching", Twyn.configurer().withClassGeneration()
 						.withPrecompiledClasses(getInterfaces())
 						.withFullCaching().withDebugMode().configure() }
-				);
+		);
 	}
 
 	private static final Collection<Class<?>> INTENTIONALLY_BROKEN_INTERFACES = Arrays.asList(
@@ -195,12 +195,6 @@ public class TwynTest {
 	public void returnsNullForNullValue() throws Exception {
 		StringIF nulled = twyn.read(input("{ \"name\" : null }"), StringIF.class);
 		assertNull(nulled.getName());
-	}
-
-	@Test(expected = NoSuchJsonNodeException.class)
-	public void throwsExceptionIfValueIsMissing() throws Exception {
-		StringIF missing = twyn.read(input("{ }"), StringIF.class);
-		missing.getName();
 	}
 
 	@Test
@@ -457,7 +451,7 @@ public class TwynTest {
 		getSet.setBool(true);
 		assertEquals(true, getSet.getBool());
 
-		assertEquals(null, getSet.getByteArray());
+		assertTrue(getSet.getByteArray().length == 0);
 		getSet.setByteArray("apa".getBytes());
 		assertTrue(Arrays.equals("apa".getBytes(), getSet.getByteArray()));
 
@@ -598,14 +592,107 @@ public class TwynTest {
 		String getMiddleName();
 	}
 
+	public void returnsNullWhenValueMissing() throws Exception {
+		StringValueIF stringValueIF = twyn.read("{}", StringValueIF.class);
+		assertEquals(null, stringValueIF.value());
+	}
+	public static interface StringValueIF {
+		String value();
+	}
+
 	@Test
 	public void canUseOptionalReturnType() throws Exception {
+		assertTrue(twyn.read(input("{ \"name\": \"present\" }"), OptionalReturnType.class).getName().isPresent());
 		assertFalse(twyn.read(input("{ }"), OptionalReturnType.class).getName().isPresent());
-		assertFalse(twyn.read(input("{ \"name\": \"present\" }"), OptionalReturnType.class).getName().isPresent());
 	}
 	public interface OptionalReturnType {
 		Optional<String> getName();
 	}
+
+	@Test
+	public void canUseComplexOptionalReturnType() throws Exception {
+		assertTrue(twyn.read(input("{ \"inner\": { \"name\": \"present\" } }"), ComplexOptionalReturnType.class).getInner().isPresent());
+		assertFalse(twyn.read(input("{ }"), ComplexOptionalReturnType.class).getInner().isPresent());
+	}
+	public interface ComplexOptionalReturnType {
+		Optional<InnerOptional> getInner();
+	}
+	public interface InnerOptional {
+		String getName();
+	}
+
+	@Test
+	public void missingListResultsInEmptyCollection() throws Exception {
+		assertTrue(twyn.read("{ }", ListIF.class).getStrings().isEmpty());
+		assertTrue(twyn.read("{ \"strings\": [] }", ListIF.class).getStrings().isEmpty());
+	}
+
+	@Test
+	public void missingSetResultsInEmptyCollection() throws Exception {
+		assertTrue(twyn.read("{ }", SetIF.class).getStrings().isEmpty());
+		assertTrue(twyn.read("{ \"strings\": [] }", SetIF.class).getStrings().isEmpty());
+	}
+
+	@Test
+	public void missingMapResultsInEmptyMap() throws Exception {
+		assertTrue(twyn.read("{ }", MapIF.class).data().isEmpty());
+		assertTrue(twyn.read("{ \"data\": { } }", MapIF.class).data().isEmpty());
+	}
+
+	@Test
+	public void missingMapComplexKeyResultsInEmptyMap() throws Exception {
+		assertTrue(twyn.read("{ }", MapIFComplexKey.class).data().isEmpty());
+		assertTrue(twyn.read("{ \"data\": { } }", MapIFComplexKey.class).data().isEmpty());
+	}
+
+	@Test
+	public void missingPrimitiveArrayResultsInEmptyMap() throws Exception {
+		assertTrue(twyn.read("{}", PrimitiveArrayIF.class).getData().length == 0);
+		assertTrue(twyn.read("{ \"data\": [] }", PrimitiveArrayIF.class).getData().length == 0);
+	}
+
+	@Test
+	public void missingComplexArrayResultsInEmptyMap() throws Exception {
+		assertTrue(twyn.read("{ }", ComplexArrayIF.class).getStrings().length == 0);
+		assertTrue(twyn.read("{ \"strings\": [] }", ComplexArrayIF.class).getStrings().length == 0);
+	}
+
+	/*
+
+	THESE ARE NOT TESTABLE AS THE ERRORS CAUSE THE TEST CASE TO FAIL COMPILATION :-)
+
+	@Test(expected = TwynProxyException.class)
+	public void mayNotWrapArrayInOptional() throws Exception {
+		twyn.read("{ }", OptionalWrappedArray.class);
+	}
+	interface OptionalWrappedArray {
+		Optional<byte[]> oBytes();
+	}
+
+	@Test(expected = TwynProxyException.class)
+	public void mayNotWrapListInOptional() throws Exception {
+		twyn.read("{ }", OptionalWrappedList.class);
+	}
+	interface OptionalWrappedList {
+		Optional<List<String>> oString();
+	}
+
+	@Test(expected = TwynProxyException.class)
+	public void mayNotWrapMapInOptional() throws Exception {
+		twyn.read("{ }", OptionalWrappedMap.class);
+	}
+	interface OptionalWrappedMap {
+		Optional<Map<String, String>> oStrings();
+	}
+
+	@Test(expected = TwynProxyException.class)
+	public void mayNotWrapSetInOptional() throws Exception {
+		twyn.read("{ }", OptionalWrappedSet.class);
+	}
+	interface OptionalWrappedSet {
+		Optional<Set<String>> oStrings();
+	}
+	*/
 
 	// Helper methods
 

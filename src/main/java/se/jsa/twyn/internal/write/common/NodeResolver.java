@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.write.common;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,12 +22,14 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import se.jsa.twyn.TwynIndex;
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
-interface NodeResolver  {
+import se.jsa.twyn.TwynIndex;
+import se.jsa.twyn.internal.MethodType;
+import se.jsa.twyn.internal.read.ImplementedMethod;
+import se.jsa.twyn.internal.read.ProxiedInterface;
+
+public interface NodeResolver  {
 
 	JsonNode resolveNode(ImplementedMethod method, JsonNode root);
 	static Predicate<ImplementedMethod> WITH_TWYNINDEX = m -> m.hasAnnotation(TwynIndex.class);

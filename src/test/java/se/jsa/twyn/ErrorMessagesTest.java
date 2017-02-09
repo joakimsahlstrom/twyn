@@ -82,12 +82,12 @@ public class ErrorMessagesTest {
 		String lastName();
 	}
 
-	@Test(expected = NoSuchJsonNodeException.class)
+	@Test//(expected = NoSuchJsonNodeException.class) // Spec has changed!
 	public void missingNode() throws JsonProcessingException, IOException {
 		twyn.read("{  }", Person.class).name();
 	}
 
-	@Test(expected = NoSuchJsonNodeException.class)
+	@Test//(expected = NoSuchJsonNodeException.class) // Spec has changed!
 	public void missingValue() throws Exception {
 		twyn.read("{ \"name\": { \"banana\": \"brown\" } }", Person.class).name().firstName();
 	}

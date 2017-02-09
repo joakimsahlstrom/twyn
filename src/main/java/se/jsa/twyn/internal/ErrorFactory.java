@@ -24,7 +24,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import se.jsa.twyn.BadJsonNodeTypeException;
 import se.jsa.twyn.NoSuchJsonNodeException;
 import se.jsa.twyn.TwynProxyException;
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
+import se.jsa.twyn.internal.read.ImplementedMethod;
+import se.jsa.twyn.internal.read.ProxiedInterface;
 
 public class ErrorFactory {
 
@@ -79,6 +80,10 @@ public class ErrorFactory {
 		default:
 			return () -> new TwynProxyException("Error message not supported for " + MethodType.class.getSimpleName() + " " + MethodType.getType(m));
 		}
+	}
+
+	public static Supplier<? extends RuntimeException> illegalOptionalWrap(ImplementedMethod method, String wrappedType) {
+		return () -> new TwynProxyException("Method " + method + " attempts to wrap " + wrappedType + " in an Optional which is not allowed! Collection types will always be empty if json node is missing, empty or null");
 	}
 	
 	// Helper methods

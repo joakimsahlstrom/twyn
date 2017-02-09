@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.write.cg;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -23,8 +23,12 @@ import java.util.stream.Collectors;
 
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
 import se.jsa.twyn.TwynProxyException;
+import se.jsa.twyn.internal.IdentityMethods;
+import se.jsa.twyn.internal.MethodType;
+import se.jsa.twyn.internal.read.ImplementedMethod;
+import se.jsa.twyn.internal.read.ProxiedInterface;
+import se.jsa.twyn.internal.write.common.NodeResolver;
 
 class TwynProxyClassJavaFile {
 	private final String code;
@@ -67,6 +71,7 @@ class TwynProxyClassJavaFile {
 				case INTERFACE: return templates.templateInterfaceMethod(m, nodeResolver);
 				case VALUE:		return templates.templateValueMethod(m, nodeResolver);
 				case SET_VALUE: return templates.templateSetValueMethod(m, implementedInterface);
+				case OPTIONAL:	return templates.templateOptionalMethod(m, nodeResolver);
 				default: 		throw new TwynProxyException("Could not handle method=" + m.getName()
 						+ " with methodType=" + MethodType.getType(m) + " on interface " + implementedInterface.getCanonicalName());
 			} })

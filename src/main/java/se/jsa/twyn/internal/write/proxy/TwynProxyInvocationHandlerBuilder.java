@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.write.proxy;
 
 import java.lang.reflect.Proxy;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import se.jsa.twyn.internal.TwynContext;
+import se.jsa.twyn.internal.read.ProxiedInterface;
+import se.jsa.twyn.internal.write.TwynProxyBuilder;
 
 public class TwynProxyInvocationHandlerBuilder implements TwynProxyBuilder {
 

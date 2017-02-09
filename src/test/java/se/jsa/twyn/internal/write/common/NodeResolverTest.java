@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.write.common;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -21,6 +21,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import se.jsa.twyn.TwynIndex;
+import se.jsa.twyn.internal.read.ProxiedInterface;
+import se.jsa.twyn.internal.write.common.NodeResolver;
 
 public class NodeResolverTest {
 

@@ -39,13 +39,13 @@ import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.ErrorFactory;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.NodeSupplier;
-import se.jsa.twyn.internal.ProxiedInterface;
-import se.jsa.twyn.internal.ProxiedInterface.ProxiedElementClass;
 import se.jsa.twyn.internal.Require;
 import se.jsa.twyn.internal.TwynContext;
-import se.jsa.twyn.internal.TwynProxyBuilder;
-import se.jsa.twyn.internal.TwynProxyClassBuilder;
-import se.jsa.twyn.internal.TwynProxyInvocationHandlerBuilder;
+import se.jsa.twyn.internal.read.ProxiedInterface;
+import se.jsa.twyn.internal.read.reflect.ProxiedInterfaceClass;
+import se.jsa.twyn.internal.write.TwynProxyBuilder;
+import se.jsa.twyn.internal.write.cg.TwynProxyClassBuilder;
+import se.jsa.twyn.internal.write.proxy.TwynProxyInvocationHandlerBuilder;
 
 public class Twyn {
 	private final TwynContext twynContext;
@@ -105,7 +105,7 @@ public class Twyn {
 	}
 
 	private <T> Class<T> validate(Class<T> type) {
-		ProxiedElementClass proxiedInterface = ProxiedInterface.of(type);
+		ProxiedInterfaceClass proxiedInterface = ProxiedInterface.of(type);
 		proxiedInterface.getMethods().stream()
 			.filter(MethodType.ILLEGAL_TYPES_FILTER)
 			.findAny()

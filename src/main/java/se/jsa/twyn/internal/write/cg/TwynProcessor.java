@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.write.cg;
 
 import static javax.tools.StandardLocation.CLASS_PATH;
 
@@ -36,6 +36,8 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 
 import se.jsa.twyn.TwynProxy;
+import se.jsa.twyn.internal.IdentityMethods;
+import se.jsa.twyn.internal.read.ProxiedInterface;
 
 @SupportedAnnotationTypes("se.jsa.twyn.TwynProxy")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)

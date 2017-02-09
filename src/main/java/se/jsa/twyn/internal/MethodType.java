@@ -15,25 +15,23 @@
  */
 package se.jsa.twyn.internal;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import se.jsa.twyn.TwynProxyException;
-import se.jsa.twyn.internal.ProxiedInterface.ImplementedMethod;
+import se.jsa.twyn.internal.read.ImplementedMethod;
 
-public enum MethodType implements Predicate<ProxiedInterface.ImplementedMethod> {
+public enum MethodType implements Predicate<ImplementedMethod> {
 	ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT(m -> !m.isDefault() && m.getNumParameters() > 1),
 
 	DEFAULT(m 	-> m.isDefault()),
-	ARRAY(m 	-> m.returnsArray() 		&& m.getNumParameters() == 0 && m.returnsArrayOfInterface()),
-	LIST(m 		-> m.returns(List.class) 	&& m.getNumParameters() == 0),
-	MAP(m 		-> m.returns(Map.class) 	&& m.getNumParameters() == 0),
-	SET(m 		-> m.returns(Set.class) 	&& m.getNumParameters() == 0),
-	INTERFACE(m -> m.returnsInterface() 	&& m.getNumParameters() == 0),
+	ARRAY(m 	-> m.returnsArray() 			&& m.getNumParameters() == 0 && m.returnsArrayOfInterface()),
+	LIST(m 		-> m.returns(List.class) 		&& m.getNumParameters() == 0),
+	MAP(m 		-> m.returns(Map.class) 		&& m.getNumParameters() == 0),
+	SET(m 		-> m.returns(Set.class) 		&& m.getNumParameters() == 0),
+	INTERFACE(m -> m.returnsInterface() 		&& m.getNumParameters() == 0),
+	OPTIONAL(m  -> m.returns(Optional.class) 	&& m.getNumParameters() == 0),
 
 	SET_VALUE(m -> m.getNumParameters() == 1),
 
@@ -57,7 +55,7 @@ public enum MethodType implements Predicate<ProxiedInterface.ImplementedMethod> 
 				.orElseThrow(() -> new TwynProxyException("Could not determine MethodType for " + m));
 	}
 
-	public static Predicate<ImplementedMethod> GETTER_TYPES_FILTER = any(ARRAY, LIST, MAP, SET, INTERFACE, VALUE);
+	public static Predicate<ImplementedMethod> GETTER_TYPES_FILTER = any(ARRAY, LIST, MAP, SET, INTERFACE, VALUE, OPTIONAL);
 	public static Predicate<ImplementedMethod> ILLEGAL_TYPES_FILTER = any(ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT);
 
 	@SafeVarargs

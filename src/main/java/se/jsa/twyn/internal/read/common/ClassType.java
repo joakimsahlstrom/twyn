@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.jsa.twyn.internal;
+package se.jsa.twyn.internal.read.common;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class ClassType {
+public class ClassType {
 	static final Collection<Class<?>> COLLECTION_TYPES = new HashSet<>(Arrays.asList(List.class, Map.class, Set.class));
 	static final Set<String> COLLECTION_TYPES_QUALIFIED_NAMES = COLLECTION_TYPES.stream().map(c -> c.getName()).collect(Collectors.toSet());
 
