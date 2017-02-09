@@ -51,6 +51,19 @@ public void doStuff() {
 }
 ```
 
+###Twyn supports Optional<>
+```java
+interface Contact {
+	Optional<String> getNickName();
+	Optional<Address> getAlternativeAddess();
+}
+
+public void doStuff() {
+	System.out.println(new Twyn().read("{}").getAlternativeAddress().isPresent()); // outputs "false"
+	System.out.println(new Twyn().read("{ \"nickName\" : \"nick\" }").getNickName().isPresent()); // outputs "true"
+}
+```
+
 ###Twyn can fall back on jackson:s json->java mapping
 ```java
 interface Contact {
