@@ -3,6 +3,8 @@ Twyn maps json to java, using jackson under the hood. It allows for lenient pars
 
 Requires Java 8.
 
+[![Build Status](https://travis-ci.org/joakimsahlstrom/twyn.svg?branch=master)](https://travis-ci.org/joakimsahlstrom/twyn)
+
 ##Features:
 ###Twyn only requires interfaces for mapping
 Given this json where only "firstname" and "country" is interesting...
