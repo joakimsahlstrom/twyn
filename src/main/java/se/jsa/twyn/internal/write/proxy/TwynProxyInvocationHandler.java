@@ -75,19 +75,18 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	    	return hashCode();
 	    }
 
-		MethodType methodType = MethodType.getType(ImplementedMethod.of(method));
-		switch (methodType) {
-		case DEFAULT:	return callDefaultMethod(proxy, method, args);
-		case ARRAY:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerArrayProxy(method));
-		case LIST:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerCollectionProxy(method, Collectors.toList()));
-		case SET:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerCollectionProxy(method, Collectors.toSet()));
-		case MAP:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerMapProxy(method));
-		case INTERFACE:	return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerProxy(method));
-		case OPTIONAL:	return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> resolveOptional(method));
-		case SET_VALUE: return setValue(proxy, method, args);
-
-		case VALUE:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> resolveValue(method));
-		default:		throw new TwynProxyException("Could not handle methodType=" + methodType);
+		ImplementedMethod implementedMethod = ImplementedMethod.of(method);
+        switch (MethodType.getType(implementedMethod)) {
+		    case DEFAULT:	return callDefaultMethod(proxy, method, args);
+		    case ARRAY:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerArrayProxy(method));
+		    case LIST:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerCollectionProxy(method, Collectors.toList()));
+		    case SET:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerCollectionProxy(method, Collectors.toSet()));
+		    case MAP:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerMapProxy(method));
+		    case INTERFACE:	return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> innerProxy(method));
+			case VALUE:		return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> resolveValue(method));
+			case OPTIONAL:	return cache.get(TwynUtil.decodeJavaBeanName(method.getName()), () -> resolveOptional(method));
+            case SET_VALUE: return setValue(proxy, method, args);
+            default:		throw ErrorFactory.proxyValidationError(implementedType, implementedMethod).get();
 		}
 	}
 
@@ -188,17 +187,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 
 	private Object resolveOptional(Method method) {
 		ImplementedMethod implementedMethod = ImplementedMethod.of(method);
-		Class<?> returnTypeParameterType = implementedMethod.getReturnTypeParameterType(0);
-		if (returnTypeParameterType.isArray()) {
-			throw ErrorFactory.illegalOptionalWrap(implementedMethod, "an array").get();
-		} else if (returnTypeParameterType.equals(List.class)) {
-			throw ErrorFactory.illegalOptionalWrap(implementedMethod, "a List").get();
-		} else if (returnTypeParameterType.equals(Set.class)) {
-			throw ErrorFactory.illegalOptionalWrap(implementedMethod, "a Set").get();
-		} else if (returnTypeParameterType.equals(Map.class)) {
-			throw ErrorFactory.illegalOptionalWrap(implementedMethod, "a Map").get();
-		}
-		return returnTypeParameterType.isInterface()
+		return implementedMethod.getReturnTypeParameterType(0).isInterface()
 				? resolveOptionalInterface(method, implementedMethod)
 				: resolveOptionalValue(method, implementedMethod);
 	}
@@ -223,7 +212,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private Optional<JsonNode> tryResolveTargetGetNode(Method method) {
 		return Optional.ofNullable(invocationHandlerNodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode));
 	}
-	
+
 	@Override
 	public JsonNode getJsonNode() {
 		return jsonNode;

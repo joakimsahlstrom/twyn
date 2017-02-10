@@ -75,10 +75,15 @@ public class ErrorFactory {
 
 	public static Supplier<? extends RuntimeException> proxyValidationError(ProxiedInterface type, ImplementedMethod m) {
 		switch (MethodType.getType(m)) {
-		case ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT:
-			return () -> new IllegalArgumentException("Type " + type + " defines method " + m.getName() + " which is nondefault and has method arguments. Proxy cannot be created.");
-		default:
-			return () -> new TwynProxyException("Error message not supported for " + MethodType.class.getSimpleName() + " " + MethodType.getType(m));
+			case ILLEGAL_OPTIONAL_WRAPS_ARRAY: 	return ErrorFactory.illegalOptionalWrap(m, "an array");
+			case ILLEGAL_OPTIONAL_WRAPS_LIST: 	return ErrorFactory.illegalOptionalWrap(m, "a List");
+			case ILLEGAL_OPTIONAL_WRAPS_SET: 	return ErrorFactory.illegalOptionalWrap(m, "a Set");
+			case ILLEGAL_OPTIONAL_WRAPS_MAP: 	return ErrorFactory.illegalOptionalWrap(m, "a Map");
+
+			case ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT:
+				return () -> new IllegalArgumentException("Type " + type + " defines method " + m.getName() + " which is nondefault and has method arguments. Proxy cannot be created.");
+			default:
+				return () -> new TwynProxyException("Error message not supported for " + MethodType.class.getSimpleName() + " " + MethodType.getType(m));
 		}
 	}
 

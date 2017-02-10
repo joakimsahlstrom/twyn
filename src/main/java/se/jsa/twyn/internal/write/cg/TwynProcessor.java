@@ -37,6 +37,7 @@ import javax.tools.JavaFileObject;
 
 import se.jsa.twyn.TwynProxy;
 import se.jsa.twyn.internal.IdentityMethods;
+import se.jsa.twyn.internal.Require;
 import se.jsa.twyn.internal.read.ProxiedInterface;
 
 @SupportedAnnotationTypes("se.jsa.twyn.TwynProxy")
@@ -58,9 +59,7 @@ public class TwynProcessor extends AbstractProcessor {
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-		if (templates == null) {
-			throw new IllegalStateException("Cannot run without templates!");
-		}
+		Require.that(templates != null, () -> new IllegalStateException("Cannot run without templates!"));
 		generateJavaFiles(roundEnv.getElementsAnnotatedWith(TwynProxy.class).stream());
 		return true;
 	}

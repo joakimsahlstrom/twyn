@@ -24,6 +24,10 @@ import se.jsa.twyn.internal.read.ImplementedMethod;
 
 public enum MethodType implements Predicate<ImplementedMethod> {
 	ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT(m -> !m.isDefault() && m.getNumParameters() > 1),
+	ILLEGAL_OPTIONAL_WRAPS_ARRAY(m -> m.returns(Optional.class) && (m.getReturnTypeParameterType(0).isArray())),
+	ILLEGAL_OPTIONAL_WRAPS_LIST(m -> m.returns(Optional.class) && (m.getReturnTypeParameterType(0).equals(List.class))),
+	ILLEGAL_OPTIONAL_WRAPS_SET(m -> m.returns(Optional.class) && (m.getReturnTypeParameterType(0).equals(Set.class))),
+	ILLEGAL_OPTIONAL_WRAPS_MAP(m -> m.returns(Optional.class) && (m.getReturnTypeParameterType(0).equals(Map.class))),
 
 	DEFAULT(m 	-> m.isDefault()),
 	ARRAY(m 	-> m.returnsArray() 			&& m.getNumParameters() == 0 && m.returnsArrayOfInterface()),
@@ -56,7 +60,12 @@ public enum MethodType implements Predicate<ImplementedMethod> {
 	}
 
 	public static Predicate<ImplementedMethod> GETTER_TYPES_FILTER = any(ARRAY, LIST, MAP, SET, INTERFACE, VALUE, OPTIONAL);
-	public static Predicate<ImplementedMethod> ILLEGAL_TYPES_FILTER = any(ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT);
+	public static Predicate<ImplementedMethod> ILLEGAL_TYPES_FILTER = any(
+			ILLEGAL_NONDEFAULT_METHOD_MORE_THAN_ONE_ARGUMENT,
+			ILLEGAL_OPTIONAL_WRAPS_ARRAY,
+			ILLEGAL_OPTIONAL_WRAPS_LIST,
+			ILLEGAL_OPTIONAL_WRAPS_SET,
+			ILLEGAL_OPTIONAL_WRAPS_MAP);
 
 	@SafeVarargs
 	private static <T> Predicate<T> any(Predicate<T>... predicates) {

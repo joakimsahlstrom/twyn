@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 
 import se.jsa.twyn.TwynProxyException;
+import se.jsa.twyn.internal.ErrorFactory;
 import se.jsa.twyn.internal.IdentityMethods;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.read.ImplementedMethod;
@@ -72,8 +73,7 @@ class TwynProxyClassJavaFile {
 				case VALUE:		return templates.templateValueMethod(m, nodeResolver);
 				case SET_VALUE: return templates.templateSetValueMethod(m, implementedInterface);
 				case OPTIONAL:	return templates.templateOptionalMethod(m, nodeResolver);
-				default: 		throw new TwynProxyException("Could not handle method=" + m.getName()
-						+ " with methodType=" + MethodType.getType(m) + " on interface " + implementedInterface.getCanonicalName());
+				default:		throw ErrorFactory.proxyValidationError(implementedInterface, m).get();
 			} })
 			.collect(Collectors.joining("\n\n"))
 			.toString();
