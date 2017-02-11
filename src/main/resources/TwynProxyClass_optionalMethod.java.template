@@ -2,7 +2,7 @@
     public Optional<RETURN_TYPE> METHOD_NAME() {
         return cache.get("FIELD_NAME", () -> {
             try {
-                JsonNode node = jsonNode.get(FIELD_ID);
+                JsonNode node = resolve(jsonNode, FIELD_ID);
                 return node == null ? Optional.<RETURN_TYPE>empty() : Optional.of(twyn.readValue(node, RETURN_TYPE.class));
             } catch (RuntimeException e) {
                 throw e;

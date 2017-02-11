@@ -224,7 +224,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 				twynContext.getIdentityMethods().getIdentityMethods(implementedType)
 				.map((m) -> {
 					try {
-						return m.getName() + "()=" + this.invoke(null, getMethod(m), NO_ARGS).toString();
+						return m.getName() + "()=" + this.invoke(null, getMethod(m), NO_ARGS);
 					} catch (Throwable e) {
 						throw new TwynProxyException("Could not call method " + m + " for toString calculation.", e);
 					}

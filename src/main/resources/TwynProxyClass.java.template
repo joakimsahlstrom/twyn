@@ -27,8 +27,10 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterators;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 
@@ -58,7 +60,19 @@ IMPLEMENTED_METHODS
 			} )
 			.collect(collector);
 	}
-	
+
+	private JsonNode resolve(JsonNode root, String path) {
+		return Stream.of(path.split("\\.")).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP);
+	}
+
+	private static final BinaryOperator<JsonNode> NO_BINARY_OP = (n1, n2) -> {
+		throw new RuntimeException("NO BINARY OP!");
+	};
+
+	private JsonNode resolve(JsonNode root, int index) {
+		return root.get(index);
+	}
+
 	@Override
 	public JsonNode getJsonNode() {
 		return jsonNode;

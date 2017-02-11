@@ -696,6 +696,35 @@ public class TwynTest {
 
 	// Helper methods
 
+
+	@Test
+	public void canResolveWithDifferentName() throws Exception {
+		assertEquals("1", twyn.read("{ \"age\": \"1\" }", NameChange.class).name());
+	}
+	public interface NameChange {
+		@Resolve("age")
+		String name();
+	}
+
+	@Test
+	public void canResolveDeepNodes() throws Exception {
+		assertEquals("found!", twyn.read("{ \"toResolve\": { \"resolveMe\": \"found!\" } }", Resolvable.class).resolveMe());
+	}
+	public interface Resolvable {
+		@Resolve("toResolve.resolveMe")
+		String resolveMe();
+	}
+
+	@Test
+	public void canResolveComplexNodes() throws Exception {
+		assertEquals("found2!", twyn.read("{ \"level1\": { \"level2\": { \"level3\": { \"name\": \"found2!\" } } } }", ComplexResolvable.class)
+				.stringHolder().getName());
+	}
+	public interface ComplexResolvable {
+		@Resolve("level1.level2.level3")
+		StringIF stringHolder();
+	}
+
 	private InputStream input(String string) {
 		return new ByteArrayInputStream(string.getBytes());
 	}

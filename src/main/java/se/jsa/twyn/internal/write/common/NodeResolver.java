@@ -19,11 +19,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import se.jsa.twyn.Resolve;
 import se.jsa.twyn.TwynIndex;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.read.ImplementedMethod;
@@ -58,13 +61,25 @@ public interface NodeResolver  {
 	String resolveNodeId(ImplementedMethod method);
 
 	static class MethodNameInvocationHandlerMethodResolver implements NodeResolver {
+		private static final BinaryOperator<JsonNode> NO_BINARY_OP = (n1, n2) -> {
+			throw new RuntimeException("NO BINARY OP!");
+		};
+
 		@Override
 		public JsonNode resolveNode(ImplementedMethod method, JsonNode root) {
-			return root.get(TwynUtil.decodeJavaBeanGetName(method.getName()));
+			String[] path = Optional.ofNullable(method.getAnnotation(Resolve.class))
+					.map(Resolve::value)
+					.map((resolve) -> resolve.split("\\."))
+					.orElseGet(() -> new String[] { TwynUtil.decodeJavaBeanGetName(method.getName()) });
+
+			return Stream.of(path).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP);
 		}
+
 		@Override
 		public String resolveNodeId(ImplementedMethod method) {
-			return "\"" + TwynUtil.decodeJavaBeanGetName(method.getName()) + "\"";
+			return "\"" + Optional.ofNullable(method.getAnnotation(Resolve.class))
+					.map(Resolve::value)
+					.orElseGet(() -> TwynUtil.decodeJavaBeanGetName(method.getName())) + "\"";
 		}
 	}
 

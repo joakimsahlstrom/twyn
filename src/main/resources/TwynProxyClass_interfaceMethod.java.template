@@ -1,7 +1,7 @@
 	@Override
 	public RETURN_TYPE METHOD_NAME() {
 		return cache.get("FIELD_NAME", () -> {
-			JsonNode node = jsonNode.get(FIELD_ID);
+			JsonNode node = resolve(jsonNode, FIELD_ID);
 			if (node == null) {
 				return null;
 			} else {

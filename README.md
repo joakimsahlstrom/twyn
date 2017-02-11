@@ -146,6 +146,25 @@ class DaughterKey {
 }
 ```
 
+###Twyn can map nodes deeper in a json document
+```json
+{
+    "name": {
+        "firstName": "John",
+        "lastName": "Doe"
+    },
+    "age": 37
+}
+```
+Can thus be mapped with
+```java
+interface Person {
+    @Resolve("name.firstName") 
+    String getFirstName();
+    int getAge();
+}
+```
+
 ###Twyn can map interfaces directly against arrays
 Map this json:
 ```json
@@ -262,7 +281,7 @@ JsonNode root = twyn.getJsonNode(contact);
 
 ##Todo:
 * @PostConstruct annotated methods
-* Allow for shallow getters to point to "deeper" fields eg: @TwynResolve("name.lastName") String getLastName()
+* @Resolve+set
 * Improve error message for bad array mappings
 * Ability to parse json that starts with a Map (eg. { \"a\" : { 1 }, \"b\" : { 2 } } w/
 	interface MyMap { @TwynRoot Map<String, MyNode> nodes(); }
