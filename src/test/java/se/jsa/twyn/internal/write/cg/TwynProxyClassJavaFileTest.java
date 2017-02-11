@@ -24,7 +24,7 @@ import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import se.jsa.twyn.TwynIndex;
+import se.jsa.twyn.ArrayIndex;
 import se.jsa.twyn.TwynTest;
 import se.jsa.twyn.TwynTest.StringIF;
 import se.jsa.twyn.internal.IdentityMethods;
@@ -77,8 +77,8 @@ public class TwynProxyClassJavaFileTest {
 	}
 
 	public static interface ArrayElement {
-		@TwynIndex(0) int index();
-		@TwynIndex(3) String message();
+		@ArrayIndex(0) int index();
+		@ArrayIndex(3) String message();
 	}
 
 	private TwynProxyClassJavaFile getCode(Class<?> type) throws IOException, URISyntaxException {

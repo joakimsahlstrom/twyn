@@ -15,8 +15,6 @@
  */
 package se.jsa.twyn.internal.write.common;
 
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +26,9 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeCreator;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import se.jsa.twyn.Resolve;
-import se.jsa.twyn.TwynIndex;
+import se.jsa.twyn.ArrayIndex;
 import se.jsa.twyn.internal.MethodType;
 import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
@@ -43,7 +40,7 @@ public interface NodeResolver  {
 
 	void setNode(ImplementedMethod method, JsonNode root, JsonNode value);
 
-	static Predicate<ImplementedMethod> WITH_TWYNINDEX = m -> m.hasAnnotation(TwynIndex.class);
+	static Predicate<ImplementedMethod> WITH_TWYNINDEX = m -> m.hasAnnotation(ArrayIndex.class);
 
 	static NodeResolver getResolver(ProxiedInterface implementedType) {
 		return isArrayType(implementedType)
@@ -61,7 +58,7 @@ public interface NodeResolver  {
 			return false;
 		} else {
 			throw new IllegalArgumentException("Type " + implementedType.getCanonicalName()
-					+ " has some, but not all getter method annotated with @" + TwynIndex.class.getSimpleName() + ". "
+					+ " has some, but not all getter method annotated with @" + ArrayIndex.class.getSimpleName() + ". "
 					+ "Either all or none getter methods must be annotated with this annotation.");
 		}
 	}
@@ -113,10 +110,10 @@ public interface NodeResolver  {
 				.filter(MethodType.GETTER_TYPES_FILTER)
 				.forEachOrdered(m -> fieldOrder.put(
 					TwynUtil.decodeJavaBeanGetName(m.getName()),
-					Optional.ofNullable(m.getAnnotation(TwynIndex.class))
+					Optional.ofNullable(m.getAnnotation(ArrayIndex.class))
 						.orElseThrow(() -> new IllegalArgumentException(
 								"Attempts to map method '" + m.getName() + "' of type '" + implementedType + "'"
-								+ " to an array without providing a @" + TwynIndex.class.getSimpleName() + " annotation."))
+								+ " to an array without providing a @" + ArrayIndex.class.getSimpleName() + " annotation."))
 						.value()));
 		}
 

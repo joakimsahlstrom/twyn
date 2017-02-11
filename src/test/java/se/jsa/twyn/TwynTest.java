@@ -375,7 +375,7 @@ public class TwynTest {
 		assertEquals(e3, twyn.read("{ \"name\" : \"n1\", \"type\" : \"t2\" }", ReferenceEntity.class));
 	}
 	public static interface ReferenceEntity {
-		@TwynId
+		@IdField
 		String name();
 		String type();
 	}
@@ -425,7 +425,7 @@ public class TwynTest {
 		twyn.read("{ \"name\" : \"n1\", \"type\" : \"test\" }", InterfaceWithNonDefaultMethodWithParameters.class);
 	}
 	public static interface InterfaceWithNonDefaultMethodWithParameters {
-		@TwynId
+		@IdField
 		String name();
 		String type(String param, int i);
 	}
@@ -554,8 +554,8 @@ public class TwynTest {
 		ArrayElement arr();
 	}
 	public static interface ArrayElement {
-		@TwynIndex(0) int index();
-		@TwynIndex(3) String message();
+		@ArrayIndex(0) int index();
+		@ArrayIndex(3) String message();
 	}
 
 	@Test
@@ -750,7 +750,7 @@ public class TwynTest {
 	}
 
 	@Test
-	public void canSetWithTwynIndex() throws Exception {
+	public void canSetWithArrayIndex() throws Exception {
 		SetArrayObject arrayObject = twyn.read("{ \"arr\" : [ 1, \"JS\", 33, \"iCode\" ] }", SetArrayObject.class);
 		assertEquals(1, arrayObject.arr().index());
 		assertEquals("iCode", arrayObject.arr().message());
@@ -763,10 +763,10 @@ public class TwynTest {
 		SetArrayElement arr();
 	}
 	public static interface SetArrayElement {
-		@TwynIndex(0) int index();
-		@TwynIndex(0) void setIndex(int index);
-		@TwynIndex(3) String message();
-		@TwynIndex(3) void setMessage(String message);
+		@ArrayIndex(0) int index();
+		@ArrayIndex(0) void setIndex(int index);
+		@ArrayIndex(3) String message();
+		@ArrayIndex(3) void setMessage(String message);
 	}
 
 	// Helper methods

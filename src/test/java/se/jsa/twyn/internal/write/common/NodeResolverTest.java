@@ -20,9 +20,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import se.jsa.twyn.TwynIndex;
+import se.jsa.twyn.ArrayIndex;
 import se.jsa.twyn.internal.read.ProxiedInterface;
-import se.jsa.twyn.internal.write.common.NodeResolver;
 
 public class NodeResolverTest {
 
@@ -32,8 +31,8 @@ public class NodeResolverTest {
 		assertFalse(NodeResolver.isArrayType(ProxiedInterface.of(NormalType.class)));
 	}
 	public static interface ArrayElement {
-		@TwynIndex(0) int index();
-		@TwynIndex(3) String message();
+		@ArrayIndex(0) int index();
+		@ArrayIndex(3) String message();
 	}
 	public static interface NormalType {
 		int index();

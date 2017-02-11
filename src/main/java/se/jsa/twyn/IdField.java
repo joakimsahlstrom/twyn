@@ -20,9 +20,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-// TODO: -> @ArrayIndex?
-@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface TwynIndex {
-	int value();
+@Retention(RetentionPolicy.RUNTIME)
+public @interface IdField {
 }

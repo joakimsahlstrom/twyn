@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import se.jsa.twyn.TwynId;
+import se.jsa.twyn.IdField;
 import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
 
@@ -40,7 +40,7 @@ public class IdentityMethods {
 		List<ImplementedMethod> methods = implementedType.getMethods().stream()
 				.filter(m -> !MethodType.DEFAULT.test(m) && m.getNumParameters() == 0)
 				.collect(Collectors.toList());
-		List<ImplementedMethod> idAnnotatedMethods = methods.stream().filter(m ->  m.hasAnnotation(TwynId.class)).collect(Collectors.toList());
+		List<ImplementedMethod> idAnnotatedMethods = methods.stream().filter(m ->  m.hasAnnotation(IdField.class)).collect(Collectors.toList());
 		return (idAnnotatedMethods.size() > 0) ? idAnnotatedMethods : methods;
 	}
 }

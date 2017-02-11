@@ -159,8 +159,7 @@ class DaughterKey {
 Can thus be mapped with
 ```java
 interface Person {
-    @Resolve("name.firstName") 
-    String getFirstName();
+    @Resolve("name.firstName") String getFirstName();
     int getAge();
 }
 ```
@@ -178,8 +177,9 @@ public static interface ArrayObject {
 	ArrayElement arr();
 }
 public static interface ArrayElement {
-	@TwynIndex(0) int index(); // @TwynIndex must exist on all getter methods
-	@TwynIndex(3) String message();
+	@ArrayIndex(0) int index(); // @ArrayIndex must exist on all get/set methods
+	@ArrayIndex(3) String message();
+	@ArrayIndex(3) void setMessage(String msg);
 }
 ```
 __Also, this way the two-dimensional array:__
@@ -256,7 +256,7 @@ public static interface ArrayObject {
 A twyn proxy for this class will generated directly at compile-time. Use the configuration .withClassGeneration() in order to use the generated class(es). 
 
 ###Twyn supports toString, hashCode and equals
-Equals and hashCode are calculated from all mapped values, or, if any, those annotated with @TwynId.
+Equals and hashCode are calculated from all mapped values, or, if any, those annotated with @IdField.
 toString prints the values that equals and hashCode are calculated from.
 
 ###Twyn can modify the underlying jackson node structure
@@ -271,7 +271,7 @@ class Id {
 	int idValue;
 }
 ```
-Setters works with @TwynIndex(N) & @Resolve("...")
+Setters works with @ArrayIndex(N) & @Resolve("...")
 
 Retrieve the underlying jackson jsonNode like this:
 ```java
