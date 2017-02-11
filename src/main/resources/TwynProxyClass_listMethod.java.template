@@ -1,6 +1,6 @@
 	@Override
 	public List<COMPONENT_TYPE> METHOD_NAME() {
-		return cache.get("FIELD_NAME", () -> {
+		return cache.get("" + FIELD_ID, () -> {
 			try {
 				JsonNode node = resolve(jsonNode, FIELD_ID);
 				if (node == null) {

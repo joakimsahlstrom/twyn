@@ -15,17 +15,21 @@
  */
 package se.jsa.twyn.internal.write.common;
 
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BinaryOperator;
-import java.util.function.Predicate;
+import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeCreator;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import se.jsa.twyn.Resolve;
 import se.jsa.twyn.TwynIndex;
 import se.jsa.twyn.internal.MethodType;
@@ -33,8 +37,12 @@ import se.jsa.twyn.internal.read.ImplementedMethod;
 import se.jsa.twyn.internal.read.ProxiedInterface;
 
 public interface NodeResolver  {
-
 	JsonNode resolveNode(ImplementedMethod method, JsonNode root);
+	String resolveNodeId(ImplementedMethod method);
+	String resolveSetNodeId(ImplementedMethod method);
+
+	void setNode(ImplementedMethod method, JsonNode root, JsonNode value);
+
 	static Predicate<ImplementedMethod> WITH_TWYNINDEX = m -> m.hasAnnotation(TwynIndex.class);
 
 	static NodeResolver getResolver(ProxiedInterface implementedType) {
@@ -58,8 +66,6 @@ public interface NodeResolver  {
 		}
 	}
 
-	String resolveNodeId(ImplementedMethod method);
-
 	static class MethodNameInvocationHandlerMethodResolver implements NodeResolver {
 		private static final BinaryOperator<JsonNode> NO_BINARY_OP = (n1, n2) -> {
 			throw new RuntimeException("NO BINARY OP!");
@@ -67,12 +73,14 @@ public interface NodeResolver  {
 
 		@Override
 		public JsonNode resolveNode(ImplementedMethod method, JsonNode root) {
-			String[] path = Optional.ofNullable(method.getAnnotation(Resolve.class))
-					.map(Resolve::value)
-					.map((resolve) -> resolve.split("\\."))
-					.orElseGet(() -> new String[] { TwynUtil.decodeJavaBeanGetName(method.getName()) });
+			return Stream.of(readPath(method, TwynUtil::decodeJavaBeanGetName)).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP);
+		}
 
-			return Stream.of(path).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP);
+		@SuppressWarnings("deprecation")
+		@Override
+		public void setNode(ImplementedMethod method, JsonNode root, JsonNode value) {
+			String[] path = readPath(method, TwynUtil::decodeJavaBeanSetName);
+			((ObjectNode) Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP)).put(path[path.length - 1], value);
 		}
 
 		@Override
@@ -80,6 +88,20 @@ public interface NodeResolver  {
 			return "\"" + Optional.ofNullable(method.getAnnotation(Resolve.class))
 					.map(Resolve::value)
 					.orElseGet(() -> TwynUtil.decodeJavaBeanGetName(method.getName())) + "\"";
+		}
+
+		@Override
+		public String resolveSetNodeId(ImplementedMethod method) {
+			return "\"" + Optional.ofNullable(method.getAnnotation(Resolve.class))
+					.map(Resolve::value)
+					.orElseGet(() -> TwynUtil.decodeJavaBeanSetName(method.getName())) + "\"";
+		}
+
+		private String[] readPath(ImplementedMethod method, Function<String, String> nameDecoder) {
+			return (String[]) Optional.ofNullable(method.getAnnotation(Resolve.class))
+                            .map(Resolve::value)
+                            .map((resolve) -> resolve.split("\\."))
+                            .orElseGet(() -> new String[] { nameDecoder.apply(method.getName()) });
 		}
 	}
 
@@ -105,6 +127,16 @@ public interface NodeResolver  {
 		@Override
 		public String resolveNodeId(ImplementedMethod method) {
 			return fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())).toString();
+		}
+
+		@Override
+		public String resolveSetNodeId(ImplementedMethod method) {
+			return fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())).toString();
+		}
+
+		@Override
+		public void setNode(ImplementedMethod method, JsonNode root, JsonNode value) {
+			((ArrayNode) root).set(fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())), value);
 		}
 	}
 

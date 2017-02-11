@@ -106,7 +106,6 @@ class TwynProxyClassJavaTemplates {
 				.replace("RETURN_TYPE", method.getReturnTypeCanonicalName())
 				.replace("METHOD_NAME", method.getName())
 				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
-				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
@@ -115,7 +114,6 @@ class TwynProxyClassJavaTemplates {
 				.replace("RETURN_TYPE", method.getReturnTypeCanonicalName())
 				.replace("METHOD_NAME", method.getName())
 				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
-				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName())
 				.replace("NULL_RETURN", method.returnsArray() ? "new " + method.getReturnComponentTypeCanonicalName() + "[0]" : "null");
 	}
@@ -131,7 +129,6 @@ class TwynProxyClassJavaTemplates {
 				.replace("RETURN_TYPE", method.getReturnTypeParameterTypeCanonicalName(0).replace("$", "."))
 				.replace("METHOD_NAME", method.getName())
 				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
-				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
@@ -140,7 +137,6 @@ class TwynProxyClassJavaTemplates {
 				.replace("RETURN_TYPE", method.getReturnTypeParameterTypeCanonicalName(0).replace("$", "."))
 				.replace("METHOD_NAME", method.getName())
 				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
-				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
@@ -150,7 +146,6 @@ class TwynProxyClassJavaTemplates {
 				.replace("COMPONENT_TYPE", method.getReturnComponentTypeCanonicalName())
 				.replace("METHOD_NAME", method.getName())
 				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
-				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
@@ -159,7 +154,6 @@ class TwynProxyClassJavaTemplates {
 				.replace("COMPONENT_TYPE", method.getReturnTypeParameterTypeCanonicalName(0).replace("$", "."))
 				.replace("METHOD_NAME", method.getName())
 				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
-				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
@@ -168,7 +162,6 @@ class TwynProxyClassJavaTemplates {
 				.replace("COMPONENT_TYPE", method.getReturnTypeParameterTypeCanonicalName(0).replace("$", "."))
 				.replace("METHOD_NAME", method.getName())
 				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
-				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
@@ -180,7 +173,6 @@ class TwynProxyClassJavaTemplates {
 					.replace("COMPONENT_TYPE", method.getReturnTypeParameterTypeCanonicalName(1).replace("$", "."))
 					.replace("METHOD_NAME", method.getName())
 					.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
-					.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 					.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 		}
 	}
@@ -190,18 +182,17 @@ class TwynProxyClassJavaTemplates {
 				.replace("COMPONENT_TYPE", method.getReturnTypeParameterTypeCanonicalName(1).replace("$", "."))
 				.replace("METHOD_NAME", method.getName())
 				.replace("FIELD_ID", nodeResolver.resolveNodeId(method))
-				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanName(method.getName()))
 				.replace("KEY_TYPE", method.getReturnTypeParameterTypeCanonicalName(0).replace("$", "."))
 				.replace("DECLARING_CLASS", method.getDeclaringClassSimpleName());
 	}
 
-	public String templateSetValueMethod(ImplementedMethod method, ProxiedInterface implementedType) {
+	public String templateSetValueMethod(ImplementedMethod method, ProxiedInterface implementedType, NodeResolver nodeResolver) {
 		return twynSetValueMethodTemplate
 				.replace("VALUE_TYPE", method.getParameterTypeCanonicalName(0))
 				.replace("METHOD_NAME", method.getName())
 				.replace("RETURN_TYPE", method.returns(implementedType) ? implementedType.getCanonicalName() : "void")
 				.replace("RETURN", method.returns(implementedType) ? "return this;" : "")
-				.replace("FIELD_NAME", TwynUtil.decodeJavaBeanSetName(method.getName()));
+				.replace("FIELD_ID", nodeResolver.resolveSetNodeId(method));
 	}
 
 }

@@ -517,7 +517,7 @@ public class TwynTest {
 		ObjectHoldingSetIF complexObject = twyn.read(input("{ \"id\" : { \"val\" : \"2\" } }"), ObjectHoldingSetIF.class);
 		assertEquals(2, complexObject.getId().getVal());
 		complexObject.setId(new MyId(21));
-		assertEquals(21, complexObject.getId().getVal());
+		assertEquals(complexObject.toString(), 21, complexObject.getId().getVal());
 
 	}
 	public static interface ObjectHoldingSetIF {
@@ -694,9 +694,6 @@ public class TwynTest {
 	}
 	*/
 
-	// Helper methods
-
-
 	@Test
 	public void canResolveWithDifferentName() throws Exception {
 		assertEquals("1", twyn.read("{ \"age\": \"1\" }", NameChange.class).name());
@@ -725,8 +722,56 @@ public class TwynTest {
 		StringIF stringHolder();
 	}
 
+	@Test
+	public void canSetWithResolve() throws Exception {
+		SetResolvable read = twyn.read("{ \"toResolve\": { \"resolveMe\": \"found!\" } }", SetResolvable.class);
+		read.set("notFound!");
+		assertEquals("notFound!", read.get());
+	}
+	public interface SetResolvable {
+		@Resolve("toResolve.resolveMe")
+		void set(String value);
+		@Resolve("toResolve.resolveMe")
+		String get();
+	}
+
+	@Test
+	public void canSetComplexResolvable() throws Exception {
+		SetComplexResolvable read = twyn.read("{ \"level1\": { \"level2\": { \"level3\": { \"val\": \"1\" } } } }", SetComplexResolvable.class);
+		assertEquals(1, read.stringIdHolder().getVal());
+		read.setStringIdHolder(new MyId(2));
+		assertEquals(2, read.stringIdHolder().getVal());
+	}
+	public interface SetComplexResolvable {
+		@Resolve("level1.level2.level3")
+		MyId stringIdHolder();
+		@Resolve("level1.level2.level3")
+		void setStringIdHolder(MyId myId);
+	}
+
+	@Test
+	public void canSetWithTwynIndex() throws Exception {
+		SetArrayObject arrayObject = twyn.read("{ \"arr\" : [ 1, \"JS\", 33, \"iCode\" ] }", SetArrayObject.class);
+		assertEquals(1, arrayObject.arr().index());
+		assertEquals("iCode", arrayObject.arr().message());
+		arrayObject.arr().setIndex(2);
+		arrayObject.arr().setMessage("uCode?");
+		assertEquals(2, arrayObject.arr().index());
+		assertEquals("uCode?", arrayObject.arr().message());
+	}
+	public static interface SetArrayObject {
+		SetArrayElement arr();
+	}
+	public static interface SetArrayElement {
+		@TwynIndex(0) int index();
+		@TwynIndex(0) void setIndex(int index);
+		@TwynIndex(3) String message();
+		@TwynIndex(3) void setMessage(String message);
+	}
+
+	// Helper methods
+
 	private InputStream input(String string) {
 		return new ByteArrayInputStream(string.getBytes());
 	}
-
 }

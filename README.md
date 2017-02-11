@@ -271,6 +271,8 @@ class Id {
 	int idValue;
 }
 ```
+Setters works with @TwynIndex(N) & @Resolve("...")
+
 Retrieve the underlying jackson jsonNode like this:
 ```java
 Twyn twyn = Twyn.forTest();
@@ -281,13 +283,11 @@ JsonNode root = twyn.getJsonNode(contact);
 
 ##Todo:
 * @PostConstruct annotated methods
-* @Resolve+set
 * Improve error message for bad array mappings
 * Ability to parse json that starts with a Map (eg. { \"a\" : { 1 }, \"b\" : { 2 } } w/
 	interface MyMap { @TwynRoot Map<String, MyNode> nodes(); }
 	twyn.read(jsonResponse, MyMap.class)
 	or
-	twyn.readMap(jsonResponse, MyNode.class) )
+	twyn.read(jsonResponse, Map.class) ) to get a Map<k, v> with twyn-mapped key/values?
 * Delete values/structures
 * Collection modifications
-* Ability to chose custom names for fields by using annotation (e.g. @TwynName)

@@ -71,7 +71,7 @@ class TwynProxyClassJavaFile {
 				case MAP: 		return templates.templateMapMethod(m, nodeResolver);
 				case INTERFACE: return templates.templateInterfaceMethod(m, nodeResolver);
 				case VALUE:		return templates.templateValueMethod(m, nodeResolver);
-				case SET_VALUE: return templates.templateSetValueMethod(m, implementedInterface);
+				case SET_VALUE: return templates.templateSetValueMethod(m, implementedInterface, nodeResolver);
 				case OPTIONAL:	return templates.templateOptionalMethod(m, nodeResolver);
 				default:		throw ErrorFactory.proxyValidationError(implementedInterface, m).get();
 			} })

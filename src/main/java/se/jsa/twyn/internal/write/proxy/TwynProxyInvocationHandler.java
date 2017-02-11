@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.*;
 
 import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.Cache;
@@ -49,7 +49,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private final TwynContext twynContext;
 	private final ProxiedInterfaceClass implementedType;
 	private final Cache cache;
-	private final NodeResolver invocationHandlerNodeResolver;
+	private final NodeResolver nodeResolver;
 	private final DefaultMethodLookup defaultMethodLookup;
 
 	public TwynProxyInvocationHandler(JsonNode jsonNode, TwynContext twynContext, ProxiedInterfaceClass implementedType) {
@@ -57,7 +57,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		this.twynContext = Objects.requireNonNull(twynContext);
 		this.implementedType = Objects.requireNonNull(implementedType);
 		this.cache = Objects.requireNonNull(twynContext.createCache());
-		this.invocationHandlerNodeResolver = NodeResolver.getResolver(implementedType);
+		this.nodeResolver = NodeResolver.getResolver(implementedType);
 		this.defaultMethodLookup = DefaultMethodLookup.create();
 	}
 
@@ -158,17 +158,17 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 
 	private Object setValue(Object proxy, Method method, Object[] args) {
 		if (!BasicJsonTypes.isBasicJsonType(args[0].getClass())) {
-			((ObjectNode) jsonNode).set(TwynUtil.decodeJavaBeanSetName(method.getName()), twynContext.writeValue(args[0]));
+			nodeResolver.setNode(ImplementedMethod.of(method), jsonNode, twynContext.writeValue(args[0]));
 		} else {
 			switch (BasicJsonTypes.get(args[0].getClass())) {
-			case BIG_DECIMAL:	((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (BigDecimal)args[0]); break;
-			case BOOLEAN:		((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Boolean)args[0]); break;
-			case BYTE_ARRAY:	((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (byte[])args[0]); break;
-			case DOUBLE:		((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Double)args[0]); break;
-			case FLOAT:			((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Float)args[0]); break;
-			case INTEGER:		((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Integer)args[0]); break;
-			case LONG:			((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (Long)args[0]); break;
-			case STRING:		((ObjectNode) jsonNode).put(TwynUtil.decodeJavaBeanSetName(method.getName()), (String)args[0]); break;
+				case BIG_DECIMAL: 	nodeResolver.setNode(ImplementedMethod.of(method), jsonNode, DecimalNode.valueOf((BigDecimal)args[0])); break;
+				case BOOLEAN:		nodeResolver.setNode(ImplementedMethod.of(method), jsonNode, BooleanNode.valueOf((Boolean)args[0])); break;
+				case BYTE_ARRAY:	nodeResolver.setNode(ImplementedMethod.of(method), jsonNode, BinaryNode.valueOf((byte[])args[0])); break;
+				case DOUBLE:		nodeResolver.setNode(ImplementedMethod.of(method), jsonNode, DoubleNode.valueOf((Double)args[0])); break;
+				case FLOAT:			nodeResolver.setNode(ImplementedMethod.of(method), jsonNode, FloatNode.valueOf((Float)args[0])); break;
+				case INTEGER:		nodeResolver.setNode(ImplementedMethod.of(method), jsonNode, IntNode.valueOf((Integer) args[0])); break;
+				case LONG:			nodeResolver.setNode(ImplementedMethod.of(method), jsonNode, LongNode.valueOf((Long)args[0])); break;
+				case STRING:		nodeResolver.setNode(ImplementedMethod.of(method), jsonNode, TextNode.valueOf((String)args[0])); break;
 			}
 		}
 		cache.clear(TwynUtil.decodeJavaBeanName(method.getName()));
@@ -210,7 +210,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	}
 
 	private Optional<JsonNode> tryResolveTargetGetNode(Method method) {
-		return Optional.ofNullable(invocationHandlerNodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode));
+		return Optional.ofNullable(nodeResolver.resolveNode(ImplementedMethod.of(method), jsonNode));
 	}
 
 	@Override
@@ -220,7 +220,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 
 	@Override
 	public String toString() {
-		return "TwynInvocationHandler<" + implementedType.getSimpleName() + "> [" +
+		return "TwynProxyInvocationHandler<" + implementedType.getSimpleName() + "> [" +
 				twynContext.getIdentityMethods().getIdentityMethods(implementedType)
 				.map((m) -> {
 					try {
@@ -230,7 +230,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 					}
 				})
 				.reduce(null, (s1, s2) -> { return (s1 == null ? s2 : (s2 == null ? s1 : s1 + ", " + s2)); })
-				+ (twynContext.isDebug() ? ", node=\"" + jsonNode + "\"": "")
+				+ (twynContext.isDebug() ? ", node=\"" + jsonNode + "\"" : "")
 				+ "]";
 	}
 
