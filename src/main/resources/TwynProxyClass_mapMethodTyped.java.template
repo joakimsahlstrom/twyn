@@ -2,15 +2,15 @@
 	public Map<KEY_TYPE, COMPONENT_TYPE> METHOD_NAME() {
 		return cache.get("" + FIELD_ID, () -> {
 			try {
-				JsonNode node = resolve(jsonNode, FIELD_ID);
+				Node node = resolve(node, FIELD_ID);
 				if (node == null) {
 					return Collections.<KEY_TYPE, COMPONENT_TYPE>emptyMap();
 				}
-				Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure("DECLARING_CLASS.METHOD_NAME", "Map<String, COMPONENT_TYPE>", jsonNode));
+				Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure("DECLARING_CLASS.METHOD_NAME", "Map<String, COMPONENT_TYPE>", node));
 			
 				return StreamSupport
 					.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), false)
-					.collect(Collectors.<Entry<String, JsonNode>, KEY_TYPE, COMPONENT_TYPE>toMap((entry) -> readKey_METHOD_NAME(entry.getKey()), (entry) -> twyn.proxy(entry.getValue(), COMPONENT_TYPE.class)));
+					.collect(Collectors.<Entry<String, Node>, KEY_TYPE, COMPONENT_TYPE>toMap((entry) -> readKey_METHOD_NAME(entry.getKey()), (entry) -> twyn.proxy(entry.getValue(), COMPONENT_TYPE.class)));
 			} catch (RuntimeException e) {
 				throw e;
 			} catch (Exception e) {

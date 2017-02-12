@@ -15,6 +15,18 @@
  */
 package se.jsa.twyn;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import se.jsa.twyn.internal.*;
+import se.jsa.twyn.internal.datamodel.Node;
+import se.jsa.twyn.internal.datamodel.NodeProducer;
+import se.jsa.twyn.internal.proxy.TwynProxyBuilder;
+import se.jsa.twyn.internal.proxy.cg.TwynProxyClassBuilder;
+import se.jsa.twyn.internal.proxy.reflect.TwynProxyInvocationHandlerBuilder;
+import se.jsa.twyn.internal.readmodel.ProxiedInterface;
+import se.jsa.twyn.internal.readmodel.reflect.ProxiedInterfaceClass;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,30 +34,9 @@ import java.io.Reader;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import se.jsa.twyn.internal.Cache;
-import se.jsa.twyn.internal.ErrorFactory;
-import se.jsa.twyn.internal.MethodType;
-import se.jsa.twyn.internal.NodeSupplier;
-import se.jsa.twyn.internal.Require;
-import se.jsa.twyn.internal.TwynContext;
-import se.jsa.twyn.internal.read.ProxiedInterface;
-import se.jsa.twyn.internal.read.reflect.ProxiedInterfaceClass;
-import se.jsa.twyn.internal.write.TwynProxyBuilder;
-import se.jsa.twyn.internal.write.cg.TwynProxyClassBuilder;
-import se.jsa.twyn.internal.write.proxy.TwynProxyInvocationHandlerBuilder;
 
 public class Twyn {
 	private final TwynContext twynContext;
@@ -82,14 +73,9 @@ public class Twyn {
 		return read(() -> twynContext.getObjectMapper().readTree(url), type);
 	}
 
-	@FunctionalInterface
-	private interface JsonProducer {
-		JsonNode get() throws Exception;
-	}
-
-	private <T> T read(JsonProducer jsonProducer, Class<T> type) throws JsonProcessingException, IOException {
+	private <T> T read(NodeProducer jsonProducer, Class<T> type) throws JsonProcessingException, IOException {
 		try {
-			JsonNode node = jsonProducer.get();
+			Node node = jsonProducer.get();
 			if (type.isArray()) {
 				Class<?> componentType = type.getComponentType();
 				Require.that(node.isArray(), ErrorFactory.proxyArrayJsonNotArrayType("ROOT", componentType.getSimpleName(), node));
@@ -113,14 +99,14 @@ public class Twyn {
 		return type;
 	}
 
-	public JsonNode getJsonNode(Object obj) {
+	public Node getNode(Object obj) {
 		if (obj instanceof NodeSupplier) {
-			return ((NodeSupplier) obj).getJsonNode();
+			return ((NodeSupplier) obj).getNode();
 		}
 		try {
 			InvocationHandler invocationHandler = Proxy.getInvocationHandler(obj);
 			NodeSupplier twynProxyInvocationHandler = ((NodeSupplier)invocationHandler);
-			return twynProxyInvocationHandler.getJsonNode();
+			return twynProxyInvocationHandler.getNode();
 		} catch (RuntimeException e) {
 			throw new IllegalArgumentException("Not a twyn object!", e);
 		}
