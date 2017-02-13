@@ -33,7 +33,7 @@ public class ErrorFactory {
 	}
 	public static Supplier<? extends RuntimeException> innerProxyNoStruct(String methodName, String returnTypeName, Node node) {
 		return () -> new BadNodeTypeException(
-				"Did not find json structure matching type=" + returnTypeName + " for method=" + methodName + "(). Bad json fragment=" + node);
+				"Did not find node structure matching type=" + returnTypeName + " for method=" + methodName + "(). Bad node fragment=" + node);
 	}
 
 	public static Supplier<? extends RuntimeException> innerMapProxyNoMapStructure(Method method, Node node) {
@@ -45,23 +45,23 @@ public class ErrorFactory {
 	}
 	public static Supplier<? extends RuntimeException> innerMapProxyNoMapStructure(String methodName, String returnTypeName, Node node) {
 		return () -> new BadNodeTypeException(
-				"Did not find json map structure when resolving type=" + returnTypeName + " for method=" + methodName + "(). Bad json fragment=" + node);
+				"Did not find node map structure when resolving type=" + returnTypeName + " for method=" + methodName + "(). Bad node fragment=" + node);
 	}
 
-	public static Supplier<? extends RuntimeException> proxyArrayJsonNotArrayType(Class<?> componentType, Method method, Node node) {
-		return proxyArrayJsonNotArrayType(getName(method), componentType.getSimpleName(), node);
+	public static Supplier<? extends RuntimeException> proxyArrayNodeNotCollectionType(Class<?> componentType, Method method, Node node) {
+		return proxyArrayNodeNotCollectionType(getName(method), componentType.getSimpleName(), node);
 	}
-	public static Supplier<? extends RuntimeException> proxyArrayJsonNotArrayType(String methodName, String componentTypeName, Node node) {
+	public static Supplier<? extends RuntimeException> proxyArrayNodeNotCollectionType(String methodName, String componentTypeName, Node node) {
 		return () -> new BadNodeTypeException(
-				"Did not find array of " + componentTypeName + " for method=" + methodName + "(). Bad json fragment=" + node);
+				"Did not find array of " + componentTypeName + " for method=" + methodName + "(). Bad node fragment=" + node);
 	}
 	
-	public static Supplier<? extends RuntimeException> proxyCollectionJsonNotArrayType(String componentTypeName, Method method, Node node) {
-		return proxyCollectionJsonNotArrayType(getName(method), componentTypeName, node);
+	public static Supplier<? extends RuntimeException> proxyCollectionNotCollectionType(String componentTypeName, Method method, Node node) {
+		return proxyCollectionNotCollectionType(getName(method), componentTypeName, node);
 	}
-	public static Supplier<? extends RuntimeException> proxyCollectionJsonNotArrayType(String methodName, String componentTypeName, Node node) {
+	public static Supplier<? extends RuntimeException> proxyCollectionNotCollectionType(String methodName, String componentTypeName, Node node) {
 		return () -> new BadNodeTypeException(
-				"Did not find collection of " + componentTypeName + " for method=" + methodName + "(). Bad json fragment=" + node);
+				"Did not find collection of " + componentTypeName + " for method=" + methodName + "(). Bad node fragment=" + node);
 	}
 
 	public static Supplier<? extends RuntimeException> couldNotResolveTargetNode(Method method, Node node) {
@@ -69,7 +69,7 @@ public class ErrorFactory {
 	}
 	public static Supplier<? extends RuntimeException> couldNotResolveTargetNode(String methodName, String returnTypeName, Node node) {
 		return () -> new NoSuchNodeException(
-				"Could not resolve json node when resolving type=" + returnTypeName + " for method=" + methodName + "(). Bad json fragment=" + node);
+				"Could not resolve node node when resolving type=" + returnTypeName + " for method=" + methodName + "(). Bad node fragment=" + node);
 	}
 
 	public static Supplier<? extends RuntimeException> proxyValidationError(ProxiedInterface type, ImplementedMethod m) {
@@ -87,7 +87,7 @@ public class ErrorFactory {
 	}
 
 	public static Supplier<? extends RuntimeException> illegalOptionalWrap(ImplementedMethod method, String wrappedType) {
-		return () -> new TwynProxyException("Method " + method + " attempts to wrap " + wrappedType + " in an Optional which is not allowed! Collection types will always be empty if json node is missing, empty or null");
+		return () -> new TwynProxyException("Method " + method + " attempts to wrap " + wrappedType + " in an Optional which is not allowed! Collection types will always be empty if node node is missing, empty or null");
 	}
 	
 	// Helper methods

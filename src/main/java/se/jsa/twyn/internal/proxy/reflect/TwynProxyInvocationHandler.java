@@ -15,32 +15,26 @@
  */
 package se.jsa.twyn.internal.proxy.reflect;
 
+import se.jsa.twyn.TwynProxyException;
+import se.jsa.twyn.internal.*;
+import se.jsa.twyn.internal.datamodel.Node;
+import se.jsa.twyn.internal.proxy.common.NodeResolver;
+import se.jsa.twyn.internal.proxy.common.TwynUtil;
+import se.jsa.twyn.internal.readmodel.ImplementedMethod;
+import se.jsa.twyn.internal.readmodel.reflect.ImplementedMethodMethod;
+import se.jsa.twyn.internal.readmodel.reflect.ProxiedInterfaceClass;
+
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import com.fasterxml.jackson.databind.node.*;
-
-import se.jsa.twyn.TwynProxyException;
-import se.jsa.twyn.internal.Cache;
-import se.jsa.twyn.internal.ErrorFactory;
-import se.jsa.twyn.internal.MethodType;
-import se.jsa.twyn.internal.NodeSupplier;
-import se.jsa.twyn.internal.Require;
-import se.jsa.twyn.internal.TwynContext;
-import se.jsa.twyn.internal.datamodel.Node;
-import se.jsa.twyn.internal.readmodel.ImplementedMethod;
-import se.jsa.twyn.internal.readmodel.reflect.ImplementedMethodMethod;
-import se.jsa.twyn.internal.readmodel.reflect.ProxiedInterfaceClass;
-import se.jsa.twyn.internal.proxy.common.NodeResolver;
-import se.jsa.twyn.internal.proxy.common.TwynUtil;
 
 class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	private static final Object[] NO_ARGS = new Object[] {};
@@ -107,7 +101,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		ImplementedMethod implementedMethod = ImplementedMethod.of(method);
 		String returnTypeParameterTypeCanonicalName = implementedMethod.getReturnTypeParameterTypeCanonicalName(0);
 		return tryResolveTargetGetNode(method).map(node -> {
-			Require.that(node.isArray(), ErrorFactory.proxyCollectionJsonNotArrayType(returnTypeParameterTypeCanonicalName, method, this.node));
+			Require.that(node.isCollection(), ErrorFactory.proxyCollectionNotCollectionType(returnTypeParameterTypeCanonicalName, method, this.node));
 			return twynContext.proxyCollection((Class<T>)implementedMethod.getReturnTypeParameterType(0),
 				node,
 				collector);
@@ -121,8 +115,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 
 		return tryResolveTargetGetNode(method).map(node -> {
 			Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure(method, node));
-			return StreamSupport
-					.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), false)
+			return node.streamFields()
 					.collect(Collectors.toMap((entry) -> readKeyType(entry.getKey(), keyType), (entry) -> twynContext.proxy(entry.getValue(), valueComponentType)));
 		}).orElseGet(Collections::emptyMap);
 	}
@@ -144,7 +137,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		@SuppressWarnings("unchecked")
 		Class<T> componentType = (Class<T>) method.getReturnType().getComponentType();
 		return tryResolveTargetGetNode(method).map(node -> {
-			Require.that(node.isArray(), ErrorFactory.proxyArrayJsonNotArrayType(componentType, method, this.node));
+			Require.that(node.isCollection(), ErrorFactory.proxyArrayNodeNotCollectionType(componentType, method, this.node));
 			return twynContext.proxyArray(node, componentType);
 		}).orElseGet(() -> Array.newInstance(componentType, 0));
 	}
@@ -157,19 +150,10 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	}
 
 	private Object setValue(Object proxy, Method method, Object[] args) {
-		if (!BasicJsonTypes.isBasicJsonType(args[0].getClass())) {
-			nodeResolver.setNode(ImplementedMethod.of(method), node, twynContext.writeValue(args[0]));
+		if (twynContext.getNodeProducer().canMapToPrimitive(args[0].getClass())) {
+			nodeResolver.setNode(ImplementedMethod.of(method), node, args[0]);
 		} else {
-			switch (BasicJsonTypes.get(args[0].getClass())) {
-				case BIG_DECIMAL: 	nodeResolver.setNode(ImplementedMethod.of(method), node, DecimalNode.valueOf((BigDecimal)args[0])); break;
-				case BOOLEAN:		nodeResolver.setNode(ImplementedMethod.of(method), node, BooleanNode.valueOf((Boolean)args[0])); break;
-				case BYTE_ARRAY:	nodeResolver.setNode(ImplementedMethod.of(method), node, BinaryNode.valueOf((byte[])args[0])); break;
-				case DOUBLE:		nodeResolver.setNode(ImplementedMethod.of(method), node, DoubleNode.valueOf((Double)args[0])); break;
-				case FLOAT:			nodeResolver.setNode(ImplementedMethod.of(method), node, FloatNode.valueOf((Float)args[0])); break;
-				case INTEGER:		nodeResolver.setNode(ImplementedMethod.of(method), node, IntNode.valueOf((Integer) args[0])); break;
-				case LONG:			nodeResolver.setNode(ImplementedMethod.of(method), node, LongNode.valueOf((Long)args[0])); break;
-				case STRING:		nodeResolver.setNode(ImplementedMethod.of(method), node, TextNode.valueOf((String)args[0])); break;
-			}
+			nodeResolver.setNode(ImplementedMethod.of(method), node, twynContext.writeValue(args[0]));
 		}
 		cache.clear(TwynUtil.decodeJavaBeanName(method.getName()));
 		return proxy;

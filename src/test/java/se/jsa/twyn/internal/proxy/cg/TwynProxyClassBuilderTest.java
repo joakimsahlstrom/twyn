@@ -26,16 +26,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.TwynContext;
+import se.jsa.twyn.internal.datamodel.json.TwynJsonNode;
+import se.jsa.twyn.internal.datamodel.json.TwynJsonNodeProducer;
 
 public class TwynProxyClassBuilderTest {
 
 	private final TwynProxyClassBuilder builder = new TwynProxyClassBuilder();
-	private final TwynContext twynContext = new TwynContext(new ObjectMapper(), builder, () -> new Cache.None(), true);
+	private final TwynContext twynContext = new TwynContext(new TwynJsonNodeProducer(new ObjectMapper()), builder, () -> new Cache.None(), true);
 
 	@Test
 	public void canResolveValue() throws Exception {
 		JsonNode jsonNode = new ObjectMapper().readTree("{ \"name\" : \"Hello World!\" }");
-		StringIF string = builder.buildProxy(StringIF.class, twynContext, jsonNode);
+		StringIF string = builder.buildProxy(StringIF.class, twynContext, TwynJsonNode.create(jsonNode));
 		assertEquals("Hello World!", string.getName());
 	}
 	public static interface StringIF { String getName(); };
@@ -43,7 +45,7 @@ public class TwynProxyClassBuilderTest {
 	@Test
 	public void canResolveComplexTypes() throws Exception {
 		JsonNode jsonNode = new ObjectMapper().readTree("{ \"stringIF\" : { \"name\" : \"complex\" } }");
-		ComplexIF complex = builder.buildProxy(ComplexIF.class, twynContext, jsonNode);
+		ComplexIF complex = builder.buildProxy(ComplexIF.class, twynContext, TwynJsonNode.create(jsonNode));
 		assertEquals("complex", complex.getStringIF().getName());
 	}
 	public static interface ComplexIF {
@@ -53,7 +55,7 @@ public class TwynProxyClassBuilderTest {
 	@Test
 	public void canReadComplexList() throws Exception {
 		JsonNode jsonNode = new ObjectMapper().readTree("{ \"strings\" : [ { \"name\" : \"s1!\" }, { \"name\" : \"s2?\" }, { \"name\" : \"s3#\" } ] }");
-		ListIF complexArray = builder.buildProxy(ListIF.class, twynContext, jsonNode);
+		ListIF complexArray = builder.buildProxy(ListIF.class, twynContext, TwynJsonNode.create(jsonNode));
 		assertEquals("s2?", complexArray.getStrings().get(1).getName());
 		assertEquals("s3#", complexArray.getStrings().get(2).getName());
 	}

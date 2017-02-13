@@ -15,8 +15,6 @@
  */
 package se.jsa.twyn.internal.proxy.common;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import se.jsa.twyn.ArrayIndex;
 import se.jsa.twyn.Resolve;
 import se.jsa.twyn.internal.MethodType;
@@ -40,6 +38,7 @@ public interface NodeResolver  {
 	String resolveSetNodeId(ImplementedMethod method);
 
 	void setNode(ImplementedMethod method, Node root, Node value);
+	void setNode(ImplementedMethod method, Node root, Object value);
 
 	static Predicate<ImplementedMethod> WITH_TWYNINDEX = m -> m.hasAnnotation(ArrayIndex.class);
 
@@ -74,11 +73,16 @@ public interface NodeResolver  {
 			return Stream.of(readPath(method, TwynUtil::decodeJavaBeanGetName)).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public void setNode(ImplementedMethod method, Node root, Node value) {
 			String[] path = readPath(method, TwynUtil::decodeJavaBeanSetName);
-			Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP).put(path[path.length - 1], value);
+			Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP).set(path[path.length - 1], value);
+		}
+
+		@Override
+		public void setNode(ImplementedMethod method, Node root, Object value) {
+			String[] path = readPath(method, TwynUtil::decodeJavaBeanSetName);
+			Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP).set(path[path.length - 1], value);
 		}
 
 		@Override
@@ -134,6 +138,11 @@ public interface NodeResolver  {
 
 		@Override
 		public void setNode(ImplementedMethod method, Node root, Node value) {
+			root.set(fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())), value);
+		}
+
+		@Override
+		public void setNode(ImplementedMethod method, Node root, Object value) {
 			root.set(fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())), value);
 		}
 	}
