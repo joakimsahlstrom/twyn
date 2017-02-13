@@ -2,7 +2,7 @@
 	public RETURN_TYPE METHOD_NAME() {
 		return cache.get("" + FIELD_ID, () -> {
 			try {
-				Node node = resolve(node, FIELD_ID);
+				Node node = resolve(this.node, FIELD_ID);
 				return node == null
 					? NULL_RETURN
 					: Optional.ofNullable(twyn.readValue(node, RETURN_TYPE.class)).orElseGet(() -> NULL_RETURN);

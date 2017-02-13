@@ -1,14 +1,13 @@
 package se.jsa.twyn;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import se.jsa.twyn.BadNodeTypeException;
 import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.ErrorFactory;
 import se.jsa.twyn.internal.NodeSupplier;
 import se.jsa.twyn.internal.Require;
 import se.jsa.twyn.internal.TwynContext;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import se.jsa.twyn.internal.datamodel.Node;
+import se.jsa.twyn.internal.datamodel.NodeProducer;
 
 import java.lang.Class;
 import java.lang.NullPointerException;
@@ -50,7 +49,7 @@ public class CLASS_NAME implements TARGET_INTERFACE, NodeSupplier {
 IMPLEMENTED_METHODS
 
 	private <T, A, R> R collect(Class<T> componentType, Node node, Collector<T, A, R> collector) {
-		return StreamSupport.stream(node.spliterator(), false)
+		return node.streamChildren()
 			.map((n) -> {
 				try {
 					return componentType.isInterface() ? twyn.proxy(n, componentType) : twyn.readValue(n, componentType);
@@ -64,11 +63,11 @@ IMPLEMENTED_METHODS
 	@SuppressWarnings("deprecation")
 	private void set(Node root, String fieldId, Node value) {
 		String[] path = fieldId.split("\\.");
-		((ObjectNode) Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP)).put(path[path.length - 1], value);
+		Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP).set(path[path.length - 1], value);
 	}
 
 	private void set(Node root, int fieldId, Node value) {
-		((ArrayNode) root).set(fieldId, value);
+		node.set(fieldId, value);
 	}
 
 	private Node resolve(Node root, String path) {
@@ -85,7 +84,7 @@ IMPLEMENTED_METHODS
 
 	@Override
 	public Node getNode() {
-		return Node;
+		return node;
 	}
 	
 	@Override

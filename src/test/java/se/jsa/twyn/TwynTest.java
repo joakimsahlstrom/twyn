@@ -42,14 +42,13 @@ public class TwynTest {
 	public static Collection<Object[]> twyns() {
 		return Arrays.<Object[]>asList(
 				new Object[] { "Java proxies", Twyn.configurer().withJavaProxies().withDebugMode().configure() },
-				new Object[] { "Java proxies, full caching", Twyn.configurer().withJavaProxies().withFullCaching().withDebugMode().configure() }
-//				,
-//				new Object[] { "Code Generation", Twyn.configurer().withClassGeneration()
-//						.withPrecompiledClasses(getInterfaces())
-//						.withDebugMode().configure() },
-//				new Object[] { "Code Generation, full caching", Twyn.configurer().withClassGeneration()
-//						.withPrecompiledClasses(getInterfaces())
-//						.withFullCaching().withDebugMode().configure() }
+				new Object[] { "Java proxies, full caching", Twyn.configurer().withJavaProxies().withFullCaching().withDebugMode().configure() },
+				new Object[] { "Code Generation", Twyn.configurer().withClassGeneration()
+						.withPrecompiledClasses(getInterfaces())
+						.withDebugMode().configure() },
+				new Object[] { "Code Generation, full caching", Twyn.configurer().withClassGeneration()
+						.withPrecompiledClasses(getInterfaces())
+						.withFullCaching().withDebugMode().configure() }
 		);
 	}
 
