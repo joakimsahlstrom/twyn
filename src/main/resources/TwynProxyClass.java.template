@@ -1,15 +1,13 @@
 package se.jsa.twyn;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import se.jsa.twyn.BadJsonNodeTypeException;
+import se.jsa.twyn.BadNodeTypeException;
 import se.jsa.twyn.internal.Cache;
 import se.jsa.twyn.internal.ErrorFactory;
 import se.jsa.twyn.internal.NodeSupplier;
 import se.jsa.twyn.internal.Require;
 import se.jsa.twyn.internal.TwynContext;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import se.jsa.twyn.internal.datamodel.Node;
+import se.jsa.twyn.internal.datamodel.NodeProducer;
 
 import java.lang.Class;
 import java.lang.NullPointerException;
@@ -39,19 +37,19 @@ import TARGET_INTERFACE_QUALIFIED;
 
 public class CLASS_NAME implements TARGET_INTERFACE, NodeSupplier {
 	private final TwynContext twyn;
-	private final JsonNode jsonNode;
+	private final Node node;
 	private final Cache cache;
 	
-	public CLASS_NAME(TwynContext twyn, JsonNode jsonNode) {
-		this.jsonNode = jsonNode;
+	public CLASS_NAME(TwynContext twyn, Node node) {
+		this.node = node;
 		this.twyn = Objects.requireNonNull(twyn);
 		this.cache = Objects.requireNonNull(twyn.createCache());
 	}
 	
 IMPLEMENTED_METHODS
 
-	private <T, A, R> R collect(Class<T> componentType, JsonNode jsonNode, Collector<T, A, R> collector) {
-		return StreamSupport.stream(jsonNode.spliterator(), false)
+	private <T, A, R> R collect(Class<T> componentType, Node node, Collector<T, A, R> collector) {
+		return node.streamChildren()
 			.map((n) -> {
 				try {
 					return componentType.isInterface() ? twyn.proxy(n, componentType) : twyn.readValue(n, componentType);
@@ -63,30 +61,30 @@ IMPLEMENTED_METHODS
 	}
 
 	@SuppressWarnings("deprecation")
-	private void set(JsonNode root, String fieldId, JsonNode value) {
+	private void set(Node root, String fieldId, Node value) {
 		String[] path = fieldId.split("\\.");
-		((ObjectNode) Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP)).put(path[path.length - 1], value);
+		Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP).set(path[path.length - 1], value);
 	}
 
-	private void set(JsonNode root, int fieldId, JsonNode value) {
-		((ArrayNode) root).set(fieldId, value);
+	private void set(Node root, int fieldId, Node value) {
+		node.set(fieldId, value);
 	}
 
-	private JsonNode resolve(JsonNode root, String path) {
+	private Node resolve(Node root, String path) {
 		return Stream.of(path.split("\\.")).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP);
 	}
 
-	private static final BinaryOperator<JsonNode> NO_BINARY_OP = (n1, n2) -> {
+	private static final BinaryOperator<Node> NO_BINARY_OP = (n1, n2) -> {
 		throw new RuntimeException("NO BINARY OP!");
 	};
 
-	private JsonNode resolve(JsonNode root, int index) {
+	private Node resolve(Node root, int index) {
 		return root.get(index);
 	}
 
 	@Override
-	public JsonNode getJsonNode() {
-		return jsonNode;
+	public Node getNode() {
+		return node;
 	}
 	
 	@Override

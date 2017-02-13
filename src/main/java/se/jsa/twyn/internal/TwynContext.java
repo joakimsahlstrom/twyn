@@ -15,6 +15,12 @@
  */
 package se.jsa.twyn.internal;
 
+import se.jsa.twyn.TwynProxyException;
+import se.jsa.twyn.internal.datamodel.Node;
+import se.jsa.twyn.internal.datamodel.NodeProducer;
+import se.jsa.twyn.internal.proxy.TwynProxyBuilder;
+import se.jsa.twyn.internal.proxy.cg.TwynProxyClassBuilder;
+
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.List;
@@ -23,48 +29,38 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import se.jsa.twyn.TwynProxyException;
-import se.jsa.twyn.internal.write.TwynProxyBuilder;
-import se.jsa.twyn.internal.write.cg.TwynProxyClassBuilder;
 
 public class TwynContext {
 
-	private final ObjectMapper objectMapper;
+	private final NodeProducer nodeProducer;
 	private final TwynProxyBuilder proxyBuilder;
 	private final Supplier<Cache> cacheSupplier;
 	private final boolean debug;
 	private final IdentityMethods identityMethods = new IdentityMethods();
 
-	public TwynContext(ObjectMapper objectMapper, TwynProxyBuilder proxyBuilder, Supplier<Cache> cacheSupplier, boolean debug) {
-		this.objectMapper = Objects.requireNonNull(objectMapper);
+	public TwynContext(NodeProducer nodeProducer, TwynProxyBuilder proxyBuilder, Supplier<Cache> cacheSupplier, boolean debug) {
+		this.nodeProducer = nodeProducer;
 		this.proxyBuilder = Objects.requireNonNull(proxyBuilder);
 		this.cacheSupplier = Objects.requireNonNull(cacheSupplier);
 		this.debug = debug;
 	}
 
-	public <T> T proxy(JsonNode jsonNode, Class<T> type) {
+	public <T> T proxy(Node node, Class<T> type) {
 		try {
-			return proxyBuilder.buildProxy(type, this, jsonNode);
+			return proxyBuilder.buildProxy(type, this, node);
 		} catch (Exception e) {
 			throw new TwynProxyException("Could not create Twyn proxy", e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> Object proxyArray(JsonNode node, Class<T> componentType) {
+	public <T> Object proxyArray(Node node, Class<T> componentType) {
 		List<T> result = proxyCollection(componentType, node, Collectors.toList());
 		return result.toArray((T[]) Array.newInstance(componentType, result.size()));
 	}
 
-	public <T, A, R> R proxyCollection(Class<T> componentType, JsonNode jsonNode, Collector<T, A, R> collector) {
-		return StreamSupport.stream(jsonNode.spliterator(), false)
+	public <T, A, R> R proxyCollection(Class<T> componentType, Node node, Collector<T, A, R> collector) {
+		return node.streamChildren()
 				.map((n) -> {
 					try {
 						return componentType.isInterface() ? proxy(n, componentType) : readValue(n, componentType);
@@ -75,16 +71,12 @@ public class TwynContext {
 				.collect(collector);
 	}
 
-	public <T> T readValue(JsonNode resolvedTargetNode, Class<T> valueType) throws JsonParseException, JsonMappingException, IOException {
-		return objectMapper.treeToValue(resolvedTargetNode, valueType);
+	public <T> T readValue(Node resolvedTargetNode, Class<T> valueType) throws IOException {
+		return nodeProducer.readNode(resolvedTargetNode, valueType);
 	}
 
-	public JsonNode writeValue(Object object) {
-		return getObjectMapper().valueToTree(object);
-	}
-
-	public ObjectMapper getObjectMapper() {
-		return objectMapper;
+	public Node writeValue(Object object) {
+		return nodeProducer.mapToNode(object);
 	}
 
 	public Cache createCache() {
@@ -101,7 +93,7 @@ public class TwynContext {
 
 	@Override
 	public String toString() {
-		return "TwynContext [objectMapper=" + objectMapper + ", proxyBuilder=" + proxyBuilder + "]";
+		return "TwynContext [nodeProducer=" + nodeProducer + ", proxyBuilder=" + proxyBuilder + "]";
 	}
 
 	public TwynContext precompile(Set<Class<?>> precompiledTypes) {
@@ -111,4 +103,7 @@ public class TwynContext {
 		return this;
 	}
 
+	public NodeProducer getNodeProducer() {
+		return nodeProducer;
+	}
 }

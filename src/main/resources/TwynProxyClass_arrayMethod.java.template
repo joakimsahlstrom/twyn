@@ -2,11 +2,11 @@
 	public RETURN_TYPE METHOD_NAME() {
 		return cache.get("" + FIELD_ID, () -> {
 			try {
-				JsonNode node = resolve(jsonNode, FIELD_ID);
+				Node node = resolve(this.node, FIELD_ID);
 				if (node == null) {
 					return new COMPONENT_TYPE[0];
 				}
-				Require.that(node.isArray(), ErrorFactory.proxyArrayJsonNotArrayType("DECLARING_CLASS.METHOD_NAME", COMPONENT_TYPE.class.getSimpleName(), jsonNode));
+				Require.that(node.isCollection(), ErrorFactory.proxyArrayNodeNotCollectionType("DECLARING_CLASS.METHOD_NAME", COMPONENT_TYPE.class.getSimpleName(), node));
 				List<COMPONENT_TYPE> result = collect(COMPONENT_TYPE.class, node, Collectors.toList());
 				return result.toArray((COMPONENT_TYPE[]) Array.newInstance(COMPONENT_TYPE.class, result.size()));
 			} catch (RuntimeException e) {

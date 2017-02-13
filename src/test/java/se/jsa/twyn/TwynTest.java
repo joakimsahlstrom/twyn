@@ -15,11 +15,10 @@
  */
 package se.jsa.twyn;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,12 +27,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import com.fasterxml.jackson.core.JsonParseException;
+import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class TwynTest {
@@ -404,12 +398,12 @@ public class TwynTest {
 		Set<StringIF> getStrings();
 	}
 
-	@Test(expected = JsonParseException.class)
+	@Test(expected = ReadException.class)
 	public void throwsJsonParseExceptionIfUnableToParseXml() throws Exception {
 		twyn.read("{ \"name\" : \"n1\", \"type\" : ERROR }", ReferenceEntity.class);
 	}
 
-	@Test(expected = IOException.class)
+	@Test(expected = ReadException.class)
 	public void throwsIOExceptionIfUnderlyingStreamThrowsException() throws Exception {
 		InputStream inputStream = new InputStream() {
 			@Override
@@ -505,7 +499,7 @@ public class TwynTest {
 	public void canRetrieveUnderlyingJsonNode() throws Exception {
 		Simple string = twyn.read(input("{ \"name\" : \"Hello World!\" }"), Simple.class);
 		string.name("Hi there!");
-		assertEquals("{\"name\":\"Hi there!\"}", twyn.getJsonNode(string).toString());
+		assertEquals("{\"name\":\"Hi there!\"}", twyn.getNode(string).toString());
 	}
 	public static interface Simple {
 		String name();

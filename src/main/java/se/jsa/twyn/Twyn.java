@@ -15,6 +15,16 @@
  */
 package se.jsa.twyn;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import se.jsa.twyn.internal.*;
+import se.jsa.twyn.internal.datamodel.Node;
+import se.jsa.twyn.internal.datamodel.json.TwynJsonNodeProducer;
+import se.jsa.twyn.internal.proxy.TwynProxyBuilder;
+import se.jsa.twyn.internal.proxy.cg.TwynProxyClassBuilder;
+import se.jsa.twyn.internal.proxy.reflect.TwynProxyInvocationHandlerBuilder;
+import se.jsa.twyn.internal.readmodel.ProxiedInterface;
+import se.jsa.twyn.internal.readmodel.reflect.ProxiedInterfaceClass;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,30 +32,9 @@ import java.io.Reader;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import se.jsa.twyn.internal.Cache;
-import se.jsa.twyn.internal.ErrorFactory;
-import se.jsa.twyn.internal.MethodType;
-import se.jsa.twyn.internal.NodeSupplier;
-import se.jsa.twyn.internal.Require;
-import se.jsa.twyn.internal.TwynContext;
-import se.jsa.twyn.internal.read.ProxiedInterface;
-import se.jsa.twyn.internal.read.reflect.ProxiedInterfaceClass;
-import se.jsa.twyn.internal.write.TwynProxyBuilder;
-import se.jsa.twyn.internal.write.cg.TwynProxyClassBuilder;
-import se.jsa.twyn.internal.write.proxy.TwynProxyInvocationHandlerBuilder;
 
 public class Twyn {
 	private final TwynContext twynContext;
@@ -54,50 +43,40 @@ public class Twyn {
 		this.twynContext = Objects.requireNonNull(twynContext);
 	}
 
-	public <T> T read(InputStream inputStream, Class<T> type) throws JsonProcessingException, IOException {
-		return read(() -> twynContext.getObjectMapper().readTree(inputStream), type);
+	public <T> T read(InputStream inputStream, Class<T> type) throws IOException {
+		return read(twynContext.getNodeProducer().read(inputStream), type);
 	}
 
-	public <T> T read(byte[] data, Class<T> type) throws JsonProcessingException, IOException {
-		return read(() -> twynContext.getObjectMapper().readTree(data), type);
+	public <T> T read(byte[] data, Class<T> type) throws IOException {
+		return read(twynContext.getNodeProducer().read(data), type);
 	}
 
-	public <T> T read(File file, Class<T> type) throws JsonProcessingException, IOException {
-		return read(() -> twynContext.getObjectMapper().readTree(file), type);
+	public <T> T read(File file, Class<T> type) throws IOException {
+		return read(twynContext.getNodeProducer().read(file), type);
 	}
 
-	public <T> T read(JsonParser parser, Class<T> type) throws JsonProcessingException, IOException {
-		return read(() -> twynContext.getObjectMapper().readTree(parser), type);
+	public <T> T read(Reader reader, Class<T> type) throws IOException {
+		return read(twynContext.getNodeProducer().read(reader), type);
 	}
 
-	public <T> T read(Reader reader, Class<T> type) throws JsonProcessingException, IOException {
-		return read(() -> twynContext.getObjectMapper().readTree(reader), type);
+	public <T> T read(String string, Class<T> type) throws IOException {
+		return read(twynContext.getNodeProducer().read(string), type);
 	}
 
-	public <T> T read(String string, Class<T> type) throws JsonProcessingException, IOException {
-		return read(() -> twynContext.getObjectMapper().readTree(string), type);
+	public <T> T read(URL url, Class<T> type) throws IOException {
+		return read(twynContext.getNodeProducer().read(url), type);
 	}
 
-	public <T> T read(URL url, Class<T> type) throws JsonProcessingException, IOException {
-		return read(() -> twynContext.getObjectMapper().readTree(url), type);
-	}
-
-	@FunctionalInterface
-	private interface JsonProducer {
-		JsonNode get() throws Exception;
-	}
-
-	private <T> T read(JsonProducer jsonProducer, Class<T> type) throws JsonProcessingException, IOException {
+	private <T> T read(Node node, Class<T> type) throws IOException {
 		try {
-			JsonNode node = jsonProducer.get();
 			if (type.isArray()) {
 				Class<?> componentType = type.getComponentType();
-				Require.that(node.isArray(), ErrorFactory.proxyArrayJsonNotArrayType("ROOT", componentType.getSimpleName(), node));
+				Require.that(node.isCollection(), ErrorFactory.proxyArrayNodeNotCollectionType("ROOT", componentType.getSimpleName(), node));
 				return type.cast(twynContext.proxyArray(node, validate(componentType)));
 			} else {
 				return twynContext.proxy(node, validate(type)); 
 			}
-		} catch (IOException | RuntimeException e) { // also handles JsonProcessingException
+		} catch (RuntimeException e) { // also handles JsonProcessingException
 			throw e;
 		} catch (Exception e) {
 			throw new TwynProxyException("Could not read input!", e);
@@ -113,21 +92,17 @@ public class Twyn {
 		return type;
 	}
 
-	public JsonNode getJsonNode(Object obj) {
+	public Node getNode(Object obj) {
 		if (obj instanceof NodeSupplier) {
-			return ((NodeSupplier) obj).getJsonNode();
+			return ((NodeSupplier) obj).getNode();
 		}
 		try {
 			InvocationHandler invocationHandler = Proxy.getInvocationHandler(obj);
 			NodeSupplier twynProxyInvocationHandler = ((NodeSupplier)invocationHandler);
-			return twynProxyInvocationHandler.getJsonNode();
+			return twynProxyInvocationHandler.getNode();
 		} catch (RuntimeException e) {
 			throw new IllegalArgumentException("Not a twyn object!", e);
 		}
-	}
-
-	ObjectMapper getObjectMapper() {
-		return twynContext.getObjectMapper();
 	}
 
 	public static Twyn forTest() {
@@ -189,7 +164,7 @@ public class Twyn {
 
 		@Override
 		public Twyn configure() {
-			return new Twyn(new TwynContext(objectMapper, twynProxyBuilder, cacheSupplier, debug)
+			return new Twyn(new TwynContext(new TwynJsonNodeProducer(objectMapper), twynProxyBuilder, cacheSupplier, debug)
 				.precompile(precompiledTypes));
 		}
 
@@ -199,7 +174,7 @@ public class Twyn {
 		}
 	}
 
-	public static interface SelectMethod {
+	public interface SelectMethod {
 		/**
 		 * Faster fi-rst time parsing. Slower afterwards. Suitable for test and in some cases production.
 		 */
@@ -211,7 +186,7 @@ public class Twyn {
 		ClassGenerationConfigurer withClassGeneration();
 	}
 
-	public static interface Configurer {
+	public interface Configurer {
 		Configurer withObjectMapper(ObjectMapper objectMapper);
 		/**
 		 * Return values from all calls are cached. Not thread safe
@@ -232,7 +207,7 @@ public class Twyn {
 		Twyn configure();
 	}
 
-	public static interface ClassGenerationConfigurer extends Configurer {
+	public interface ClassGenerationConfigurer extends Configurer {
 		Configurer withPrecompiledClasses(Collection<Class<?>> types);
 	}
 

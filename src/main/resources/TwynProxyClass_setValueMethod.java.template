@@ -1,6 +1,6 @@
 	@Override
 	public RETURN_TYPE METHOD_NAME(VALUE_TYPE arg) {
-		set(jsonNode, FIELD_ID, twyn.writeValue(arg));
+		set(node, FIELD_ID, twyn.writeValue(arg));
 		cache.clear("" + FIELD_ID);
 		RETURN
 	}

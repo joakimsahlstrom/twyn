@@ -82,47 +82,47 @@ public class ErrorMessagesTest {
 		String lastName();
 	}
 
-	@Test//(expected = NoSuchJsonNodeException.class) // Spec has changed!
+	@Test//(expected = NoSuchNodeException.class) // Spec has changed!
 	public void missingNode() throws JsonProcessingException, IOException {
 		twyn.read("{  }", Person.class).name();
 	}
 
-	@Test//(expected = NoSuchJsonNodeException.class) // Spec has changed!
+	@Test//(expected = NoSuchNodeException.class) // Spec has changed!
 	public void missingValue() throws Exception {
 		twyn.read("{ \"name\": { \"banana\": \"brown\" } }", Person.class).name().firstName();
 	}
 
-	@Test(expected = BadJsonNodeTypeException.class)
+	@Test(expected = BadNodeTypeException.class)
 	public void notAStruct() throws Exception {
 		twyn.read("{ \"name\": \"horse\" }", Person.class).name();
 	}
 
-	@Test(expected = BadJsonNodeTypeException.class)
+	@Test(expected = BadNodeTypeException.class)
 	public void noArray() throws Exception {
 		twyn.read("{ \"persons\": \"horse\" }", Persons.class).persons();
 	}
 	
-	@Test(expected = BadJsonNodeTypeException.class)
+	@Test(expected = BadNodeTypeException.class)
 	public void noList() throws Exception {
 		twyn.read("{ \"persons\": \"horse\" }", PersonList.class).persons();
 	}
 	
-	@Test(expected = BadJsonNodeTypeException.class)
+	@Test(expected = BadNodeTypeException.class)
 	public void noSet() throws Exception {
 		twyn.read("{ \"persons\": \"horse\" }", PersonSet.class).persons();
 	}
 
-	@Test(expected = BadJsonNodeTypeException.class)
+	@Test(expected = BadNodeTypeException.class)
 	public void noMap() throws Exception {
 		twyn.read("{ \"persons\": \"oh.\" }", PersonMap.class).persons();
 	}
 
-	@Test(expected = BadJsonNodeTypeException.class)
+	@Test(expected = BadNodeTypeException.class)
 	public void noTypedMap() throws Exception {
 		twyn.read("{ \"persons\": \"oh.\" }", TypedPersonMap.class).persons();
 	}
 
-	@Test(expected = BadJsonNodeTypeException.class)
+	@Test(expected = BadNodeTypeException.class)
 	public void directArray() throws Exception {
 		twyn.read("{ \"persons\": \"oh.\" }", Person[].class)[0].name();
 	}
