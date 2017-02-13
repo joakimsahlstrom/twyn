@@ -156,7 +156,7 @@ class DaughterKey {
     "age": 37
 }
 ```
-Can thus be mapped with
+Can be mapped with
 ```java
 interface Person {
     @Resolve("name.firstName") String getFirstName();
@@ -164,7 +164,7 @@ interface Person {
 }
 ```
 
-###Twyn can map interfaces directly against arrays
+###Twyn can map interfaces directly to json arrays
 Map this json:
 ```json
 { 
@@ -211,7 +211,7 @@ ArrayElement[] elements = twyn.read(jsonResponse, ArrayElement[].class);
 ```
 
 ###Twyn supports interface inheritance
-Instances of C1 in the example below will have all properties specified by Parent1 & Parent2
+Instances of C1 in the example below will have all properties specified by Parent1 & Parent2 (duh!)
 ```java
 public interface C1 extends Parent1, Parent2 {
 	String getName();
