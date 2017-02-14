@@ -116,11 +116,11 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		return tryResolveTargetGetNode(method).map(node -> {
 			Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure(method, node));
 			return node.streamFields()
-					.collect(Collectors.toMap((entry) -> readKeyType(entry.getKey(), keyType), (entry) -> twynContext.proxy(entry.getValue(), valueComponentType)));
+					.collect(Collectors.toMap((entry) -> readMapKey(entry.getKey(), keyType), (entry) -> twynContext.proxy(entry.getValue(), valueComponentType)));
 		}).orElseGet(Collections::emptyMap);
 	}
 
-	private Object readKeyType(String key, Class<?> keyType) {
+	private Object readMapKey(String key, Class<?> keyType) {
 		if (keyType.equals(String.class)) {
 			return key;
 		} else {
