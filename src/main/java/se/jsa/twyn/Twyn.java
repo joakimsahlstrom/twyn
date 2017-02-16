@@ -18,6 +18,7 @@ package se.jsa.twyn;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import se.jsa.twyn.internal.*;
 import se.jsa.twyn.internal.datamodel.Node;
+import se.jsa.twyn.internal.datamodel.NodeProducer;
 import se.jsa.twyn.internal.datamodel.json.TwynJsonNodeProducer;
 import se.jsa.twyn.internal.proxy.TwynProxyBuilder;
 import se.jsa.twyn.internal.proxy.cg.TwynProxyClassBuilder;
@@ -44,27 +45,27 @@ public class Twyn {
 	}
 
 	public <T> T read(InputStream inputStream, Class<T> type) throws IOException {
-		return read(twynContext.getNodeProducer().read(inputStream), type);
+		return read(twynContext.getNodeProducer().read(inputStream, type), type);
 	}
 
 	public <T> T read(byte[] data, Class<T> type) throws IOException {
-		return read(twynContext.getNodeProducer().read(data), type);
+		return read(twynContext.getNodeProducer().read(data, type), type);
 	}
 
 	public <T> T read(File file, Class<T> type) throws IOException {
-		return read(twynContext.getNodeProducer().read(file), type);
+		return read(twynContext.getNodeProducer().read(file, type), type);
 	}
 
 	public <T> T read(Reader reader, Class<T> type) throws IOException {
-		return read(twynContext.getNodeProducer().read(reader), type);
+		return read(twynContext.getNodeProducer().read(reader, type), type);
 	}
 
 	public <T> T read(String string, Class<T> type) throws IOException {
-		return read(twynContext.getNodeProducer().read(string), type);
+		return read(twynContext.getNodeProducer().read(string, type), type);
 	}
 
 	public <T> T read(URL url, Class<T> type) throws IOException {
-		return read(twynContext.getNodeProducer().read(url), type);
+		return read(twynContext.getNodeProducer().read(url, type), type);
 	}
 
 	private <T> T read(Node node, Class<T> type) throws IOException {
@@ -76,7 +77,7 @@ public class Twyn {
 			} else {
 				return twynContext.proxy(node, validate(type)); 
 			}
-		} catch (RuntimeException e) { // also handles JsonProcessingException
+		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new TwynProxyException("Could not read input!", e);
@@ -116,15 +117,15 @@ public class Twyn {
 	}
 
 	private static class ConfigurerImpl implements SelectMethod, ClassGenerationConfigurer {
-		private ObjectMapper objectMapper = new ObjectMapper();
 		private Supplier<Cache> cacheSupplier = () -> new Cache.None();
 		private TwynProxyBuilder twynProxyBuilder;
 		private Set<Class<?>> precompiledTypes = Collections.<Class<?>>emptySet();
 		boolean debug = false;
+		private NodeProducer nodeProducer = new TwynJsonNodeProducer(new ObjectMapper());
 
 		@Override
-		public Configurer withObjectMapper(ObjectMapper objectMapper) {
-			return setAndReturn(c -> c.objectMapper = Objects.requireNonNull(objectMapper));
+		public Configurer withNodeProducer(NodeProducer nodeProducer) {
+			return setAndReturn(c -> c.nodeProducer = Objects.requireNonNull(nodeProducer));
 		}
 
 		@Override
@@ -164,7 +165,7 @@ public class Twyn {
 
 		@Override
 		public Twyn configure() {
-			return new Twyn(new TwynContext(new TwynJsonNodeProducer(objectMapper), twynProxyBuilder, cacheSupplier, debug)
+			return new Twyn(new TwynContext(nodeProducer, twynProxyBuilder, cacheSupplier, debug)
 				.precompile(precompiledTypes));
 		}
 
@@ -187,7 +188,7 @@ public class Twyn {
 	}
 
 	public interface Configurer {
-		Configurer withObjectMapper(ObjectMapper objectMapper);
+		Configurer withNodeProducer(NodeProducer nodeProducer);
 		/**
 		 * Return values from all calls are cached. Not thread safe
 		 */

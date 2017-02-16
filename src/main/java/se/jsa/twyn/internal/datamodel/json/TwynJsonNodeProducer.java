@@ -43,7 +43,7 @@ public class TwynJsonNodeProducer implements NodeProducer {
     }
 
     @Override
-    public Node read(InputStream inputStream) {
+    public Node read(InputStream inputStream, Class<?> type) {
         try {
             return TwynJsonNode.create(objectMapper.readTree(inputStream));
         } catch (IOException e) {
@@ -52,7 +52,7 @@ public class TwynJsonNodeProducer implements NodeProducer {
     }
 
     @Override
-    public Node read(byte[] data) {
+    public Node read(byte[] data, Class<?> type) {
         try {
             return TwynJsonNode.create(objectMapper.readTree(data));
         } catch (IOException e) {
@@ -61,7 +61,7 @@ public class TwynJsonNodeProducer implements NodeProducer {
     }
 
     @Override
-    public Node read(File file) {
+    public Node read(File file, Class<?> type) {
         try {
             return TwynJsonNode.create(objectMapper.readTree(file));
         } catch (IOException e) {
@@ -70,7 +70,7 @@ public class TwynJsonNodeProducer implements NodeProducer {
     }
 
     @Override
-    public Node read(Reader reader) {
+    public Node read(Reader reader, Class<?> type) {
         try {
             return TwynJsonNode.create(objectMapper.readTree(reader));
         } catch (IOException e) {
@@ -79,7 +79,7 @@ public class TwynJsonNodeProducer implements NodeProducer {
     }
 
     @Override
-    public Node read(String string) {
+    public Node read(String string, Class<?> type) {
         try {
             return TwynJsonNode.create(objectMapper.readTree(string));
         } catch (IOException e) {
@@ -88,7 +88,7 @@ public class TwynJsonNodeProducer implements NodeProducer {
     }
 
     @Override
-    public Node read(URL url) {
+    public Node read(URL url, Class<?> type) {
         try {
             return TwynJsonNode.create(objectMapper.readTree(url));
         } catch (IOException e) {
