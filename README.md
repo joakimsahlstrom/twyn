@@ -1,7 +1,7 @@
 # twyn!
 Twyn maps json to java, using jackson under the hood. It allows for lenient parsing with little code.
 
-Requires Java 8.
+Requires Java 8. Lets you follow the [Robustness principle](https://en.wikipedia.org/wiki/Robustness_principle).
 
 [![Build Status](https://travis-ci.org/joakimsahlstrom/twyn.svg?branch=master)](https://travis-ci.org/joakimsahlstrom/twyn)
 
