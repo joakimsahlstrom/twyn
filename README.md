@@ -289,5 +289,6 @@ JsonNode root = twyn.getJsonNode(contact);
 	twyn.read(jsonResponse, MyMap.class)
 	or
 	twyn.read(jsonResponse, Map.class) ) to get a Map<k, v> with twyn-mapped key/values?
+* Ability to parse [ { "field": "val" }, { ... }, ... ] with something like interface Fields { @Resolve("/") List<FieldHolder> ...
 * Delete values/structures
 * Collection modifications
