@@ -5,8 +5,8 @@ Requires Java 8. Lets you follow the [Robustness principle](https://en.wikipedia
 
 [![Build Status](https://travis-ci.org/joakimsahlstrom/twyn.svg?branch=master)](https://travis-ci.org/joakimsahlstrom/twyn)
 
-##Features:
-###Twyn only requires interfaces for mapping
+## Features:
+### Twyn only requires interfaces for mapping
 Given this json where only "firstname" and "country" is interesting...
 ```json
 {
