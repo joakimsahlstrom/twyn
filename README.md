@@ -53,7 +53,7 @@ public void doStuff() {
 }
 ```
 
-###Twyn supports Optional<>
+### Twyn supports Optional<>
 ```java
 interface Contact {
 	Optional<String> getNickName();
@@ -67,7 +67,7 @@ public void doStuff() {
 }
 ```
 
-###Twyn can fall back on jackson:s json->java mapping
+### Twyn can fall back on jackson:s json->java mapping
 ```java
 interface Contact {
 	String getFirstname();
@@ -95,10 +95,10 @@ public void doStuff(InputStream jsonResponse) {
 }
 ```
 
-###Twyn support JavaBeans style naming of properties
+### Twyn support JavaBeans style naming of properties
 The json field "xxx" can be mapped by getXxx, hasXxx or xxx(). 
 
-###Twyn supports arrays and collections
+### Twyn supports arrays and collections
 ```json
 {
 	"daughters" : [ { "name" : "Inara" }, { "name" : "Kaylee" }, { "name" : "River" } ],
@@ -146,7 +146,7 @@ class DaughterKey {
 }
 ```
 
-###Twyn can map nodes deeper in a json document
+### Twyn can map nodes deeper in a json document
 ```json
 {
     "name": {
@@ -164,7 +164,7 @@ interface Person {
 }
 ```
 
-###Twyn can map interfaces directly to json arrays
+### Twyn can map interfaces directly to json arrays
 Map this json:
 ```json
 { 
@@ -210,7 +210,7 @@ it can be parsed like this:
 ArrayElement[] elements = twyn.read(jsonResponse, ArrayElement[].class);
 ```
 
-###Twyn supports interface inheritance
+### Twyn supports interface inheritance
 Instances of C1 in the example below will have all properties specified by Parent1 & Parent2 (duh!)
 ```java
 public interface C1 extends Parent1, Parent2 {
@@ -225,7 +225,7 @@ public interface Parent2 {
 ```
 
 
-###Twyn can be configured for different use cases
+### Twyn can be configured for different use cases
 ```java
 // Use either java proxies or runtime-generated classes
 Twyn.configurer().withClassGeneration().configure(); // faster over time
@@ -240,7 +240,7 @@ Twyn.configurer().withClassGeneration().withPrecompiledClasses(myClasses).config
 Twyn.configurer().withClassGeneration().withDebugMode().configure();
 ```
 
-###Twyn supports annotation processing for proxy classes
+### Twyn supports annotation processing for proxy classes
 ```java
 @TwynProxy
 public static interface ArrayObject {
@@ -255,11 +255,11 @@ public static interface ArrayObject {
 ```
 A twyn proxy for this class will generated directly at compile-time. Use the configuration .withClassGeneration() in order to use the generated class(es). 
 
-###Twyn supports toString, hashCode and equals
+### Twyn supports toString, hashCode and equals
 Equals and hashCode are calculated from all mapped values, or, if any, those annotated with @IdField.
 toString prints the values that equals and hashCode are calculated from.
 
-###Twyn can modify the underlying jackson node structure
+### Twyn can modify the underlying jackson node structure
 Setters returns _this_ if return type equals interface type
 ```java
 interface Setter {
@@ -281,7 +281,7 @@ Contact contact = twyn.read(jsonResponse, Contact.class);
 JsonNode root = twyn.getJsonNode(contact);
 ```
 
-##Todo:
+## Todo:
 * @PostConstruct annotated methods
 * Improve error message for bad array mappings
 * Ability to parse json that starts with a Map (eg. { \"a\" : { 1 }, \"b\" : { 2 } } w/
