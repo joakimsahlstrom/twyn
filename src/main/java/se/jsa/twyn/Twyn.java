@@ -17,6 +17,7 @@ package se.jsa.twyn;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import se.jsa.twyn.internal.*;
+import se.jsa.twyn.internal.datamodel.CollectionNode;
 import se.jsa.twyn.internal.datamodel.Node;
 import se.jsa.twyn.internal.datamodel.NodeProducer;
 import se.jsa.twyn.internal.datamodel.json.TwynJsonNodeProducer;
@@ -73,7 +74,7 @@ public class Twyn {
 			if (type.isArray()) {
 				Class<?> componentType = type.getComponentType();
 				Require.that(node.isCollection(), ErrorFactory.proxyArrayNodeNotCollectionType("ROOT", componentType.getSimpleName(), node));
-				return type.cast(twynContext.proxyArray(node, validate(componentType)));
+				return type.cast(twynContext.proxyArray((CollectionNode) node, validate(componentType)));
 			} else {
 				return twynContext.proxy(node, validate(type)); 
 			}

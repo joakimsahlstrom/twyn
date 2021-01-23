@@ -3,6 +3,8 @@ package se.jsa.twyn.internal.datamodel.json;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import se.jsa.twyn.internal.datamodel.CollectionNode;
+import se.jsa.twyn.internal.datamodel.ContainerNode;
 import se.jsa.twyn.internal.datamodel.Node;
 
 import java.math.BigDecimal;
@@ -16,7 +18,7 @@ import java.util.stream.StreamSupport;
 /**
  * Created by joakim on 2017-02-13.
  */
-public class TwynJsonNode implements Node {
+public class TwynJsonNode implements Node, CollectionNode, ContainerNode {
 
     private JsonNode jsonNode;
 

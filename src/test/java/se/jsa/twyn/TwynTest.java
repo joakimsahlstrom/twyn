@@ -553,6 +553,19 @@ public class TwynTest {
 	}
 
 	@Test
+	public void indexMappingsCanHaveDefaultMethods() throws Exception {
+		ArrayElementDef arrayObject = twyn.read("[ 1, \"JS\", 33, \"iCode\" ]", ArrayElementDef.class);
+		assertEquals(5, arrayObject.messageLen());
+	}
+	public static interface ArrayElementDef {
+		@ArrayIndex(0) int index();
+		@ArrayIndex(3) String message();
+		default int messageLen() {
+			return message().length();
+		}
+	}
+
+	@Test
 	public void twoDimensionalArraysCanBeMapped() throws Exception {
 		Array2DObject arrayObject = twyn.read("{ \"arr\" : [[ 1, \"JS\", 33, \"iCode\" ], [ 2, \"LS\", 30, \"iChem\" ]] }", Array2DObject.class);
 		assertEquals(1, arrayObject.arr()[0].index());

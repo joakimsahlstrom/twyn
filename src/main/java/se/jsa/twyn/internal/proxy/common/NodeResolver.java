@@ -15,9 +15,12 @@
  */
 package se.jsa.twyn.internal.proxy.common;
 
+import com.google.common.base.Predicates;
 import se.jsa.twyn.ArrayIndex;
 import se.jsa.twyn.Resolve;
 import se.jsa.twyn.internal.MethodType;
+import se.jsa.twyn.internal.datamodel.CollectionNode;
+import se.jsa.twyn.internal.datamodel.ContainerNode;
 import se.jsa.twyn.internal.datamodel.Node;
 import se.jsa.twyn.internal.readmodel.ImplementedMethod;
 import se.jsa.twyn.internal.readmodel.ProxiedInterface;
@@ -32,7 +35,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface NodeResolver  {
+public interface NodeResolver {
 	Node resolveNode(ImplementedMethod method, Node root);
 	String resolveNodeId(ImplementedMethod method);
 	String resolveSetNodeId(ImplementedMethod method);
@@ -40,7 +43,7 @@ public interface NodeResolver  {
 	void setNode(ImplementedMethod method, Node root, Node value);
 	void setNode(ImplementedMethod method, Node root, Object value);
 
-	static Predicate<ImplementedMethod> WITH_TWYNINDEX = m -> m.hasAnnotation(ArrayIndex.class);
+	Predicate<ImplementedMethod> WITH_TWYNINDEX = m -> m.hasAnnotation(ArrayIndex.class);
 
 	static NodeResolver getResolver(ProxiedInterface implementedType) {
 		return isArrayType(implementedType)
@@ -52,7 +55,9 @@ public interface NodeResolver  {
 		List<ImplementedMethod> getMethods = implementedType.getMethods().stream()
 			.filter(MethodType.GETTER_TYPES_FILTER)
 			.collect(Collectors.toList());
-		if (getMethods.stream().allMatch(WITH_TWYNINDEX)) {
+		if (getMethods.stream()
+				.filter(MethodType.DEFAULT.negate()) // disregard default methods, if all other are indexed we're fine
+				.allMatch(WITH_TWYNINDEX)) {
 			return true;
 		} else if (getMethods.stream().noneMatch(WITH_TWYNINDEX)) {
 			return false;
@@ -70,19 +75,21 @@ public interface NodeResolver  {
 
 		@Override
 		public Node resolveNode(ImplementedMethod method, Node root) {
-			return Stream.of(readPath(method, TwynUtil::decodeJavaBeanGetName)).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP);
+			return Stream.of(readPath(method, TwynUtil::decodeJavaBeanGetName)).reduce(root, (n, p) -> ContainerNode.class.cast(n).get(p), NO_BINARY_OP);
 		}
 
 		@Override
 		public void setNode(ImplementedMethod method, Node root, Node value) {
 			String[] path = readPath(method, TwynUtil::decodeJavaBeanSetName);
-			Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP).set(path[path.length - 1], value);
+			ContainerNode.class.cast(Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> ContainerNode.class.cast(n).get(p), NO_BINARY_OP))
+					.set(path[path.length - 1], value);
 		}
 
 		@Override
 		public void setNode(ImplementedMethod method, Node root, Object value) {
 			String[] path = readPath(method, TwynUtil::decodeJavaBeanSetName);
-			Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP).set(path[path.length - 1], value);
+			ContainerNode.class.cast(Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> ContainerNode.class.cast(n).get(p), NO_BINARY_OP))
+					.set(path[path.length - 1], value);
 		}
 
 		@Override
@@ -113,6 +120,7 @@ public interface NodeResolver  {
 		public ArrayInvocationHandlerMethodResolver(ProxiedInterface implementedType) {
 			implementedType.getMethods().stream()
 				.filter(MethodType.GETTER_TYPES_FILTER)
+				.filter(MethodType.DEFAULT.negate()) // Ignore default methods in array types
 				.forEachOrdered(m -> fieldOrder.put(
 					TwynUtil.decodeJavaBeanGetName(m.getName()),
 					Optional.ofNullable(m.getAnnotation(ArrayIndex.class))
@@ -124,7 +132,7 @@ public interface NodeResolver  {
 
 		@Override
 		public Node resolveNode(ImplementedMethod method, Node root) {
-			return root.get(fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())));
+			return ((CollectionNode) root).get(fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())));
 		}
 		@Override
 		public String resolveNodeId(ImplementedMethod method) {
@@ -138,12 +146,12 @@ public interface NodeResolver  {
 
 		@Override
 		public void setNode(ImplementedMethod method, Node root, Node value) {
-			root.set(fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())), value);
+			((CollectionNode) root).set(fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())), value);
 		}
 
 		@Override
 		public void setNode(ImplementedMethod method, Node root, Object value) {
-			root.set(fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())), value);
+			((CollectionNode) root).set(fieldOrder.get(TwynUtil.decodeJavaBeanGetName(method.getName())), value);
 		}
 	}
 

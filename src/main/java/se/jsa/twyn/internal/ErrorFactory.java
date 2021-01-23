@@ -64,9 +64,6 @@ public class ErrorFactory {
 				"Did not find collection of " + componentTypeName + " for method=" + methodName + "(). Bad node fragment=" + node);
 	}
 
-	public static Supplier<? extends RuntimeException> couldNotResolveTargetNode(Method method, Node node) {
-		return couldNotResolveTargetNode(getName(method), getReturnTypeName(method), node);
-	}
 	public static Supplier<? extends RuntimeException> couldNotResolveTargetNode(String methodName, String returnTypeName, Node node) {
 		return () -> new NoSuchNodeException(
 				"Could not resolve node node when resolving type=" + returnTypeName + " for method=" + methodName + "(). Bad node fragment=" + node);

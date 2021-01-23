@@ -16,6 +16,7 @@
 package se.jsa.twyn.internal;
 
 import se.jsa.twyn.TwynProxyException;
+import se.jsa.twyn.internal.datamodel.CollectionNode;
 import se.jsa.twyn.internal.datamodel.Node;
 import se.jsa.twyn.internal.datamodel.NodeProducer;
 import se.jsa.twyn.internal.proxy.TwynProxyBuilder;
@@ -54,12 +55,12 @@ public class TwynContext {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> Object proxyArray(Node node, Class<T> componentType) {
+	public <T> Object proxyArray(CollectionNode node, Class<T> componentType) {
 		List<T> result = proxyCollection(componentType, node, Collectors.toList());
 		return result.toArray((T[]) Array.newInstance(componentType, result.size()));
 	}
 
-	public <T, A, R> R proxyCollection(Class<T> componentType, Node node, Collector<T, A, R> collector) {
+	public <T, A, R> R proxyCollection(Class<T> componentType, CollectionNode node, Collector<T, A, R> collector) {
 		return node.streamChildren()
 				.map((n) -> {
 					try {

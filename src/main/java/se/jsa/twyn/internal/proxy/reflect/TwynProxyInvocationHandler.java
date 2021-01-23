@@ -17,6 +17,8 @@ package se.jsa.twyn.internal.proxy.reflect;
 
 import se.jsa.twyn.TwynProxyException;
 import se.jsa.twyn.internal.*;
+import se.jsa.twyn.internal.datamodel.CollectionNode;
+import se.jsa.twyn.internal.datamodel.ContainerNode;
 import se.jsa.twyn.internal.datamodel.Node;
 import se.jsa.twyn.internal.proxy.common.NodeResolver;
 import se.jsa.twyn.internal.proxy.common.TwynUtil;
@@ -88,7 +90,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		return method.getName().equals(name) && Arrays.deepEquals(method.getParameterTypes(), params);
 	}
 
-	private Object callDefaultMethod(Object proxy, Method method, Object[] args) throws InstantiationException, IllegalArgumentException, Throwable {
+	private Object callDefaultMethod(Object proxy, Method method, Object[] args) throws Throwable {
 		Class<?> declaringClass = method.getDeclaringClass();
 		return defaultMethodLookup.lookup(declaringClass)
 		        .unreflectSpecial(method, declaringClass)
@@ -103,8 +105,8 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		return tryResolveTargetGetNode(method).map(node -> {
 			Require.that(node.isCollection(), ErrorFactory.proxyCollectionNotCollectionType(returnTypeParameterTypeCanonicalName, method, this.node));
 			return twynContext.proxyCollection((Class<T>)implementedMethod.getReturnTypeParameterType(0),
-				node,
-				collector);
+					(CollectionNode) node,
+					collector);
 		}).orElseGet(() -> collector.finisher().apply(collector.supplier().get()));
 	}
 
@@ -115,7 +117,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 
 		return tryResolveTargetGetNode(method).map(node -> {
 			Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure(method, node));
-			return node.streamFields()
+			return ContainerNode.class.cast(node).streamFields()
 					.collect(Collectors.toMap((entry) -> readMapKey(entry.getKey(), keyType), (entry) -> twynContext.proxy(entry.getValue(), valueComponentType)));
 		}).orElseGet(Collections::emptyMap);
 	}
@@ -138,7 +140,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 		Class<T> componentType = (Class<T>) method.getReturnType().getComponentType();
 		return tryResolveTargetGetNode(method).map(node -> {
 			Require.that(node.isCollection(), ErrorFactory.proxyArrayNodeNotCollectionType(componentType, method, this.node));
-			return twynContext.proxyArray(node, componentType);
+			return twynContext.proxyArray((CollectionNode) node, componentType);
 		}).orElseGet(() -> Array.newInstance(componentType, 0));
 	}
 
@@ -150,7 +152,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 	}
 
 	private Object setValue(Object proxy, Method method, Object[] args) {
-		if (twynContext.getNodeProducer().canMapToPrimitive(args[0].getClass())) {
+		if (twynContext.getNodeProducer().canMapToPrimitive(args[0])) {
 			nodeResolver.setNode(ImplementedMethod.of(method), node, args[0]);
 		} else {
 			nodeResolver.setNode(ImplementedMethod.of(method), node, twynContext.writeValue(args[0]));
@@ -213,7 +215,7 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 						throw new TwynProxyException("Could not call method " + m + " for toString calculation.", e);
 					}
 				})
-				.reduce(null, (s1, s2) -> { return (s1 == null ? s2 : (s2 == null ? s1 : s1 + ", " + s2)); })
+				.reduce(null, (s1, s2) -> (s1 == null ? s2 : (s2 == null ? s1 : s1 + ", " + s2)))
 				+ (twynContext.isDebug() ? ", node=\"" + node + "\"" : "")
 				+ "]";
 	}
