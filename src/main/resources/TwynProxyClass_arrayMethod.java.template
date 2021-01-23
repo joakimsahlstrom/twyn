@@ -7,7 +7,7 @@
 					return new COMPONENT_TYPE[0];
 				}
 				Require.that(node.isCollection(), ErrorFactory.proxyArrayNodeNotCollectionType("DECLARING_CLASS.METHOD_NAME", COMPONENT_TYPE.class.getSimpleName(), node));
-				List<COMPONENT_TYPE> result = collect(COMPONENT_TYPE.class, node, Collectors.toList());
+				List<COMPONENT_TYPE> result = collect(COMPONENT_TYPE.class, CollectionNode.class.cast(node), Collectors.toList());
 				return result.toArray((COMPONENT_TYPE[]) Array.newInstance(COMPONENT_TYPE.class, result.size()));
 			} catch (RuntimeException e) {
 				throw e;

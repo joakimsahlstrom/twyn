@@ -7,7 +7,7 @@
 					return Collections.<COMPONENT_TYPE>emptyList();
 				}
 				Require.that(node.isCollection(), ErrorFactory.proxyCollectionNotCollectionType("DECLARING_CLASS.METHOD_NAME", COMPONENT_TYPE.class.getSimpleName(), node));
-				return collect(COMPONENT_TYPE.class, node, Collectors.toList());
+				return collect(COMPONENT_TYPE.class, CollectionNode.class.cast(node), Collectors.toList());
 			} catch (RuntimeException e) {
 				throw e;
 			} catch (Exception e) {

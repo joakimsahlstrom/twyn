@@ -8,7 +8,7 @@
 				}
 				Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure("DECLARING_CLASS.METHOD_NAME", "Map<String, COMPONENT_TYPE>", node));
 			
-				return node.streamFields()
+				return ContainerNode.class.cast(node).streamFields()
 					.collect(Collectors.<Entry<String, Node>, KEY_TYPE, COMPONENT_TYPE>toMap((entry) -> readKey_METHOD_NAME(entry.getKey()), (entry) -> twyn.proxy(entry.getValue(), COMPONENT_TYPE.class)));
 			} catch (RuntimeException e) {
 				throw e;

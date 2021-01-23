@@ -6,6 +6,8 @@ import se.jsa.twyn.internal.ErrorFactory;
 import se.jsa.twyn.internal.NodeSupplier;
 import se.jsa.twyn.internal.Require;
 import se.jsa.twyn.internal.TwynContext;
+import se.jsa.twyn.internal.datamodel.CollectionNode;
+import se.jsa.twyn.internal.datamodel.ContainerNode;
 import se.jsa.twyn.internal.datamodel.Node;
 import se.jsa.twyn.internal.datamodel.NodeProducer;
 
@@ -48,7 +50,7 @@ public class CLASS_NAME implements TARGET_INTERFACE, NodeSupplier {
 	
 IMPLEMENTED_METHODS
 
-	private <T, A, R> R collect(Class<T> componentType, Node node, Collector<T, A, R> collector) {
+	private <T, A, R> R collect(Class<T> componentType, CollectionNode node, Collector<T, A, R> collector) {
 		return node.streamChildren()
 			.map((n) -> {
 				try {
@@ -63,15 +65,16 @@ IMPLEMENTED_METHODS
 	@SuppressWarnings("deprecation")
 	private void set(Node root, String fieldId, Node value) {
 		String[] path = fieldId.split("\\.");
-		Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP).set(path[path.length - 1], value);
+		ContainerNode.class.cast(Stream.of(path).limit(path.length - 1).reduce(root, (n, p) -> ContainerNode.class.cast(n).get(p), NO_BINARY_OP))
+				.set(path[path.length - 1], value);
 	}
 
 	private void set(Node root, int fieldId, Node value) {
-		node.set(fieldId, value);
+		CollectionNode.class.cast(node).set(fieldId, value);
 	}
 
 	private Node resolve(Node root, String path) {
-		return Stream.of(path.split("\\.")).reduce(root, (n, p) -> n.get(p), NO_BINARY_OP);
+		return Stream.of(path.split("\\.")).reduce(root, (n, p) -> ContainerNode.class.cast(n).get(p), NO_BINARY_OP);
 	}
 
 	private static final BinaryOperator<Node> NO_BINARY_OP = (n1, n2) -> {
@@ -79,7 +82,7 @@ IMPLEMENTED_METHODS
 	};
 
 	private Node resolve(Node root, int index) {
-		return root.get(index);
+		return CollectionNode.class.cast(root).get(index);
 	}
 
 	@Override
