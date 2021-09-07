@@ -24,21 +24,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import se.jsa.twyn.TwynProxyException;
 
 class DefaultMethodLookup {
-	private final Constructor<MethodHandles.Lookup> methodHandleLookupConstructor;
-	
+
 	public DefaultMethodLookup() {
-		try {
-			this.methodHandleLookupConstructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
-			if (!methodHandleLookupConstructor.isAccessible()) {
-				methodHandleLookupConstructor.setAccessible(true);
-			}
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new TwynProxyException("Unexpected internal error!");
-		}
 	}
 	
 	public Lookup lookup(Object declaringClass) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		return methodHandleLookupConstructor.newInstance(declaringClass, MethodHandles.Lookup.PRIVATE);
+		return MethodHandles.lookup();
 	}
 
 	private static final AtomicReference<DefaultMethodLookup> dml = new AtomicReference<>();

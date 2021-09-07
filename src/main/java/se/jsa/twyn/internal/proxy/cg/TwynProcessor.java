@@ -41,7 +41,7 @@ import se.jsa.twyn.internal.Require;
 import se.jsa.twyn.internal.readmodel.ProxiedInterface;
 
 @SupportedAnnotationTypes("se.jsa.twyn.TwynProxy")
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_11)
 public class TwynProcessor extends AbstractProcessor {
 	private static final Logger LOGGER = Logger.getLogger(TwynProcessor.class.getName());
 	private TwynProxyClassJavaTemplates templates;
