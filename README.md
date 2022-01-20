@@ -1,7 +1,7 @@
 # twyn!
 Twyn maps json to java, using jackson under the hood. It allows for lenient parsing with little code.
 
-Requires Java 8. Lets you follow the [Robustness principle](https://en.wikipedia.org/wiki/Robustness_principle).
+Requires Java 11. Lets you follow the [Robustness principle](https://en.wikipedia.org/wiki/Robustness_principle).
 
 [![Build Status](https://travis-ci.org/joakimsahlstrom/twyn.svg?branch=master)](https://travis-ci.org/joakimsahlstrom/twyn)
 
@@ -101,14 +101,14 @@ The json field "xxx" can be mapped by getXxx, hasXxx or xxx().
 ### Twyn supports arrays and collections
 ```json
 {
-	"daughters" : [ { "name" : "Inara" }, { "name" : "Kaylee" }, { "name" : "River" } ],
+	"daughters" : [ { "name" : "Amy" }, { "name" : "Bonnie" }, { "name" : "Carol" } ],
 	"daughterNickNames" : {
-		"Inara" : { "nick" : "innie" },
-		"Kaylee" : { "nick" : "lee" }
+		"Amy" : { "nick" : "a" },
+		"Bonnie" : { "nick" : "B" }
 	},
-	"sons" : [ "Mal", "Wash" ],
+	"sons" : [ "Al", "Ben" ],
 	"unknowns" : [ { "name" : "Chtulu", "type" : "squid" }, { "name" : "Donald", "type" : "duck" } ],
-	"songs" : [ { "name" : "Come out and play" }, { "name" : "LAPD" } ]
+	"songs" : [ { "name" : "A song" }, { "name" : "Another song" } ]
 }
 ```
 Can be mapped with:
