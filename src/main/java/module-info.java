@@ -1,8 +1,8 @@
 open module twyn {
     requires guava;
     requires java.compiler;
-    requires jackson.core;
-    requires jackson.databind;
+    requires com.fasterxml.jackson.core;
+    requires com.fasterxml.jackson.databind;
     requires compilation.toolbox;
     requires java.logging;
 
