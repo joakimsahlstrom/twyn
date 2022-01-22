@@ -56,7 +56,7 @@ public class TwynTest {
 			InterfaceWithNonDefaultMethodWithParameters.class);
 	private static Collection<Class<?>> getInterfaces() {
 		return Arrays.asList(TwynTest.class.getDeclaredClasses()).stream()
-			.filter(c -> c.isInterface() && !INTENTIONALLY_BROKEN_INTERFACES.contains(c))
+			.filter(c -> c.isInterface() && !INTENTIONALLY_BROKEN_INTERFACES.contains(c) && !Map.class.isAssignableFrom(c))
 			.collect(Collectors.toList());
 	}
 
@@ -775,6 +775,33 @@ public class TwynTest {
 		@ArrayIndex(3) String message();
 		@ArrayIndex(3) void setMessage(String message);
 	}
+
+
+	@Test
+	public void canBuildMapStructure() throws Exception {
+		Map<String, MapValue> map = twyn.read("{ \"a\": { \"s\": \"str\", \"i\": 2 }, \"b\": { \"s\": \"str2\", \"i\": 3 }}", MapValueMap.class);
+		assertTrue(map.containsKey("a"));
+		assertEquals("str", map.get("a").s());
+		assertEquals(2, map.get("a").i());
+		assertEquals("str2", map.get("b").s());
+		assertEquals(3, map.get("b").i());
+		assertFalse(map.containsKey("c"));
+	}
+	public interface MapValueMap extends Map<String, MapValue> { }
+	public interface MapValue {
+		String s();
+		int i();
+	}
+
+	@Test
+	public void canBuildMapStructureWithComplexKey() throws IOException {
+		Map<MyKey, MapValue> map = twyn.read("{ \"a\": { \"s\": \"str\", \"i\": 2 }}", MapValueMapComplex.class);
+		assertTrue(map.containsKey(new MyKey("a")));
+		assertEquals(2, map.get(new MyKey("a")).i());
+		assertEquals("str", map.get(new MyKey("a")).s());
+		assertFalse(map.containsKey(new MyKey("c")));
+	}
+	public interface MapValueMapComplex extends Map<MyKey, MapValue> { }
 
 	// Helper methods
 

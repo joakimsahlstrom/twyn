@@ -146,6 +146,25 @@ class DaughterKey {
 }
 ```
 
+#### Twyn can perform a trick to read a root Map structure
+```json
+{
+	"a": { "s": "str", "i": 2 },
+	"b": { "s": "str2", "i": 3 }
+}
+```
+can be mapped with
+```java
+public interface MapValue {
+	String s();
+	int i();
+}
+public interface MapValueMap extends Map<String, MapValue> { }
+// Read by using this little trick, note that Twyn will not return a MapValueMap class here
+Map<String, MapValue> = twyn.read(data, MapValueMap.class);
+```
+
+
 ### Twyn can map nodes deeper in a json document
 ```json
 {
@@ -284,11 +303,6 @@ JsonNode root = twyn.getJsonNode(contact);
 ## Todo:
 * @PostConstruct annotated methods
 * Improve error message for bad array mappings
-* Ability to parse json that starts with a Map (eg. { \"a\" : { 1 }, \"b\" : { 2 } } w/
-	interface MyMap { @TwynRoot Map<String, MyNode> nodes(); }
-	twyn.read(jsonResponse, MyMap.class)
-	or
-	twyn.read(jsonResponse, Map.class) ) to get a Map<k, v> with twyn-mapped key/values?
 * Ability to parse [ { "field": "val" }, { ... }, ... ] with something like interface Fields { @Resolve("/") List<FieldHolder> ...
 * Delete values/structures
 * Collection modifications

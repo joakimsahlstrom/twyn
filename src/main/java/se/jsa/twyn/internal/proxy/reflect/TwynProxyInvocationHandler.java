@@ -35,7 +35,6 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
     private static final Object[] NO_ARGS = new Object[]{};
@@ -130,22 +129,8 @@ class TwynProxyInvocationHandler implements InvocationHandler, NodeSupplier {
 
         return tryResolveTargetGetNode(method).map(node -> {
             Require.that(node.isContainerNode(), ErrorFactory.innerMapProxyNoMapStructure(method, node));
-            return ContainerNode.class.cast(node).streamFields()
-                    .collect(Collectors.toMap((entry) -> readMapKey(entry.getKey(), keyType), (entry) -> twynContext.proxy(entry.getValue(), valueComponentType)));
+            return twynContext.proxyMap(keyType, valueComponentType, ContainerNode.class.cast(node));
         }).orElseGet(Collections::emptyMap);
-    }
-
-    private Object readMapKey(String key, Class<?> keyType) {
-        if (keyType.equals(String.class)) {
-            return key;
-        } else {
-            try {
-                return keyType.getConstructor(String.class).newInstance(key);
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                throw new TwynProxyException("Could not create map keyType=" + keyType + " from key=" + key, e);
-            }
-        }
     }
 
     private <T> Object innerArrayProxy(Method method) {
