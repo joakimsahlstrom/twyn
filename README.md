@@ -155,13 +155,13 @@ class DaughterKey {
 ```
 can be mapped with
 ```java
-public interface MapValue {
+public interface MyValue {
 	String s();
 	int i();
 }
-public interface MapValueMap extends Map<String, MapValue> { }
+public interface MyValueMap extends Map<String, MyValue> { }
 // Read by using this little trick, note that Twyn will not return a MapValueMap class here
-Map<String, MapValue> = twyn.read(data, MapValueMap.class);
+Map<String, MyValue> = twyn.read(data, MyValueMap.class);
 ```
 
 
